@@ -20,26 +20,28 @@ download_fasta_postproc = function(postproc_id, file_name){
     message("downloading fasta sequences for given post-processed chain IDs ...")
     postproc_fasta = AAStringSet()
     for(feature in postproc_id){
-      # Read gff from UniProt
-      new_feature = import(paste0("http://www.uniprot.org/uniprot/?query=",feature,"&format=gff"), format="gff")
-      # subset features with ID
-      new_feature = new_feature[!is.na(new_feature$ID)]
-      # select the feature we have searched for
-      new_feature = new_feature[new_feature$ID == feature]
-      # read FASTA for the protein
-      protein = as.character(seqnames(new_feature))
-      proteinFASTA = readAAStringSet(paste0("http://www.uniprot.org/uniprot/", protein,".fasta"))
-      # select the first and the only sequence in a set and subset it by feature range
-      postproc_fasta_new = AAStringSet(proteinFASTA[[1]][ranges(new_feature)])
-      names(postproc_fasta_new) = paste0(protein, "-", feature)
-      postproc_fasta = append(postproc_fasta, postproc_fasta_new)
+      tryCatch({
+        # Read gff from UniProt
+        new_feature = import(paste0("http://www.uniprot.org/uniprot/?query=",feature,"&format=gff"), format="gff")
+        # subset features with ID
+        new_feature = new_feature[!is.na(new_feature$ID)]
+        # select the feature we have searched for
+        new_feature = new_feature[new_feature$ID == feature]
+        # read FASTA for the protein
+        protein = as.character(seqnames(new_feature))
+        proteinFASTA = readAAStringSet(paste0("http://www.uniprot.org/uniprot/", protein,".fasta"))
+        # select the first and the only sequence in a set and subset it by feature range
+        postproc_fasta_new = AAStringSet(proteinFASTA[[1]][ranges(new_feature)])
+        names(postproc_fasta_new) = paste0(protein, "-", feature)
+        postproc_fasta = append(postproc_fasta, postproc_fasta_new)
 
-      if(which(postproc_id == feature) %in% seq(1,length(postproc_id),10)){
-        # write data at each 10th sequence in case R crashes
-        writeXStringSet(postproc_fasta, file = file_name, format="fasta")
-        # limit the number of requests per second to 10
-        Sys.sleep(1)
-      }
+        if(which(postproc_id == feature) %in% seq(1,length(postproc_id),10)){
+          # write data at each 10th sequence in case R crashes
+          writeXStringSet(postproc_fasta, file = file_name, format="fasta")
+          # limit the number of requests per second to 10
+          Sys.sleep(1)
+        }
+      }, error = function(e) e)
     }
     # write final result
     writeXStringSet(postproc_fasta, file = file_name, format="fasta")

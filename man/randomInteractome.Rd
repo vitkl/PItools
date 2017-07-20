@@ -17,11 +17,13 @@ randomInteractome(MITABdata = NULL, degree_data = NULL, n_prot,
 \item{degree_dist}{data.table, specifies the degree frequency () for each degree (N) to produce the network with the specific degree distribution, if set to NULL (default) the degree distribution will correspond to that of \code{taxid} interactome}
 }
 \value{
-data.table containing molecular interaction data in either of these two formats:
+list of two elements: 1. interactome - data.table containing molecular interaction data in either of these two formats:
 
 if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 
 if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
+
+2. seed - character vector containing IDs of proteins used as a seed to retrieve molecular interactions
 }
 \description{
 Retrieve molecular interactions for the random set of proteins (of a particular taxon)

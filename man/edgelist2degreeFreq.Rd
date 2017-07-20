@@ -4,12 +4,12 @@
 \alias{edgelist2degreeFreq}
 \title{Find the degree distribution given edgelist (pair_id) and a list of proteins which degrees matter}
 \usage{
-edgelist2degreeFreq(mitab, prots, sep)
+edgelist2degreeFreq(mitab, prots = NULL, sep = "\\\\|")
 }
 \arguments{
 \item{mitab}{data.table containing molecular interaction data, including pair_id}
 
-\item{prots}{list of relevant proteins, degree distribution is based on the prevalence of specific degrees in this list, all proteins by default}
+\item{prots}{list of relevant proteins, degree distribution is based on the prevalence of specific degrees in this list, all proteins in \code{mitab} by default}
 
 \item{sep}{ID separator in pair_id, passed to \code{\link{edgelist2degree}}}
 }
@@ -18,6 +18,11 @@ Find the degree distribution given edgelist (pair_id) and a list of proteins whi
 }
 \details{
 unique pair_id is the unique identifier of the undirected interaction: ordered alphabetically and concatenated interacting molecule IDs \code{\link{cleanMITAB}}
+}
+\examples{
+set.seed(1)
+random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE)
+edgelist2degreeFreq
 }
 \author{
 Vitalii Kleshchevnikov
