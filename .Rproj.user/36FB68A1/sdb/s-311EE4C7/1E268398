@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: 'MItools vs igraph: degree calc'\nauthor: \"Vitalii Kleshchevnikov\"\ndate: \"14/07/2017\"\noutput: html_document\n---\n\n```{r setup, include=FALSE}\nknitr::opts_chunk$set(echo = TRUE)\nsuppressPackageStartupMessages({\n  library(MItools)\n  library(igraph)\n})\n```\n\n## Download full human interactome as a data.table using MItools\n\n```{r}\nhuman_interactome = fullInteractome(taxid = \"9606\", database = \"imex\", format = \"tab27\", clean = F, protein_only = TRUE)\n```\n\n## Convert data table to igraph object\n\n```{r}\nhuman_interactome_igraph = graph_from_data_frame(d = human_interactome[, .(IDs_interactor_A, IDs_interactor_B, Publication_Identifiers, Confidence_values)], directed = F)\n```\n\n## Calculate node degree distribution using MItools\n\n```{r}\nsystem.time({edgelist2degree(human_interactome)})\n```\n\n## Calculate node degree distribution using igraph\n\n```{r}\nsystem.time({degree(human_interactome_igraph)})\n```\n",
+    "created" : 1500036290878.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4161374916",
+    "id" : "1E268398",
+    "lastKnownWriteTime" : 1500047303,
+    "last_content_update" : 1500047303123,
+    "path" : "~/Desktop/vitalii/viral_project/MItools/MItools_vs_igraph.Rmd",
+    "project_path" : "MItools_vs_igraph.Rmd",
+    "properties" : {
+        "last_setup_crc32" : "",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 13,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

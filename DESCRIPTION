@@ -1,0 +1,13 @@
+Package: MItools
+Type: Package
+Title: Molecular interaction data tools, retrieving data using PSICQUIC service
+Version: 0.1.1
+Author: Vitalii Kleshchevnikov
+Maintainer: Vitalii Kleshchevnikov <vitalii@ebi.ac.uk>
+Description: Package contains high-level functions for retrieving molecular interaction data using PSICQUIC service and manipulating that data. Useful options include: query molecular interaction databases using MIQL, retrieve full interactome of a given species, retrieve PPI for a random set of proteins, download protein sequences (FASTA) for canonical, isoform, post-processed chain id. This package also includes functions specific to my research project at Petsalaki group at EMBL-EBI.
+    Builds upon Bioconductor PSICQUIC package and uses data.table.
+License: GNU GPLv3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1.9000
+Depends: PSICQUIC, data.table, Biostrings

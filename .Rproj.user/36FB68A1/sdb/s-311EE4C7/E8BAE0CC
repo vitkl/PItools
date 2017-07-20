@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "##' discover types of interactor features in MITAB 2.7\n##' @name interactorFeatureTypes\n##' @author Vitalii Kleshchevnikov\n##' @param mitab data.table containing molecular interaction data in MITAB 2.5 or 2.7 formats. Details: \\code{\\link{queryPSICQUIC}}\n##' @details \\code{interactorFeatureTypes} extracts types of interactor features from Features_interactor_A and Features_interactor_B in MITAB 2.7 format \\link{https://psicquic.github.io/MITAB27Format.html}\n##' @details All interactor features are decribed in the molecular interaction ontology (MI): \\link{http://www.ebi.ac.uk/ols/ontologies/MI/terms?obo_id=MI:0116}\n##' @import data.table\n##' @importFrom gsubfn strapplyc\n##' @export interactorFeatureTypes\n##' @seealso \\code{\\link{cleanMITAB}}\ninteractorFeatureTypes = function(mitab){\n  # discover types of features\n  a = unique(unlist(mitab[, gsubfn::strapplyc(Features_interactor_A, \"^([[:alnum:][:blank:]]*):|\\\\|([[:alnum:][:blank:]]*):\", simplify = TRUE)]))\n  b = unique(unlist(mitab[, gsubfn::strapplyc(Features_interactor_B, \"^([[:alnum:][:blank:]]*):|\\\\|([[:alnum:][:blank:]]*):\", simplify = TRUE)]))\n  ab = unique(c(a,b))\n  ab[order(ab)]\n}\n",
+    "created" : 1499965139796.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2616557941",
+    "id" : "E8BAE0CC",
+    "lastKnownWriteTime" : 1499972476,
+    "last_content_update" : 1499972976580,
+    "path" : "~/Desktop/vitalii/viral_project/MItools/R/interactorFeatureTypes.R",
+    "project_path" : "R/interactorFeatureTypes.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 11,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "##' find the degree for each protein given molecular interaction data containing unique pair_id\n##' @name edgelist2degree\n##' @author Vitalii Kleshchevnikov\n##' @details unique pair_id is the unique identifier of the undirected interaction: ordered alphabetically and concatenated interacting molecule IDs \\code{\\link{cleanMITAB}}\n##' @param mitab data.table containing molecular interaction data, including pair_id\n##' @param sep how are individual interactors in the pair_id reparated? default: \"\\\\|\"\n##' @return sorted data.table containing degree for each of the nodes in the input, details: \\code{mitab}\n##' @import data.table\n##' @export edgelist2degree\n##' @examples\n##' edgelist = data.table(pair_id = paste0(rep(c(\"P\", \"Q\", \"R\"), each = 30),\n##'                       \"|\",\n##'                       sample(rep(c(\"Z\", \"X\", \"F\"), each = 30)), 1:90))\n##' edgelist2degree(edgelist)\nedgelist2degree = function(mitab, sep = \"\\\\|\"){\n  if(\"pair_id\" %in% colnames(mitab)){\n    mitab_t = unique(copy(mitab[,.(pair_id)]))\n    mitab_t[, c(\"ida\", \"idb\") := tstrsplit(pair_id, sep)]\n    degrees = mitab_t[, .(c(ida, idb))][, .N, by = V1]\n    setnames(degrees, colnames(degrees), c(\"ID\", \"N\"))\n  } else stop(\"pair_id column not supplied\")\n  setorder(degrees, N, ID)\n  return(degrees)\n}\n",
+    "created" : 1499765152791.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2379542618",
+    "id" : "E74B834B",
+    "lastKnownWriteTime" : 1500036227,
+    "last_content_update" : 1500462615349,
+    "path" : "~/Desktop/vitalii/viral_project/MItools/R/edgelist2degree.R",
+    "project_path" : "R/edgelist2degree.R",
+    "properties" : {
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

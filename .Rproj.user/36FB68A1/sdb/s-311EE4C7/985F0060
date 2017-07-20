@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "##' read Interactome into data.table\n##'\n##'\nreadInteractome = function(directory){\n\n}\n",
+    "created" : 1500051766974.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2932649994",
+    "id" : "985F0060",
+    "lastKnownWriteTime" : 1500403515,
+    "last_content_update" : 1500403515109,
+    "path" : "~/Desktop/vitalii/viral_project/MItools/R/readInteractome.R",
+    "project_path" : "R/readInteractome.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 16,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

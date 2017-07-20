@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "##' last IntAct (all IMEx databases) release\n##' @name lastIntActRelease\n##' @return character string specifying the year, month, day, and the hour when the IntAct data file was last modified\n##' @import data.table\n##' @export lastIntActRelease\n##'\nlastIntActRelease = function(){\n  last_release = fread(\"ftp://ftp.ebi.ac.uk/pub/databases/intact/current/\")\n  last_release = last_release[V9 == \"all.zip\", paste0(V6,V7, \"_\", gsub(\":\",\".\", V8))]\n  return(paste0(year(Sys.Date()), last_release))\n}\n",
+    "created" : 1500031101304.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1380958488",
+    "id" : "D62E02EC",
+    "lastKnownWriteTime" : 1500031393,
+    "last_content_update" : 1500031393101,
+    "path" : "~/Desktop/vitalii/viral_project/MItools/R/lastIntActRelease.R",
+    "project_path" : "R/lastIntActRelease.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

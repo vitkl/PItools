@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "##' Download FASTA for a list of canonical (P04637) and isoform (P04637-2) UniprotAC\n##' @name download_fasta\n##' @author Vitalii Kleshchevnikov\n##' @param uniprot_ac character vector containg canonical and isoform UniprotAC\n##' @param file_name file name and directory to save the result (\"./dir/filename\")\n##' @return nothing\n##' @import Biostrings\n##' @export download_fasta\n##' @details \\code{download_fasta} is intended to download from Uniprot and write fasta sequence file (renaming the name of the sequence given by UniProt to UniprotAC only) given generic (P04637) or isoform (P04637-2) UniprotAC. If the file already contains the sequences for given UniprotAC you get a message, if some sequences are missing all sequences will be reloaded.\n##' @seealso \\code{\\link{download_fasta_postproc}}\n##' @examples\n##' download_fasta(uniprot_ac = c(\"P04637\", \"P04637-2\"), file_name = \"my_canonical_and_isoform.fasta\")\ndownload_fasta = function(uniprot_ac, file_name){\n  if(if(file.exists(file_name)) mean(uniprot_ac %in% fasta.index(file_name)$desc) == 1 else F){\n    message(\"all sequences for given uniprot_ac are alredy downloaded\")\n  }\n  if(if(file.exists(file_name)) mean(uniprot_ac %in% fasta.index(file_name)$desc) != 1 else T){\n    message(\"downloading fasta sequences for given uniprot_ac ...\")\n    all_fasta = AAStringSet()\n    sequences_per_id = numeric(length = length(uniprot_ac))\n    names(sequences_per_id) = uniprot_ac\n    for(protein in uniprot_ac){\n      new_fasta = readAAStringSet(paste0(\"http://www.uniprot.org/uniprot/\", protein,\".fasta\"))\n      # if the search has yielded fasta file with 1 sequence then rename to UniprotAC, otherwise save original name and deal with the problem manually\n      if(length(new_fasta) == 1) names(new_fasta) = protein\n      all_fasta = append(all_fasta, new_fasta)\n      sequences_per_id[protein] = length(new_fasta)\n\n      if(which(uniprot_ac == protein) %in% seq(1,length(uniprot_ac),10)){\n        # write data at each 10th sequence in case R crashes\n        writeXStringSet(all_fasta, file = file_name, format=\"fasta\")\n        # limit the number of requests per second to 10\n        Sys.sleep(1)\n      }\n    }\n    # write final result\n    writeXStringSet(all_fasta, file = file_name, format=\"fasta\")\n  }\n}\n",
+    "created" : 1499942467831.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1985516457",
+    "id" : "659ED9BF",
+    "lastKnownWriteTime" : 1499959935,
+    "last_content_update" : 1499959935751,
+    "path" : "~/Desktop/vitalii/viral_project/MItools/R/download_fasta.R",
+    "project_path" : "R/download_fasta.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

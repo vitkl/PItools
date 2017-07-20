@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "##' download PSICQUIC query search result (only IMEx databases) to R library - queryPSICQUIC package - data directory\n##' @name queryPSICQUICrlib\n##' @author Vitalii Kleshchevnikov\n##' @description saves PSIQUIC search results to the local R library or to the directory specified\n##' @details \\code{queryPSICQUICrlib} queries IMEx databases using PSICQUIC if the local copy of the query result is not available or if there is a new IntAct release. The functions will still work for non-IMEx databases but it will check the IntAct release date and that is not meaningful for tracking updates of other resources.\n##' @param ... args passed to \\code{\\link{queryPSICQUIC}}\n##' @return data.table containing the query result\n##' @import data.table\n##' @examples queryPSICQUIC:::downloadPSICQUICrlib(query = \"id:P74565 AND detmethod:\\\"MI:0018\\\"\", format = \"tab27\", database = \"imex\")\n\nqueryPSICQUICrlib = function(..., directory = NULL){\n  # create data directory in /default.library/queryPSICQUIC/ if it doesn't exist\n  if(is.null(directory)){\n    pkg_dir = paste0(.libPaths(), \"/MItools\", \"/data/\")[1]\n    if(!dir.exists(pkg_dir)) dir.create(pkg_dir)\n    # create a filepath that uniquely identifies the search result and contains a timestamp\n    # find out last release date\n    pkg_dir_last_release = paste0(pkg_dir, lastIntActRelease())\n  }\n  if(!is.null(directory)) pkg_dir_last_release = paste0(directory, lastIntActRelease())\n\n  # create directory for the last release date\n  if(!dir.exists(pkg_dir_last_release)) dir.create(pkg_dir_last_release)\n  stopifnot(dir.exists(pkg_dir_last_release))\n  filepath = paste0(pkg_dir_last_release, \"/query_\", ..., \".tsv\")\n  filepath = gsub(\":\",\".\", filepath)\n  filepath = gsub(\"\\\"\",\".\", filepath)\n  filepath = gsub(\" \",\".\", filepath)\n\n  # download results using queryPSICQUIC function if the data from the latest release haven't been downloaded\n  if(file.exists(filepath)){\n    message(\"found local copy of the data from the latest release ... reading into R\")\n    res = fread(paste0(filepath,\"log\"), header = T, stringsAsFactors = F, sep = \"\\t\")\n    print(res)\n  }\n  if(!file.exists(filepath)){\n    message(\"downloading using PSICQUIC\")\n    res = queryPSICQUIC(file = filepath, ...)\n    fwrite(res, file = paste0(filepath,\"log\"), sep = \"\\t\")\n    print(res)\n  }\n\n  # read the result and return\n  return(fread(filepath, header = T, stringsAsFactors = F))\n\n}\n\n\n",
+    "created" : 1499765151773.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4244078406",
+    "id" : "D7D627CF",
+    "lastKnownWriteTime" : 1500034907,
+    "last_content_update" : 1500034907417,
+    "path" : "~/Desktop/vitalii/viral_project/MItools/R/queryPSICQUICrlib.R",
+    "project_path" : "R/queryPSICQUICrlib.R",
+    "properties" : {
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

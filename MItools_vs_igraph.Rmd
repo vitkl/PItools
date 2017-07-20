@@ -1,0 +1,38 @@
+---
+title: 'MItools vs igraph: degree calc'
+author: "Vitalii Kleshchevnikov"
+date: "14/07/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressPackageStartupMessages({
+  library(MItools)
+  library(igraph)
+})
+```
+
+## Download full human interactome as a data.table using MItools
+
+```{r}
+human_interactome = fullInteractome(taxid = "9606", database = "imex", format = "tab27", clean = F, protein_only = TRUE)
+```
+
+## Convert data table to igraph object
+
+```{r}
+human_interactome_igraph = graph_from_data_frame(d = human_interactome[, .(IDs_interactor_A, IDs_interactor_B, Publication_Identifiers, Confidence_values)], directed = F)
+```
+
+## Calculate node degree distribution using MItools
+
+```{r}
+system.time({edgelist2degree(human_interactome)})
+```
+
+## Calculate node degree distribution using igraph
+
+```{r}
+system.time({degree(human_interactome_igraph)})
+```
