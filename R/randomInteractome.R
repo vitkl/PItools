@@ -18,10 +18,12 @@
 ##' # retrive the interactome using PSICQIUC servise (or by reading local copy) from IMEx databases for a list of 200 random human (9606) proteins, not specifying their degree distribution
 ##' set.seed(1)
 ##' random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE)
+##'
 ##' # retrive the interactome from MITABdata for a list of 200 random human (9606) proteins, not specifying their degree_dist distribution
 ##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
 ##' set.seed(1)
 ##' random = randomInteractome(MITABdata = full, n_prot = 200, degree_dist = NULL)
+##'
 ##' # retrive the interactome using PSICQIUC servise (or by reading local copy from a specified directory) from IMEx databases for a list of 200 random human (9606) proteins, not specifying their degree_dist distribution
 ##' set.seed(1)
 ##' random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE, directory = "./data/")
@@ -35,7 +37,8 @@ randomInteractome = function(MITABdata = NULL, degree_data = NULL, n_prot, degre
   if(mean(c("pair_id") %in% colnames(full_interactome_clean)) != 1) stop("MITABdata is in the wrong format: no pair_id column")
 
   # get interactors
-  interactors = full_interactome_clean[, unique(unlist(strsplit(pair_id, "\\|")))]
+  #interactors = full_interactome_clean[, unique(unlist(strsplit(pair_id, "\\|")))]
+  interactors = full_interactome_clean[, unique(c(IDs_interactor_A, IDs_interactor_B))]
 
   # if the degree_dist distribution is not specified - sample n_prot of interactors
   if(is.null(degree_dist)){

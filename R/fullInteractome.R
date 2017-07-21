@@ -19,9 +19,10 @@
 ##' @import data.table
 ##' @export fullInteractome
 ##' @examples
-##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, cleans and select specific columns
+##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns
 ##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
-##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, cleans and select specific columns; save it to the specific directory inside working directory
+##'
+##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns; save it to the specific directory inside working directory
 ##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
 fullInteractome = function(MITABdata = NULL, taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL){
   # if the interaction data for species taxid and from database is not saved in the library - queryPSICQUIC for interaction data for taxid interactions in the database and in MITAB2.5 format, save results to the library
