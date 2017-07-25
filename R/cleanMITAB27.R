@@ -39,9 +39,30 @@ cleanMITAB27 = function(mitab){
   }
   {
     # extract region sufficient to interact or mutation affecting interaction information from Features_interactor_A and Features_interactor_B
+    mitab = MITABregionFeature(mitab)
+
+    # reorder by all interactor attribute columns by pair_id (alphanumeric order)
+    mitab[, c("IDs_A_order", "IDs_B_order") := tstrsplit(pair_id, "\\|")]
+    mitab[IDs_interactor_A == IDs_B_order & IDs_interactor_B == IDs_A_order,
+          c("IDs_interactor_A", "IDs_interactor_B",
+            "interactor_IDs_databases_A", "interactor_IDs_databases_B",
+            "Taxid_interactor_A", "Taxid_interactor_B",
+            "bait_prey_status_A", "bait_prey_status_B",
+            "Features_interactor_A", "Features_interactor_B",
+            "Identification_method_participant_A", "Identification_method_participant_B",
+            "binding_region_A_start", "binding_region_A_end", "binding_region_B_start", "binding_region_B_end",
+            "binding_region_A_type", "binding_region_B_type") :=
+            .(IDs_interactor_B, IDs_interactor_A,
+               interactor_IDs_databases_B, interactor_IDs_databases_A,
+               Taxid_interactor_B, Taxid_interactor_A,
+               bait_prey_status_B, bait_prey_status_A,
+               Features_interactor_B, Features_interactor_A,
+               Identification_method_participant_B, Identification_method_participant_A,
+               binding_region_B_start, binding_region_B_end, binding_region_A_start, binding_region_A_end,
+               binding_region_B_type, binding_region_A_type)]
+
     # start by keeping only relevant columns
-    mitab = unique(mitab[, .(pair_id,
-                             IDs_interactor_A, IDs_interactor_B,
+    mitab = unique(mitab[, .(IDs_interactor_A, IDs_interactor_B,
                              interactor_IDs_databases_A, interactor_IDs_databases_B,
                              Taxid_interactor_A, Taxid_interactor_B,
                              Publication_Identifiers, Confidence_values,
@@ -49,7 +70,10 @@ cleanMITAB27 = function(mitab){
                              bait_prey_status_A, bait_prey_status_B,
                              Interaction_detection_methods, Interaction_types, Interaction_identifiers, Expansion_methods,
                              Features_interactor_A, Features_interactor_B,
-                             Identification_method_participant_A, Identification_method_participant_B)])
+                             Identification_method_participant_A, Identification_method_participant_B,
+                             binding_region_A_start, binding_region_A_end, binding_region_B_start, binding_region_B_end,
+                             binding_region_A_type, binding_region_B_type,
+                             pair_id)])
     mitab = MITABregionFeature(mitab)
   }
 }

@@ -26,9 +26,21 @@ cleanMITAB25 = function(mitab){
   mitab[, pair_id := apply(data.table(IDs_interactor_A,IDs_interactor_B,stringsAsFactors = F), 1,
                            function(a) { z = sort(a)
                            paste0(z[1],"|",z[2]) })]
-  mitab = mitab[,.(pair_id,
-                   IDs_interactor_A, IDs_interactor_B,
+
+  # reorder by all interactor attribute columns by pair_id (alphanumeric order)
+  mitab[, c("IDs_A_order", "IDs_B_order") := tstrsplit(pair_id, "\\|")]
+  mitab[IDs_interactor_A == IDs_B_order & IDs_interactor_B == IDs_A_order,
+        c("IDs_interactor_A", "IDs_interactor_B",
+          "interactor_IDs_databases_A", "interactor_IDs_databases_B",
+          "Taxid_interactor_A", "Taxid_interactor_B") :=
+          .(IDs_interactor_B, IDs_interactor_A,
+            interactor_IDs_databases_B, interactor_IDs_databases_A,
+            Taxid_interactor_B, Taxid_interactor_A)]
+
+  mitab = mitab[,.(IDs_interactor_A, IDs_interactor_B,
                    interactor_IDs_databases_A, interactor_IDs_databases_B,
                    Taxid_interactor_A, Taxid_interactor_B,
-                   Publication_Identifiers, Confidence_values)]
+                   Publication_Identifiers, Confidence_values,
+                   pair_id)]
+  return(mitab)
 }
