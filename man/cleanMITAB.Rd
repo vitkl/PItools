@@ -10,7 +10,7 @@ cleanMITAB(mitab)
 \item{mitab}{data.table containing molecular interaction data in MITAB 2.5 or 2.7 formats. Details: \code{\link{queryPSICQUIC}}}
 }
 \value{
-data.table for MITAB 2.5: containing the interactor Uniprot IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values and unique pair ID(alphanumerically sorted)
+data.table for MITAB 2.5: containing the interactor Uniprot IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values. All interactor attributes are sorted according to alphanumerically sorted interactor Uniprot IDs
 }
 \description{
 \code{cleanMITAB} extracts interactor Uniprot (or other ID as specified by interactor_IDs_databases) IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values and generates unique pair ID

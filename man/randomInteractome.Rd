@@ -39,10 +39,12 @@ If the degree distribution is not specified a sample of \code{n_prot} is taken f
 # retrive the interactome using PSICQIUC servise (or by reading local copy) from IMEx databases for a list of 200 random human (9606) proteins, not specifying their degree distribution
 set.seed(1)
 random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE)
+
 # retrive the interactome from MITABdata for a list of 200 random human (9606) proteins, not specifying their degree_dist distribution
 full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
 set.seed(1)
 random = randomInteractome(MITABdata = full, n_prot = 200, degree_dist = NULL)
+
 # retrive the interactome using PSICQIUC servise (or by reading local copy from a specified directory) from IMEx databases for a list of 200 random human (9606) proteins, not specifying their degree_dist distribution
 set.seed(1)
 random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE, directory = "./data/")

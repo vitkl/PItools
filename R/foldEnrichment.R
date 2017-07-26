@@ -1,0 +1,32 @@
+##' \code{foldEnrichment} calculates fold enrichment of a domain (or other feature) among interacting partners of a protein
+##' @name foldEnrichment
+##' @param net data.table that specifies the PPI network:
+##' 1. first column specifies a protein ("IDs_interactor_viral")
+##' 2. second column specifies it's interacting partner which annotations are of interest ("IDs_interactor_human")
+##' 3. third column specifies the degree of a protein in the first column ("IDs_interactor_viral_degree")
+##' @param protein_annot data.table that specifies annotations for a protein in the second column of \code{net}
+##' 1. first column specifies a protein ("IDs_interactor_human")
+##' 2. second column specifies features of that protein ("IDs_domain_human")
+##' 3. third column specifies background frequency of those features ("domain_frequency)
+##' @return data.table containing fold enrichment for each domain - protein pair
+##' @author Vitalii Kleshchevnikov
+##' @import data.table
+##' @export foldEnrichment
+
+foldEnrichment = function(net, protein_annot){
+  if(ncol(net) != 3 | mean(c("IDs_interactor_viral", "IDs_interactor_human", "IDs_interactor_viral_degree") %in% colnames(net)) != 1) stop("net contains more or less columns than required or wrong colnames")
+  if(ncol(protein_annot) != 3 | mean(c("IDs_interactor_human", "IDs_domain_human", "domain_frequency") %in% colnames(protein_annot)) != 1) stop("protein_annot contains more or less columns than required or wrong colnames")
+
+  # add domain annotation to the network
+  merged_net = unique(net[protein_annot, on = "IDs_interactor_human", allow.cartesian = T])
+
+  # count human proteins with specific domain per viral protein
+  # (how many proteins the domain is located in) per viral protein (ID) and human domain (ID)
+  merged_net[, domain_count_per_IDs_interactor_viral := .N, by = .(IDs_interactor_viral, IDs_domain_human)]
+  # domain frequency but per viral protein
+  merged_net[, domain_frequency_per_IDs_interactor_viral := domain_count_per_IDs_interactor_viral / IDs_interactor_viral_degree, by = IDs_interactor_viral]
+  # fold enrichment
+  merged_net[, fold_enrichment := domain_frequency_per_IDs_interactor_viral / domain_frequency]
+
+  return(merged_net[,.(IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_IDs_interactor_viral, fold_enrichment)])
+}

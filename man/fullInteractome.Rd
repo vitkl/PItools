@@ -42,9 +42,10 @@ Alternatively, \code{fullInteractome} can only retrive interactome data using PS
 Another option is to supply \code{MITABdata} to be cleaned and filtered
 }
 \examples{
-# retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, cleans and select specific columns
+# retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns
 full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
-# retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, cleans and select specific columns; save it to the specific directory inside working directory
+
+# retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns; save it to the specific directory inside working directory
 full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
 }
 \author{
