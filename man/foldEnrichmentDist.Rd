@@ -2,9 +2,9 @@
 % Please edit documentation in R/foldEnrichmentDist.R
 \name{foldEnrichmentDist}
 \alias{foldEnrichmentDist}
-\title{\code{foldEnrichmentDist} finds fold_enrichment distribution (in any domain or other feature) for each protein}
+\title{find fold_enrichment distribution (in any domain or other feature) for each protein in the network}
 \usage{
-foldEnrichmentDist(net, protein_annot, N = 1000, cores = NULL)
+foldEnrichmentDist(net, protein_annot, N = 1000, cores = NULL, seed = 1)
 }
 \arguments{
 \item{net}{data.table that specifies the PPI network:
@@ -16,12 +16,18 @@ foldEnrichmentDist(net, protein_annot, N = 1000, cores = NULL)
 1. first column specifies a protein ("IDs_interactor_human")
 2. second column specifies features of that protein ("IDs_domain_human")
 3. third column specifies background frequency of those features ("domain_frequency)}
+
+\item{N}{number of times to run permutation of PPI network}
+
+\item{cores}{specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[BiocGenerics]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.}
+
+\item{seed}{seed for RNG for reproducible sampling}
 }
 \value{
-data.table containing fold enrichment for each domain - protein pair
+data.table containing fold enrichment for each domain (or other feature) - protein pair (2 columns: IDs_interactor_viral and sampled_fold_enrichment)
 }
 \description{
-\code{foldEnrichmentDist} finds fold_enrichment distribution (in any domain or other feature) for each protein in the first column of net. For more details: \code{\link{foldEnrichment}}
+\code{foldEnrichmentDist} finds fold_enrichment distribution (in any domain or other feature) for each protein in the first column of net. For more details: \code{\link[MItools]{foldEnrichment}}
 }
 \author{
 Vitalii Kleshchevnikov
