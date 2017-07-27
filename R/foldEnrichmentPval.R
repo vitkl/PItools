@@ -8,13 +8,26 @@
 ##' @param cores specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[BiocGenerics]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.
 ##' @param proteinID character specifying proteinID for which to plot fold Enrichment distribution
 ##' @param main title for the plot
+##' @param text_lab logical: label domains (features) on the plot, or not
 ##' @param ... arguments to \code{\link[graphics]{hist}}
-##' @return data.table containing pvalue for each protein-feature pair for each protein-feature pair in the network (4 columns: proteinID, IDs_interactor_human, featureID, foldEnrichment and Pval)
+##' @return data.table containing pvalue for each protein-feature pair in the network (4 columns: proteinID, IDs_interactor_human, featureID, foldEnrichment and Pval)
 ##' @usage foldEnrichmentPval(fold_enrichment_dist, data, cores = NULL)
-##' plotFoldEnrichmentDist(proteinID, fold_enrichment_dist, data)
+##' plotFoldEnrichmentDist(proteinID, fold_enrichment_dist, data, main = NULL, text_lab = T)
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 ##' @import BiocGenerics
+##' @importFrom ggplot2 ggplot
+##' @importFrom ggplot2 aes
+##' @importFrom ggplot2 geom_histogram
+##' @importFrom ggplot2 ggtitle
+##' @importFrom ggplot2 xlab
+##' @importFrom ggplot2 theme_light
+##' @importFrom ggplot2 geom_vline
+##' @importFrom ggplot2 theme
+##' @importFrom ggplot2 ggplot_build
+##' @importFrom ggplot2 geom_text
+##' @importFrom ggplot2 facet_wrap
+##' @importFrom ggplot2 geom_label
 ##' @export foldEnrichmentPval
 ##' @export plotFoldEnrichmentDist
 foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL){
@@ -45,16 +58,31 @@ foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL){
   return(pval_table)
 }
 
-plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = NULL, ...){
+plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = NULL, text_lab = T){
 
-  one_fold_enrichment_dist = fold_enrichment_dist[IDs_interactor_viral == proteinID,]
+  one_fold_enrichment_dist = fold_enrichment_dist[IDs_interactor_viral %in% proteinID,]
   merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
   merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
 
-  if(is.null(main)) main = paste0("fold enrichment distribution (sampled using network permutations) \n UniProtKB-AC: ", proteinID)
+  if(is.null(main)) main = paste0("fold enrichment distribution (sampled using network permutations)")
 
-  hist_merged = hist(merged[,sampled_fold_enrichment], main = main, xlab ="fold enrichment", ...)
-  abline(v = merged[,fold_enrichment], col = "red")
-  text(x = merged[,fold_enrichment], y = mean(hist_merged$counts), labels = merged[,IDs_domain_human])
-  text(x = merged[,fold_enrichment], y = mean(hist_merged$counts) - mean(hist_merged$counts)/5, labels = paste0("p-val: ",merged[,signif(Pval,3)]))
+  data2 = unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])[order(fold_enrichment),]
+  # generate histogram
+  plot = ggplot(merged, aes(x = sampled_fold_enrichment)) +
+    geom_histogram() +
+    ggtitle(main) + xlab("fold enrichment") + theme_light() +
+    geom_vline(aes(xintercept = fold_enrichment, color = "red")) + theme(legend.position = "none") +
+    facet_wrap( ~ IDs_interactor_viral, scales = "free")
+  if(text_lab){
+  # take out max count information (to have y position for geom_text) and generate domain label y position
+  count = as.data.table(ggplot_build(plot)$data[[1]])
+  panel = as.data.table(ggplot_build(plot)$layout$panel_layout)[,.(PANEL, IDs_interactor_viral)]
+  max_count_d = count[,.(max_count = max(count)), by = PANEL][,.(PANEL, max_count)]
+  max_count_d = max_count_d[panel, nomatch = 0, on = "PANEL"][,.(IDs_interactor_viral,max_count)]
+  data2 = data2[max_count_d, on = "IDs_interactor_viral"]
+  data2[, y_pos := Pval * max_count]
+  # plot domain labels
+  plot + geom_text(data = data2, aes(x = fold_enrichment, y = y_pos, label = paste0(IDs_domain_human, ": ", signif(Pval, 3))), inherit.aes = F, size = 2)
+  }
+  if(!text_lab) plot
 }
