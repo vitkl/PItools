@@ -7,6 +7,8 @@
 ##' @param data data.table containing foldEnrichment value for each protein-feature pair (4 columns: IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, fold_enrichment)
 ##' @param cores specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[BiocGenerics]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.
 ##' @param proteinID character specifying proteinID for which to plot fold Enrichment distribution
+##' @param main title for the plot
+##' @param ... arguments to \code{\link[graphics]{hist}}
 ##' @return data.table containing pvalue for each protein-feature pair for each protein-feature pair in the network (4 columns: proteinID, IDs_interactor_human, featureID, foldEnrichment and Pval)
 ##' @usage foldEnrichmentPval(fold_enrichment_dist, data, cores = NULL)
 ##' plotFoldEnrichmentDist(proteinID, fold_enrichment_dist, data)
@@ -29,10 +31,10 @@ foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL){
   clusterEvalQ(cl, {library(data.table); library(MItools)})
 
   # loop over each viral protein and calculate the fraction of sampled_fold_enrichment that is higher or equal to fold_enrichment, write into Pval column and select only necessary columns for minimal representation
-  pval_list = parLapply(cl, split_fold_enrichment_dist[1:3], function(one_fold_enrichment_dist, data){
+  pval_list = parLapply(cl, split_fold_enrichment_dist, function(one_fold_enrichment_dist, data){
     merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
-    merged[, Pval := mean(fold_enrichment >= sampled_fold_enrichment), by = IDs_domain_human]
-    #unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])
+    merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
+    unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])
   }, data)
 
   # stop the cluster
@@ -40,13 +42,19 @@ foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL){
 
   # convert per viral protein list to data.table
   pval_table = Reduce(rbind, pval_list)
-
+  return(pval_table)
 }
 
-plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data){
+plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = NULL, ...){
+
   one_fold_enrichment_dist = fold_enrichment_dist[IDs_interactor_viral == proteinID,]
   merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
-  hist_merged = hist(merged[,sampled_fold_enrichment], main = paste0("fold enrichment distribution (sampled, from permutations) \n UniProtKB-AC: ", proteinID), xlab ="fold enrichment")
+  merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
+
+  if(is.null(main)) main = paste0("fold enrichment distribution (sampled using network permutations) \n UniProtKB-AC: ", proteinID)
+
+  hist_merged = hist(merged[,sampled_fold_enrichment], main = main, xlab ="fold enrichment", ...)
   abline(v = merged[,fold_enrichment], col = "red")
   text(x = merged[,fold_enrichment], y = mean(hist_merged$counts), labels = merged[,IDs_domain_human])
+  text(x = merged[,fold_enrichment], y = mean(hist_merged$counts) - mean(hist_merged$counts)/5, labels = paste0("p-val: ",merged[,signif(Pval,3)]))
 }
