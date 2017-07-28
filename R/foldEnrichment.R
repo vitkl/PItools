@@ -8,25 +8,29 @@
 ##' 1. first column specifies a protein ("IDs_interactor_human")
 ##' 2. second column specifies features of that protein ("IDs_domain_human")
 ##' 3. third column specifies background frequency of those features ("domain_frequency)
+##' @param frequency fold enrichment or frequency in a set (if TRUE - frequency)
 ##' @return data.table containing fold enrichment for each domain - protein pair
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 ##' @export foldEnrichment
 
-foldEnrichment = function(net, protein_annot){
+foldEnrichment = function(net, protein_annot, frequency = T){
   if(ncol(net) != 3 | mean(c("IDs_interactor_viral", "IDs_interactor_human", "IDs_interactor_viral_degree") %in% colnames(net)) != 1) stop("net contains more or less columns than required or wrong colnames")
   if(ncol(protein_annot) != 3 | mean(c("IDs_interactor_human", "IDs_domain_human", "domain_frequency") %in% colnames(protein_annot)) != 1) stop("protein_annot contains more or less columns than required or wrong colnames")
 
-  # add domain annotation to the network
-  merged_net = unique(net[protein_annot, on = "IDs_interactor_human", allow.cartesian = T])
+  # add domain annotation to the network, "nomatch = 0" deletes all proteins without domains
+  merged_net = unique(net[protein_annot, nomatch = 0, on = "IDs_interactor_human", allow.cartesian = T])
 
   # count human proteins with specific domain per viral protein
   # (how many proteins the domain is located in) per viral protein (ID) and human domain (ID)
   merged_net[, domain_count_per_IDs_interactor_viral := .N, by = .(IDs_interactor_viral, IDs_domain_human)]
   # domain frequency but per viral protein
-  merged_net[, domain_frequency_per_IDs_interactor_viral := domain_count_per_IDs_interactor_viral / IDs_interactor_viral_degree, by = IDs_interactor_viral]
-  # fold enrichment
-  merged_net[, fold_enrichment := domain_frequency_per_IDs_interactor_viral / domain_frequency]
-
-  return(merged_net[,.(IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_IDs_interactor_viral, fold_enrichment)])
+  merged_net[, domain_frequency_per_set := domain_count_per_IDs_interactor_viral / IDs_interactor_viral_degree]
+  if(frequency) merged_net = merged_net[,.(IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_set)]
+  if(!frequency){
+    # fold enrichment
+    merged_net[, fold_enrichment := domain_frequency_per_set / domain_frequency]
+    merged_net = merged_net[,.(IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_set, fold_enrichment)]
+  }
+  return(merged_net)
 }

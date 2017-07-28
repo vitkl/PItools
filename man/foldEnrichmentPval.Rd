@@ -14,13 +14,13 @@ plotFoldEnrichmentDist(proteinID, fold_enrichment_dist, data, main = NULL, text_
 
 \item{cores}{specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[BiocGenerics]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.}
 
+\item{frequency}{fold enrichment or frequency in a set (if TRUE - frequency)}
+
 \item{proteinID}{character specifying proteinID for which to plot fold Enrichment distribution}
 
 \item{main}{title for the plot}
 
 \item{text_lab}{logical: label domains (features) on the plot, or not}
-
-\item{...}{arguments to \code{\link[graphics]{hist}}}
 }
 \value{
 data.table containing pvalue for each protein-feature pair in the network (4 columns: proteinID, IDs_interactor_human, featureID, foldEnrichment and Pval)

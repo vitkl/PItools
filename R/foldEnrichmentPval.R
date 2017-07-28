@@ -9,7 +9,7 @@
 ##' @param proteinID character specifying proteinID for which to plot fold Enrichment distribution
 ##' @param main title for the plot
 ##' @param text_lab logical: label domains (features) on the plot, or not
-##' @param ... arguments to \code{\link[graphics]{hist}}
+##' @param frequency fold enrichment or frequency in a set (if TRUE - frequency)
 ##' @return data.table containing pvalue for each protein-feature pair in the network (4 columns: proteinID, IDs_interactor_human, featureID, foldEnrichment and Pval)
 ##' @usage foldEnrichmentPval(fold_enrichment_dist, data, cores = NULL)
 ##' plotFoldEnrichmentDist(proteinID, fold_enrichment_dist, data, main = NULL, text_lab = T)
@@ -30,7 +30,7 @@
 ##' @importFrom ggplot2 geom_label
 ##' @export foldEnrichmentPval
 ##' @export plotFoldEnrichmentDist
-foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL){
+foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL, frequency = T){
   # subset data
   data = unique(data[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment)])
   # split huge foldEnrichment distribution data.table into list of data.tables, one per viral protein ID
@@ -43,12 +43,23 @@ foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL){
   # get library support needed to run the code
   clusterEvalQ(cl, {library(data.table); library(MItools)})
 
-  # loop over each viral protein and calculate the fraction of sampled_fold_enrichment that is higher or equal to fold_enrichment, write into Pval column and select only necessary columns for minimal representation
-  pval_list = parLapply(cl, split_fold_enrichment_dist, function(one_fold_enrichment_dist, data){
-    merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
-    merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
-    unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])
-  }, data)
+  if(frequency){
+    # loop over each viral protein and calculate the fraction of sampled_domain_frequency_per_set that is higher or equal to domain_frequency_per_IDs_interactor_viral, write into Pval column and select only necessary columns for minimal representation
+    pval_list = parLapply(cl, split_fold_enrichment_dist, function(one_fold_enrichment_dist, data){
+      merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
+      merged[, Pval := mean(domain_frequency_per_IDs_interactor_viral <= sampled_domain_frequency_per_set), by = IDs_domain_human]
+      unique(merged[,.(IDs_interactor_viral, IDs_domain_human, domain_frequency_per_IDs_interactor_viral, Pval)])
+    }, data)
+  }
+  if(!frequency){
+    # loop over each viral protein and calculate the fraction of sampled_fold_enrichment that is higher or equal to fold_enrichment, write into Pval column and select only necessary columns for minimal representation
+    pval_list = parLapply(cl, split_fold_enrichment_dist, function(one_fold_enrichment_dist, data){
+      merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
+      merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
+      unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])
+    }, data)
+  }
+
 
   # stop the cluster
   stopCluster(cl)
@@ -58,31 +69,45 @@ foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL){
   return(pval_table)
 }
 
-plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = NULL, text_lab = T){
+plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = NULL, text_lab = T, frequency = T){
 
   one_fold_enrichment_dist = fold_enrichment_dist[IDs_interactor_viral %in% proteinID,]
   merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
-  merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
+
+  if(frequency) merged[, Pval := mean(domain_frequency_per_IDs_interactor_viral <= sampled_domain_frequency_per_set), by = IDs_domain_human]
+  if(!frequency) merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
 
   if(is.null(main)) main = paste0("fold enrichment distribution (sampled using network permutations)")
 
   data2 = unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])[order(fold_enrichment),]
   # generate histogram
-  plot = ggplot(merged, aes(x = sampled_fold_enrichment)) +
+  if(frequency) {
+    plot = ggplot(merged, aes(x = sampled_domain_frequency_per_set)) +
     geom_histogram() +
-    ggtitle(main) + xlab("fold enrichment") + theme_light() +
-    geom_vline(aes(xintercept = fold_enrichment, color = "red")) + theme(legend.position = "none") +
+    ggtitle(main) + xlab("domain_frequency_per_IDs_interactor_viral") + theme_light() +
+    geom_vline(aes(xintercept = domain_frequency_per_IDs_interactor_viral, color = "red")) +
+    theme(legend.position = "none") +
     facet_wrap( ~ IDs_interactor_viral, scales = "free")
+  }
+  if(!frequency) {
+    plot = ggplot(merged, aes(x = sampled_fold_enrichment)) +
+      geom_histogram() +
+      ggtitle(main) + xlab("fold enrichment") + theme_light() +
+      geom_vline(aes(xintercept = fold_enrichment, color = "red")) +
+      theme(legend.position = "none") +
+      facet_wrap( ~ IDs_interactor_viral, scales = "free")
+  }
   if(text_lab){
-  # take out max count information (to have y position for geom_text) and generate domain label y position
-  count = as.data.table(ggplot_build(plot)$data[[1]])
-  panel = as.data.table(ggplot_build(plot)$layout$panel_layout)[,.(PANEL, IDs_interactor_viral)]
-  max_count_d = count[,.(max_count = max(count)), by = PANEL][,.(PANEL, max_count)]
-  max_count_d = max_count_d[panel, nomatch = 0, on = "PANEL"][,.(IDs_interactor_viral,max_count)]
-  data2 = data2[max_count_d, on = "IDs_interactor_viral"]
-  data2[, y_pos := Pval * max_count]
-  # plot domain labels
-  plot + geom_text(data = data2, aes(x = fold_enrichment, y = y_pos, label = paste0(IDs_domain_human, ": ", signif(Pval, 3))), inherit.aes = F, size = 2)
+    # take out max count information (to have y position for geom_text) and generate domain label y position
+    count = as.data.table(ggplot_build(plot)$data[[1]])
+    panel = as.data.table(ggplot_build(plot)$layout$panel_layout)[,.(PANEL, IDs_interactor_viral)]
+    max_count_d = count[,.(max_count = max(count)), by = PANEL][,.(PANEL, max_count)]
+    max_count_d = max_count_d[panel, nomatch = 0, on = "PANEL"][,.(IDs_interactor_viral,max_count)]
+    data2 = data2[max_count_d, on = "IDs_interactor_viral"]
+    data2[, y_pos := Pval * max_count]
+    # plot domain labels
+    if(frequency) plot + geom_text(data = data2, aes(x = domain_frequency_per_IDs_interactor_viral, y = y_pos, label = paste0(IDs_domain_human, ": ", signif(Pval, 3))), inherit.aes = F, size = 2)
+    if(!frequency) plot + geom_text(data = data2, aes(x = fold_enrichment, y = y_pos, label = paste0(IDs_domain_human, ": ", signif(Pval, 3))), inherit.aes = F, size = 2)
   }
   if(!text_lab) plot
 }

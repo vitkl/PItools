@@ -12,12 +12,13 @@
 ##' @param N number of times to run permutation of PPI network
 ##' @param cores specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[BiocGenerics]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.
 ##' @param seed seed for RNG for reproducible sampling
+##' @param frequency fold enrichment or frequency in a set (if TRUE - frequency), also passed to \code{\link[MItools]{foldEnrichment}}
 ##' @return data.table containing fold enrichment for each domain (or other feature) - protein pair (2 columns: IDs_interactor_viral and sampled_fold_enrichment)
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 ##' @import BiocGenerics
 ##' @export foldEnrichmentDist
-foldEnrichmentDist = function(net, protein_annot, N = 1000, cores = NULL, seed = 1){
+foldEnrichmentDist = function(net, protein_annot, N = 1000, cores = NULL, seed = 1, frequency = T){
 
   # set up parallel processing
   # create cluster
@@ -26,28 +27,46 @@ foldEnrichmentDist = function(net, protein_annot, N = 1000, cores = NULL, seed =
   # get library support needed to run the code
   clusterEvalQ(cl, {library(data.table); library(MItools)})
   # put objects in place that might be needed for the code
-  clusterExport(cl, c("net", "protein_annot"), envir=environment())
+  clusterExport(cl, c("net", "protein_annot", "frequency"), envir=environment())
   # set seed
   clusterSetRNGStream(cl, iseed = seed)
-  # run permutations N times
-  fold_enrichment_dist = parReplicate(cl, n = N,
-               expr = {
-                 net[, IDs_interactor_human := sample(IDs_interactor_human)]
-                 sample_net = foldEnrichment(net, protein_annot)
-                 # find fold_enrichment distribution in any domain for each viral protein
-                 fold_enrichment_dist = unique(sample_net[,.(IDs_interactor_viral, sample_fold_enrichment = fold_enrichment)])[, .(sample_fold_enrichment = paste0(sample_fold_enrichment, collapse = "|")), by = IDs_interactor_viral]
-                 setorder(fold_enrichment_dist, IDs_interactor_viral)
-                 fold_enrichment_dist_v = fold_enrichment_dist$sample_fold_enrichment
-                 names(fold_enrichment_dist_v) = fold_enrichment_dist$IDs_interactor_viral
-                 fold_enrichment_dist_v
-               },
-               simplify=TRUE, USE.NAMES=TRUE)
+  if(!frequency){
+    # run permutations N times
+    fold_enrichment_dist = parReplicate(cl, n = N,
+                                        expr = {
+                                          net[, IDs_interactor_human := sample(IDs_interactor_human)]
+                                          sample_net = foldEnrichment(net, protein_annot, frequency)
+                                          # find fold_enrichment distribution in any domain for each viral protein
+                                          fold_enrichment_dist = unique(sample_net[,.(IDs_interactor_viral, sample_fold_enrichment = fold_enrichment)])[, .(sample_fold_enrichment = paste0(sample_fold_enrichment, collapse = "|")), by = IDs_interactor_viral]
+                                          setorder(fold_enrichment_dist, IDs_interactor_viral)
+                                          fold_enrichment_dist_v = fold_enrichment_dist$sample_fold_enrichment
+                                          names(fold_enrichment_dist_v) = fold_enrichment_dist$IDs_interactor_viral
+                                          fold_enrichment_dist_v
+                                        },
+                                        simplify=TRUE, USE.NAMES=TRUE)
+    fold_enrichment_dist = as.data.table(fold_enrichment_dist, keep.rownames = "IDs_interactor_viral")
+    fold_enrichment_dist = fold_enrichment_dist[, .(sampled_fold_enrichment = as.numeric(unlist(strsplit(unlist(.SD), "\\|")))), .SDcols = paste0("V", 1:N), by = IDs_interactor_viral]
+  }
+  if(frequency){
+    # run permutations N times
+    fold_enrichment_dist = parReplicate(cl, n = N,
+                                        expr = {
+                                          net[, IDs_interactor_human := sample(IDs_interactor_human)]
+                                          sample_net = foldEnrichment(net, protein_annot, frequency)
+                                          # find domain_frequency_per_set distribution in any domain for each viral protein
+                                          fold_enrichment_dist = unique(sample_net[,.(IDs_interactor_viral, sample_domain_frequency_per_set = domain_frequency_per_set)])[, .(sample_fold_enrichment = paste0(sample_domain_frequency_per_set, collapse = "|")), by = IDs_interactor_viral]
+                                          setorder(fold_enrichment_dist, IDs_interactor_viral)
+                                          fold_enrichment_dist_v = fold_enrichment_dist$sample_domain_frequency_per_set
+                                          names(fold_enrichment_dist_v) = fold_enrichment_dist$IDs_interactor_viral
+                                          fold_enrichment_dist_v
+                                        },
+                                        simplify=TRUE, USE.NAMES=TRUE)
+    fold_enrichment_dist = as.data.table(fold_enrichment_dist, keep.rownames = "IDs_interactor_viral")
+    fold_enrichment_dist = fold_enrichment_dist[, .(sampled_domain_frequency_per_set = as.numeric(unlist(strsplit(unlist(.SD), "\\|")))), .SDcols = paste0("V", 1:N), by = IDs_interactor_viral]
+  }
 
   # stop the cluster
   stopCluster(cl)
-
-  fold_enrichment_dist = as.data.table(fold_enrichment_dist, keep.rownames = "IDs_interactor_viral")
-  fold_enrichment_dist = fold_enrichment_dist[, .(sampled_fold_enrichment = as.numeric(unlist(strsplit(unlist(.SD), "\\|")))), .SDcols = paste0("V", 1:N), by = IDs_interactor_viral]
 
   return(fold_enrichment_dist)
 }

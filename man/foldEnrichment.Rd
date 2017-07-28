@@ -4,7 +4,7 @@
 \alias{foldEnrichment}
 \title{\code{foldEnrichment} calculates fold enrichment of a domain (or other feature) among interacting partners of a protein}
 \usage{
-foldEnrichment(net, protein_annot)
+foldEnrichment(net, protein_annot, frequency = T)
 }
 \arguments{
 \item{net}{data.table that specifies the PPI network:
@@ -16,6 +16,8 @@ foldEnrichment(net, protein_annot)
 1. first column specifies a protein ("IDs_interactor_human")
 2. second column specifies features of that protein ("IDs_domain_human")
 3. third column specifies background frequency of those features ("domain_frequency)}
+
+\item{frequency}{fold enrichment or frequency in a set (if TRUE - frequency)}
 }
 \value{
 data.table containing fold enrichment for each domain - protein pair
