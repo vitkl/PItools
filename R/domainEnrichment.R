@@ -15,6 +15,7 @@
 ##' @param seed seed for RNG for reproducible sampling
 ##' @param plot.seed seed for RNG for selecting proteins for which to plot sampled distributions (fold_enrichment or frequency)
 ##' @param n_prot for how many proteins to plot sampled distributions
+##' @param pValPlot character specifying column name which contains p-values for histogram
 ##' @import data.table
 ##' @import qvalue
 ##' @importFrom ggplot2 ggplot
@@ -24,7 +25,7 @@
 ##' @importFrom ggplot2 theme_light
 ##' @importFrom ggplot2 xlim
 ##' @export domainEnrichment
-domainEnrichment = function(backgr_domain_count, all.data, net, protein_annot, data, N = 1000, cores = NULL, seed = 1, frequency = T, plot.seed = 1, n_prot = 6){
+domainEnrichment = function(backgr_domain_count, all.data, net, protein_annot, data, N = 1000, cores = NULL, seed = 1, frequency = T, plot.seed = 1, n_prot = 6, pValPlot = "Pval"){
 
   # filter out domains with lower background domain count than backgr_domain_count
   # find which domains2keep
@@ -44,7 +45,7 @@ domainEnrichment = function(backgr_domain_count, all.data, net, protein_annot, d
   Pvals[, Pval_fdr := p.adjust(Pval, method = "fdr")]
   Pvals[, Qval := qvalue(Pval)$qvalues]
 
-  PvalPlot = ggplot(Pvals, aes(x = Pval_fdr)) + geom_histogram(bins = 100) + ggtitle(paste0("viral protein and human domain association \n FDR adjusted pvalue distribution \n background domain count > ", backgr_domain_count)) + theme_light() + xlim(0,1)
+  PvalPlot = ggplot(Pvals, aes(x = eval(parse(text = pValPlot)))) + geom_histogram(bins = 100) + ggtitle(paste0("viral protein and human domain association \n FDR adjusted pvalue distribution \n background domain count > ", backgr_domain_count)) + theme_light() + xlim(0,1)
 
   # plot a few random cases of distributions
   set.seed(1)
