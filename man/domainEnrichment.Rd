@@ -2,11 +2,39 @@
 % Please edit documentation in R/domainEnrichment.R
 \name{domainEnrichment}
 \alias{domainEnrichment}
-\title{domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals}
+\title{domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals plot => the distribution for 6 random proteins}
 \usage{
-domainEnrichment(backgr_domain_count, net, protein_annot, data, N = 1000,
-  cores = NULL, seed = 1, all.data)
+domainEnrichment(backgr_domain_count, all.data, net, protein_annot, data,
+  N = 1000, cores = NULL, seed = 1, frequency = T, plot.seed = 1,
+  n_prot = 6)
+}
+\arguments{
+\item{backgr_domain_count}{discard domains that have background count of less or equal \code{backgr_domain_count}}
+
+\item{all.data}{data.table: all data (net + protein_annot + data) + additional columns, domain_count is necessary for the function to work}
+
+\item{net}{data.table that specifies the PPI network:
+1. first column specifies a protein ("IDs_interactor_viral")
+2. second column specifies it's interacting partner which annotations are of interest ("IDs_interactor_human")
+3. third column specifies the degree of a protein in the first column ("IDs_interactor_viral_degree")}
+
+\item{protein_annot}{data.table that specifies annotations for a protein in the second column of \code{net}
+1. first column specifies a protein ("IDs_interactor_human")
+2. second column specifies features of that protein ("IDs_domain_human")
+3. third column specifies background frequency of those features ("domain_frequency)}
+
+\item{N}{number of times to run permutation of PPI network}
+
+\item{cores}{specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[BiocGenerics]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.}
+
+\item{seed}{seed for RNG for reproducible sampling}
+
+\item{frequency}{fold enrichment or frequency in a set (if TRUE - frequency)}
+
+\item{plot.seed}{seed for RNG for selecting proteins for which to plot sampled distributions (fold_enrichment or frequency)}
+
+\item{n_prot}{for how many proteins to plot sampled distributions}
 }
 \description{
-domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals
+domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals plot => the distribution for 6 random proteins
 }

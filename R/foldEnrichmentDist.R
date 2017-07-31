@@ -54,7 +54,7 @@ foldEnrichmentDist = function(net, protein_annot, N = 1000, cores = NULL, seed =
                                           net[, IDs_interactor_human := sample(IDs_interactor_human)]
                                           sample_net = foldEnrichment(net, protein_annot, frequency)
                                           # find domain_frequency_per_set distribution in any domain for each viral protein
-                                          fold_enrichment_dist = unique(sample_net[,.(IDs_interactor_viral, sample_domain_frequency_per_set = domain_frequency_per_set)])[, .(sample_fold_enrichment = paste0(sample_domain_frequency_per_set, collapse = "|")), by = IDs_interactor_viral]
+                                          fold_enrichment_dist = unique(sample_net[,.(IDs_interactor_viral, sample_domain_frequency_per_set = domain_frequency_per_set)])[, .(sample_domain_frequency_per_set = paste0(sample_domain_frequency_per_set, collapse = "|")), by = IDs_interactor_viral]
                                           setorder(fold_enrichment_dist, IDs_interactor_viral)
                                           fold_enrichment_dist_v = fold_enrichment_dist$sample_domain_frequency_per_set
                                           names(fold_enrichment_dist_v) = fold_enrichment_dist$IDs_interactor_viral

@@ -19,17 +19,26 @@ foldEnrichment = function(net, protein_annot, frequency = T){
   if(ncol(protein_annot) != 3 | mean(c("IDs_interactor_human", "IDs_domain_human", "domain_frequency") %in% colnames(protein_annot)) != 1) stop("protein_annot contains more or less columns than required or wrong colnames")
 
   # add domain annotation to the network, "nomatch = 0" deletes all proteins without domains
-  merged_net = unique(net[protein_annot, nomatch = 0, on = "IDs_interactor_human", allow.cartesian = T])
+  merged_net = unique(protein_annot[net, on = "IDs_interactor_human", allow.cartesian = T])
+  merged_net[IDs_domain_human == "", IDs_domain_human := NA]
 
   # count human proteins with specific domain per viral protein
   # (how many proteins the domain is located in) per viral protein (ID) and human domain (ID)
   merged_net[, domain_count_per_IDs_interactor_viral := .N, by = .(IDs_interactor_viral, IDs_domain_human)]
+  # 0 domain viral protein
+  merged_net[is.na(IDs_domain_human), domain_count_per_IDs_interactor_viral := 0]
+
   # domain frequency but per viral protein
   merged_net[, domain_frequency_per_set := domain_count_per_IDs_interactor_viral / IDs_interactor_viral_degree]
+  # 0 domain viral protein
+  merged_net[is.na(IDs_domain_human), domain_frequency_per_set := 0]
   if(frequency) merged_net = merged_net[,.(IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_set)]
   if(!frequency){
     # fold enrichment
     merged_net[, fold_enrichment := domain_frequency_per_set / domain_frequency]
+    # 0 domain viral protein
+    merged_net[is.na(IDs_domain_human), fold_enrichment := 0]
+
     merged_net = merged_net[,.(IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_set, fold_enrichment)]
   }
   return(merged_net)
