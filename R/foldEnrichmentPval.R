@@ -10,9 +10,9 @@
 ##' @param main title for the plot
 ##' @param text_lab logical: label domains (features) on the plot, or not
 ##' @param frequency fold enrichment or frequency in a set (if TRUE - frequency)
-##' @return data.table containing pvalue for each protein-feature pair in the network (4 columns: proteinID, IDs_interactor_human, featureID, foldEnrichment and Pval)
-##' @usage foldEnrichmentPval(fold_enrichment_dist, data, cores = NULL)
-##' plotFoldEnrichmentDist(proteinID, fold_enrichment_dist, data, main = NULL, text_lab = T)
+##' @return data.table containing pvalue for each protein-feature pair in the network (4 columns: proteinID, IDs_interactor_human, featureID, foldEnrichment (or domain_frequency_per_IDs_interactor_viral) and Pval)
+##' @usage foldEnrichmentPval(fold_enrichment_dist, data, cores = NULL, frequency = T)
+##' plotFoldEnrichmentDist(proteinID, fold_enrichment_dist, data, main = NULL, text_lab = T, frequency = T)
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 ##' @import BiocGenerics
@@ -69,6 +69,8 @@ foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL, frequenc
   return(pval_table)
 }
 
+###########################################
+
 plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = NULL, text_lab = T, frequency = T){
 
   one_fold_enrichment_dist = fold_enrichment_dist[IDs_interactor_viral %in% proteinID,]
@@ -77,7 +79,11 @@ plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = 
   if(frequency) merged[, Pval := mean(domain_frequency_per_IDs_interactor_viral <= sampled_domain_frequency_per_set), by = IDs_domain_human]
   if(!frequency) merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
 
-  if(is.null(main)) main = paste0("fold enrichment distribution (sampled using network permutations)")
+  if(is.null(main)) {
+    # different plot titles based on frequency vs fold enrichment
+    if(frequency) main = paste0("domain frequency per viral protein distribution (sampled using network permutations)")
+    if(!frequency) main = paste0("fold enrichment distribution (sampled using network permutations)")
+    }
 
   data2 = unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])[order(fold_enrichment),]
   # generate histogram

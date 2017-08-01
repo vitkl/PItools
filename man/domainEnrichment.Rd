@@ -6,7 +6,7 @@
 \usage{
 domainEnrichment(backgr_domain_count, all.data, net, protein_annot, data,
   N = 1000, cores = NULL, seed = 1, frequency = T, plot.seed = 1,
-  n_prot = 6)
+  n_prot = 6, pValPlot = "Pval")
 }
 \arguments{
 \item{backgr_domain_count}{discard domains that have background count of less or equal \code{backgr_domain_count}}
@@ -34,6 +34,8 @@ domainEnrichment(backgr_domain_count, all.data, net, protein_annot, data,
 \item{plot.seed}{seed for RNG for selecting proteins for which to plot sampled distributions (fold_enrichment or frequency)}
 
 \item{n_prot}{for how many proteins to plot sampled distributions}
+
+\item{pValPlot}{character specifying column name which contains p-values for histogram}
 }
 \description{
 domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals plot => the distribution for 6 random proteins

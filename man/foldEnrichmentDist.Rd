@@ -27,7 +27,7 @@ foldEnrichmentDist(net, protein_annot, N = 1000, cores = NULL, seed = 1,
 \item{frequency}{fold enrichment or frequency in a set (if TRUE - frequency), also passed to \code{\link[MItools]{foldEnrichment}}}
 }
 \value{
-data.table containing fold enrichment for each domain (or other feature) - protein pair (2 columns: IDs_interactor_viral and sampled_fold_enrichment)
+data.table containing fold enrichment for each domain (or other feature) - protein pair (2 columns: IDs_interactor_viral and sampled_fold_enrichment or sampled_domain_frequency_per_set)
 }
 \description{
 \code{foldEnrichmentDist} finds fold_enrichment distribution (in any domain or other feature) for each protein in the first column of net. For more details: \code{\link[MItools]{foldEnrichment}}

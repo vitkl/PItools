@@ -9,7 +9,7 @@
 ##' 2. second column specifies features of that protein ("IDs_domain_human")
 ##' 3. third column specifies background frequency of those features ("domain_frequency)
 ##' @param frequency fold enrichment or frequency in a set (if TRUE - frequency)
-##' @return data.table containing fold enrichment for each domain - protein pair
+##' @return data.table containing fold enrichment or frequency for each domain - protein pair. Columns: IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_set or fold_enrichment
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 ##' @export foldEnrichment
@@ -39,7 +39,7 @@ foldEnrichment = function(net, protein_annot, frequency = T){
     # 0 domain viral protein
     merged_net[is.na(IDs_domain_human), fold_enrichment := 0]
 
-    merged_net = merged_net[,.(IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_set, fold_enrichment)]
+    merged_net = merged_net[,.(IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, fold_enrichment)]
   }
   return(merged_net)
 }

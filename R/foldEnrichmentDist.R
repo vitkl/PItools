@@ -13,7 +13,7 @@
 ##' @param cores specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[BiocGenerics]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.
 ##' @param seed seed for RNG for reproducible sampling
 ##' @param frequency fold enrichment or frequency in a set (if TRUE - frequency), also passed to \code{\link[MItools]{foldEnrichment}}
-##' @return data.table containing fold enrichment for each domain (or other feature) - protein pair (2 columns: IDs_interactor_viral and sampled_fold_enrichment)
+##' @return data.table containing fold enrichment for each domain (or other feature) - protein pair (2 columns: IDs_interactor_viral and sampled_fold_enrichment or sampled_domain_frequency_per_set)
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 ##' @import BiocGenerics

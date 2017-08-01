@@ -20,7 +20,7 @@ foldEnrichment(net, protein_annot, frequency = T)
 \item{frequency}{fold enrichment or frequency in a set (if TRUE - frequency)}
 }
 \value{
-data.table containing fold enrichment for each domain - protein pair
+data.table containing fold enrichment or frequency for each domain - protein pair. Columns: IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_set or fold_enrichment
 }
 \description{
 \code{foldEnrichment} calculates fold enrichment of a domain (or other feature) among interacting partners of a protein
