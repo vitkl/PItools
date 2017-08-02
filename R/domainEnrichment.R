@@ -41,8 +41,8 @@ domainEnrichment = function(backgr_domain_count, all.data, net, protein_annot, d
                                             protein_annot = protein_annot,
                                             N = N, cores = cores, seed = seed, frequency = frequency)
 
-  if(remove_zeros & frequency) viral_foldEnrichDist[sampled_domain_frequency_per_set != 0,]
-  if(remove_zeros & !frequency) viral_foldEnrichDist[sampled_fold_enrichment != 0,]
+  if(remove_zeros & frequency) viral_foldEnrichDist = viral_foldEnrichDist[sampled_domain_frequency_per_set != 0,]
+  if(remove_zeros & !frequency) viral_foldEnrichDist = viral_foldEnrichDist[sampled_fold_enrichment != 0,]
 
   Pvals = foldEnrichmentPval(fold_enrichment_dist = viral_foldEnrichDist,
                              data = data, cores = cores, frequency = frequency)
