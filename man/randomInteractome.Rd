@@ -15,6 +15,8 @@ randomInteractome(MITABdata = NULL, degree_data = NULL, n_prot,
 \item{n_prot}{integer (1L), the number of proteins for which to retrieve the random set of interactions}
 
 \item{degree_dist}{data.table, specifies the degree frequency () for each degree (N) to produce the network with the specific degree distribution, if set to NULL (default) the degree distribution will correspond to that of \code{taxid} interactome}
+
+\item{...}{arguments to \code{\link{fullInteractome}} that specify interactome species and other attributes of the data}
 }
 \value{
 list of two elements: 1. interactome - data.table containing molecular interaction data in either of these two formats:

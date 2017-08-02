@@ -18,7 +18,7 @@ foldEnrichment = function(net, protein_annot, frequency = T){
   if(ncol(net) != 3 | mean(c("IDs_interactor_viral", "IDs_interactor_human", "IDs_interactor_viral_degree") %in% colnames(net)) != 1) stop("net contains more or less columns than required or wrong colnames")
   if(ncol(protein_annot) != 3 | mean(c("IDs_interactor_human", "IDs_domain_human", "domain_frequency") %in% colnames(protein_annot)) != 1) stop("protein_annot contains more or less columns than required or wrong colnames")
 
-  # add domain annotation to the network, "nomatch = 0" deletes all proteins without domains
+  # add domain annotation to the network, keep proteins without domains (delete domains not corresponding to the proteins in the network)
   merged_net = unique(protein_annot[net, on = "IDs_interactor_human", allow.cartesian = T])
   merged_net[IDs_domain_human == "", IDs_domain_human := NA]
 

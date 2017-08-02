@@ -2,12 +2,14 @@
 % Please edit documentation in R/edgelist2degree.R
 \name{edgelist2degree}
 \alias{edgelist2degree}
-\title{find the degree for each protein given molecular interaction data containing unique pair_id}
+\alias{edgelist2degree_slow}
+\title{find the degree for each protein given cleaned molecular interaction data}
 \usage{
-edgelist2degree(mitab, sep = "\\\\|")
+edgelist2degree(mitab)
+edgelist2degree_slow(mitab, sep = "\\|")
 }
 \arguments{
-\item{mitab}{data.table containing molecular interaction data, including pair_id}
+\item{mitab}{data.table containing molecular interaction data, including "IDs_interactor_A" and "IDs_interactor_B" or "pair_id"}
 
 \item{sep}{how are individual interactors in the pair_id reparated? default: "\\|"}
 }
@@ -15,16 +17,22 @@ edgelist2degree(mitab, sep = "\\\\|")
 sorted data.table containing degree for each of the nodes in the input, details: \code{mitab}
 }
 \description{
-find the degree for each protein given molecular interaction data containing unique pair_id
+find the degree for each protein given cleaned molecular interaction data
 }
 \details{
-unique pair_id is the unique identifier of the undirected interaction: ordered alphabetically and concatenated interacting molecule IDs \code{\link{cleanMITAB}}
+\code{edgelist2degree} uses "IDs_interactor_A", "IDs_interactor_B" columns of a supplied data.table \code{mitab} to compute the degree. \code{mitab} can be generated using \code{\link{cleanMITAB}}
+
+\code{edgelist2degree_slow} uses pair_id to compute degree. Unique pair_id is the unique identifier of the undirected interaction: ordered alphabetically and concatenated interacting molecule IDs \code{\link{cleanMITAB}}
 }
 \examples{
 edgelist = data.table(pair_id = paste0(rep(c("P", "Q", "R"), each = 30),
                       "|",
                       sample(rep(c("Z", "X", "F"), each = 30)), 1:90))
-edgelist2degree(edgelist)
+edgelist2degree_slow(edgelist)
+
+# download full human interactome (clean = TRUE is necessary to produce the right input for edgelist2degree)
+full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+degree = edgelist2degree(full)
 }
 \author{
 Vitalii Kleshchevnikov

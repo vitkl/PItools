@@ -2,11 +2,12 @@
 % Please edit documentation in R/domainEnrichment.R
 \name{domainEnrichment}
 \alias{domainEnrichment}
-\title{domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals plot => the distribution for 6 random proteins}
+\title{domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals => plot the distribution for 6 random proteins}
 \usage{
 domainEnrichment(backgr_domain_count, all.data, net, protein_annot, data,
-  N = 1000, cores = NULL, seed = 1, frequency = T, plot.seed = 1,
-  n_prot = 6, pValPlot = "Pval")
+  N = 1000, cores = NULL, seed = 1, frequency = T,
+  proteinID = sample(unique(net$IDs_interactor_viral), 6),
+  pValPlot = "Pval", remove_zeros = F, calculate_qval = F)
 }
 \arguments{
 \item{backgr_domain_count}{discard domains that have background count of less or equal \code{backgr_domain_count}}
@@ -23,20 +24,24 @@ domainEnrichment(backgr_domain_count, all.data, net, protein_annot, data,
 2. second column specifies features of that protein ("IDs_domain_human")
 3. third column specifies background frequency of those features ("domain_frequency)}
 
+\item{data}{data.table containing foldEnrichment value for each protein-feature pair (4 columns: IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, fold_enrichment)}
+
 \item{N}{number of times to run permutation of PPI network}
 
 \item{cores}{specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[BiocGenerics]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.}
 
 \item{seed}{seed for RNG for reproducible sampling}
 
-\item{frequency}{fold enrichment or frequency in a set (if TRUE - frequency)}
+\item{frequency}{logical, choice of statistic: fold enrichment or frequency in a set (if TRUE - frequency)}
 
-\item{plot.seed}{seed for RNG for selecting proteins for which to plot sampled distributions (fold_enrichment or frequency)}
-
-\item{n_prot}{for how many proteins to plot sampled distributions}
+\item{proteinID}{protein ID for which to plot sampled distributions}
 
 \item{pValPlot}{character specifying column name which contains p-values for histogram}
+
+\item{remove_zeros}{logical, remove zero domain proteins from distribution before calculating p-vals?}
+
+\item{calculate_qval}{logical, calculate q-value adjustment? Can fail if pvalue distribution is weird}
 }
 \description{
-domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals plot => the distribution for 6 random proteins
+domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals => plot the distribution for 6 random proteins
 }

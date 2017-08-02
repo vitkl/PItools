@@ -8,13 +8,19 @@
 ##' @import data.table
 ##' @export edgelist2degreeFreq
 ##' @examples
-##' set.seed(1)
-##' random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE)
-##' edgelist2degreeFreq
+##' # download full human interactome (clean = TRUE is necessary to produce the right input for edgelist2degree)
+##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+##' degree_freq = edgelist2degreeFreq(full)
+##' plot(degree_freq$N, degree_freq$degree_freq,
+##'      log = "xy",
+##'      main = "degree distribution \n - human-human protein interactions -",
+##'      ylab = "degree frequency, log-scale",
+##'      xlab = "degree, log-scale",
+##'      las=1)
 edgelist2degreeFreq = function(mitab, prots = NULL, sep = "\\|"){
-  if(!(is.data.table(mitab) & "pair_id" %in% colnames(mitab))) stop("mitab table (edge list) is not data.table or doesn't contain pair_id column")
+  if(!(is.data.table(mitab) & c("IDs_interactor_A", "IDs_interactor_B") %in% colnames(mitab))) stop("mitab table (edge list) is not data.table or doesn't contain IDs_interactor_A and IDs_interactor_B columns")
   # use all proteins in mitab if no protein list supplied
-  if(is.null(prots)) prots = mitab[, unique(unlist(strsplit(pair_id, "\\|")))]
+  if(is.null(prots)) prots = mitab[, unique(c(IDs_interactor_A, IDs_interactor_B))]
 
   mitab = copy(mitab)
   # compute degree

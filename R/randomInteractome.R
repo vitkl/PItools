@@ -5,6 +5,7 @@
 ##' @param degree_data data.table containing pre-calculated (using \code{\link{edgelist2degree}}) degree for each node in MITABdata, usefull for taking multiple samples, the default in NULL
 ##' @param n_prot integer (1L), the number of proteins for which to retrieve the random set of interactions
 ##' @param degree_dist data.table, specifies the degree frequency () for each degree (N) to produce the network with the specific degree distribution, if set to NULL (default) the degree distribution will correspond to that of \code{taxid} interactome
+##' @param ... arguments to \code{\link{fullInteractome}} that specify interactome species and other attributes of the data
 ##' @return list of two elements: 1. interactome - data.table containing molecular interaction data in either of these two formats:
 ##' @return if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 ##' @return if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
