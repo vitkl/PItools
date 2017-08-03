@@ -32,7 +32,8 @@
 ##' @export plotFoldEnrichmentDist
 foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL, frequency = T){
   # subset data
-  data = unique(data[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment)])
+  if(frequency) data = unique(data[,.(IDs_interactor_viral, IDs_domain_human, domain_frequency_per_IDs_interactor_viral)])
+  if(!frequency) data = unique(data[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment)])
   # split huge foldEnrichment distribution data.table into list of data.tables, one per viral protein ID
   split_fold_enrichment_dist = split(fold_enrichment_dist, fold_enrichment_dist$IDs_interactor_viral)
 
