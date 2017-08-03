@@ -2,7 +2,7 @@
 % Please edit documentation in R/domainEnrichment.R
 \name{domainEnrichment}
 \alias{domainEnrichment}
-\title{domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals => plot the distribution for 6 random proteins}
+\title{domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals => plot the distribution for a set of random proteins}
 \usage{
 domainEnrichment(backgr_domain_count, all.data, net, protein_annot, data,
   N = 1000, cores = NULL, seed = 1, frequency = T,
@@ -43,5 +43,5 @@ domainEnrichment(backgr_domain_count, all.data, net, protein_annot, data,
 \item{calculate_qval}{logical, calculate q-value adjustment? Can fail if pvalue distribution is weird}
 }
 \description{
-domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals => plot the distribution for 6 random proteins
+domainEnrichment: filter domains by background domain count => foldEnrichmentDist => foldEnrichmentPval => pval correction => plot pvals => plot the distribution for a set of random proteins
 }

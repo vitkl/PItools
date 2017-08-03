@@ -82,8 +82,8 @@ plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = 
 
   if(is.null(main)) {
     # different plot titles based on frequency vs fold enrichment
-    if(frequency) main = paste0("domain frequency per viral protein distribution (sampled using network permutations)")
-    if(!frequency) main = paste0("fold enrichment distribution (sampled using network permutations)")
+    if(frequency) main = paste0("distribution of domain frequency per viral protein (sampled using network permutations)")
+    if(!frequency) main = paste0("distribution of fold enrichment per viral protein (sampled using network permutations)")
     }
 
   data2 = unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])[order(fold_enrichment),]

@@ -50,7 +50,7 @@ domainEnrichment = function(backgr_domain_count, all.data, net, protein_annot, d
   Pvals[, Pval_fdr := p.adjust(Pval, method = "fdr")]
   if(calculate_qval) Pvals[, Qval := qvalue(Pval)$qvalues]
 
-  PvalPlot = ggplot(Pvals, aes(x = eval(parse(text = pValPlot)))) + geom_histogram(bins = 100) + ggtitle(paste0("viral protein and human domain association \n ", pValPlot," pvalue distribution \n background domain count > ", backgr_domain_count)) + theme_light() + xlim(0,1)
+  PvalPlot = ggplot(Pvals, aes(x = eval(parse(text = pValPlot)))) + geom_histogram(bins = 100) + ggtitle(paste0("viral protein and human domain association \n ", pValPlot," pvalue distribution \n background domain count > ", backgr_domain_count)) + theme_light() + xlim(-0.01,1.01)
 
   # plot a few cases of distributions
   distPlot = plotFoldEnrichmentDist(proteinID = proteinID,
