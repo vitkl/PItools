@@ -13,13 +13,18 @@
 ##' @import qvalue
 ##' @author Vitalii Kleshchevnikov
 ##' @export permutationPval
-permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = 1){
+permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = 1, include_missing_Z_as_zero = F){
   ########################################################################################################################
   # if data is not data.table or is not coerce-able to data.table: stop
   if(!is.data.table(data)) if(is.data.frame(data)) data = as.data.table(data) else if(is.matrix(data)) data = as.data.table(data) else stop("data is provided but is not data.table, data.frame or matrix")
   ########################################################################################################################
   # extract nodes from formulas: interactions2permute and associations2test
   nodes = formula2nodes(interactions2permute, associations2test)
+  # a way to convert character column name into code executable by data.table calls
+  nodes_call = list()
+  nodes_call$nodeX = as.formula(paste0("~ ", nodes$nodeX))[[2]]
+  nodes_call$nodeY = as.formula(paste0("~ ", nodes$nodeY))[[2]]
+  nodes_call$nodeZ = as.formula(paste0("~ ", nodes$nodeZ))[[2]]
   ########################################################################################################################
   # find columns in data that should be separated into individual data.table-s specified in interactions2permute, associations2test and node_attr
   interactionsXY_cols = c(nodeX, nodeY)
@@ -29,9 +34,9 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   #extract node attributes
   cols = node_attr2colnames(node_attr, cols, nodes)
   # create tables as specified
-  interactionsXY = data[, cols$interactionsXY_cols, with = F]
-  interactionsYZ = data[, cols$interactionsYZ_cols, with = F]
-  associations = data[, cols$associations_cols, with = F]
+  interactionsXY = unique(data[, cols$interactionsXY_cols, with = F])
+  interactionsYZ = unique(data[, cols$interactionsYZ_cols, with = F])
+  associations = unique(data[, cols$associations_cols, with = F])
   data_list = list(interactionsXY = interactionsXY, interactionsYZ = interactionsYZ, associations = associations)
   ########################################################################################################################
   # filter tables by node attribute if select_nodes is provided
@@ -43,23 +48,24 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
     for(i in 1:N_attr){ # for each formula extract elements
       form_temp = select_nodes[[i]]
       list_names[i] = as.character(as.expression(form_temp[[2]]))
-      # extract nodes
-      node_temp = all.vars(form_temp[[2]])
-      # extract conditions
-      condition_temp = form_temp[[3]]
-      # filter data.table using condition if the node (nodes) are present in that table
-      if(mean(node_temp %in% c(nodeX, nodeY)) == 1) interactionsXY
-      if(mean(node_temp %in% c(nodeY, nodeZ)) == 1) interactionsYZ
-      if(mean(node_temp %in% c(nodeX, nodeZ)) == 1) associations
+
+      data_list = filterByFormula(data_list, form_temp, cols, nodes)
     }
     # give list elements names
     names(select_nodes) = list_names
   } else if(is.formula(select_nodes)){ # extract element from single formula
     data_list = filterByFormula(data_list, select_nodes, cols, nodes)
-  } else if(is.null(node_attr)) NULL else
-    stop("node_attr is provided but is neither a list nor a formula")
+  } else if(is.null(node_attr)) NULL else stop("node_attr is provided but is neither a list nor a formula")
   ########################################################################################################################
-  statistic(2)
+
+  # extract "by columns" and how to calculate statistic from formula provided in statistic argument as class "call"
+  by_cols = as.formula(paste0("~ .(",paste0(all.vars(statistic[[2]]), collapse = ","),")"))[[2]]
+  exprs = statistic[[3]]
+
+  # calculate observed statistic
+  data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero)
+
+  data_list = calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero)
 }
 
 data[eval(as.expression((~ domain_count == 4)[[2]])),]

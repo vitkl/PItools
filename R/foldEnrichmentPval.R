@@ -48,7 +48,7 @@ foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL, frequenc
     # loop over each viral protein and calculate the fraction of sampled_domain_frequency_per_set that is higher or equal to domain_frequency_per_IDs_interactor_viral, write into Pval column and select only necessary columns for minimal representation
     pval_list = parLapply(cl, split_fold_enrichment_dist, function(one_fold_enrichment_dist, data){
       merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
-      merged[, Pval := mean(domain_frequency_per_IDs_interactor_viral <= sampled_domain_frequency_per_set), by = IDs_domain_human]
+      merged[, Pval := mean(sampled_domain_frequency_per_set >= domain_frequency_per_IDs_interactor_viral), by = IDs_domain_human]
       unique(merged[,.(IDs_interactor_viral, IDs_domain_human, domain_frequency_per_IDs_interactor_viral, Pval)])
     }, data)
   }
@@ -56,7 +56,7 @@ foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL, frequenc
     # loop over each viral protein and calculate the fraction of sampled_fold_enrichment that is higher or equal to fold_enrichment, write into Pval column and select only necessary columns for minimal representation
     pval_list = parLapply(cl, split_fold_enrichment_dist, function(one_fold_enrichment_dist, data){
       merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
-      merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
+      merged[, Pval := mean(sampled_fold_enrichment >= fold_enrichment), by = IDs_domain_human]
       unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])
     }, data)
   }
@@ -77,8 +77,8 @@ plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = 
   one_fold_enrichment_dist = fold_enrichment_dist[IDs_interactor_viral %in% proteinID,]
   merged = one_fold_enrichment_dist[data, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
 
-  if(frequency) merged[, Pval := mean(domain_frequency_per_IDs_interactor_viral <= sampled_domain_frequency_per_set), by = IDs_domain_human]
-  if(!frequency) merged[, Pval := mean(fold_enrichment <= sampled_fold_enrichment), by = IDs_domain_human]
+  if(frequency) merged[, Pval := mean(sampled_domain_frequency_per_set >= domain_frequency_per_IDs_interactor_viral), by = IDs_domain_human]
+  if(!frequency) merged[, Pval := mean(sampled_fold_enrichment >= fold_enrichment), by = IDs_domain_human]
 
   if(is.null(main)) {
     # different plot titles based on frequency vs fold enrichment
