@@ -2,17 +2,20 @@
 ##' @name formula2colnames
 ##' @aliases node_attr2colnames
 ##' @aliases formula2nodes
-##' @aliases data_list
+##' @aliases filterByFormula
+##' @aliases calcObservedStatistic
+##' @aliases calcPermutedStatistic
+##' @aliases observedVSpermuted
 ##' @param node_attr formula (formula2colnames and node_attr2colnames) or list of formulas (node_attr2colnames)
 ##' @param cols list of column names
 ##' @param nodes list of node names (column names for columns that contain node names)
-##' @param interactions2permute
-##' @param associations2test
-##' @param data_list
-##' @param select_nodes
-##' @param by_cols
-##' @param exprs
-##' @param include_missing_Z_as_zero
+##' @param interactions2permute decription: \code{\link[MItools]{permutationPval}}
+##' @param associations2test decription: \code{\link[MItools]{permutationPval}}
+##' @param data_list list (or enviroment?) that contains data.tables necessary
+##' @param select_nodes decription: \code{\link[MItools]{permutationPval}}
+##' @param by_cols modified left-hand side of \code{statistic} (\code{\link[MItools]{permutationPval}}), class call
+##' @param exprs right-hand side of \code{statistic} (\code{\link[MItools]{permutationPval}}), class call, \code{exprs} is evaluated by \code{by_cols}; in data.table synthax: DT[, statistic := eval(exprs), by = .(eval(by_cols))]
+##' @param include_missing_Z_as_zero decription: \code{\link[MItools]{permutationPval}}
 ##' @return updated list of column names
 ##' @details extract nodes
 ##' @details extract attributes
@@ -24,8 +27,9 @@
 ##' cols = node_attr2colnames(node_attr, cols, nodes)
 ##' nodes = formula2nodes(interactions2permute, associations2test)
 ##' data_list = filterByFormula(data_list, select_nodes, cols, nodes)
-##' calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero)
-##' calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero)
+##' data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero)
+##' data_list = calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero)
+##' res = observedVSpermuted(data_list, nodes)
 formula2colnames = function(node_attr, cols, nodes){
   # if not formula is provided
   if(!is.formula(node_attr)) stop(paste("node_attr is provided but is not a formula: class - ", class(node_attr), "; content - ",paste(paste0("[[",1:length(node_attr),"]]"), node_attr, collapse = " ")))
@@ -130,9 +134,11 @@ calcObservedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
   data_list$observed[, observed_statistic := eval(exprs), by = eval(by_cols)]
 
   if(include_missing_Z_as_zero){
-    # equate statistic for missing Z cases to 0, record this statistic to a separate column
-    data_list$observed[is.na(eval(nodes_call$nodeZ)), missingZ_statistic := observed_statistic]
-    data_list$observed[is.na(eval(nodes_call$nodeZ)), observed_statistic := 0]
+    # equate statistic for missing Z cases
+    data_list$observed[is.na(eval(nodes_call$nodeZ)), observed_statistic := NA]
+    # record in how many cases statistic is missing per X
+    data_list$observed[, missingZ_statistic := sum(is.na(eval(nodes_call$nodeZ))),
+                       by = eval(nodes_call$nodeX)]
   }
   return(data_list)
 }
@@ -151,9 +157,11 @@ calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
   data_list$permuted[, permuted_statistic := eval(exprs), by = eval(by_cols)]
 
   if(include_missing_Z_as_zero){
-    # equate statistic for missing Z cases to 0, record this statistic to a separate column
-    data_list$permuted[is.na(eval(nodes_call$nodeZ)), missingZ_statistic := permuted_statistic]
-    data_list$permuted[is.na(eval(nodes_call$nodeZ)), permuted_statistic := 0]
+    # equate statistic for missing Z
+    data_list$permuted[is.na(eval(nodes_call$nodeZ)), permuted_statistic := NA]
+    # record in how many cases statistic is missing per X
+    data_list$permuted[, missingZ_statistic := sum(is.na(eval(nodes_call$nodeZ))),
+                       by = eval(nodes_call$nodeX)]
   }
 
   # since this statistic is being calculated to generate background distribution for nodeX - we keep only the node X and the statistic
@@ -172,24 +180,17 @@ calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
   return(data_list)
 }
 
-observedVSpermuted = function(data_list){
-  data_list$result = data_list$permuted[data_list$observed, on = nodes$nodeX, allow.cartesian=TRUE]
-  data_list$result[, mean(observed_statistic <= permuted_statistic), by = .(eval(nodes_call$nodeX), eval(nodes_call$nodeZ))]
+observedVSpermuted = function(data_list, nodes){
+  result = data_list$permuted[data_list$observed, on = nodes$nodeX, allow.cartesian=TRUE]
+  result_pval = result[, sum(observed_statistic <= permuted_statistic, na.rm = T), by = .(eval(nodes_call$nodeX), eval(nodes_call$nodeZ))]
+  setnames(result_pval, colnames(result_pval), c(nodes$nodeX, nodes$nodeZ, "higher_counts"))
+  setorderv(result_pval, cols = c(nodes$nodeX, nodes$nodeZ, "higher_counts"))
 
+  result_not_missing = result[, sum(!(is.na(observed_statistic) | is.na(permuted_statistic))), by = .(eval(nodes_call$nodeX), eval(nodes_call$nodeZ))]
+  setnames(result_not_missing, colnames(result_not_missing), c(nodes$nodeX, nodes$nodeZ, "not_missing"))
+  setorderv(result_not_missing, cols = c(nodes$nodeX, nodes$nodeZ, "not_missing"))
 
+  temp = result_pval[result_not_missing, on = c(nodes$nodeX, nodes$nodeZ)][!is.na(eval(nodes_call$nodeZ)),]
 
-
-  splitX = split(data_list$permuted, data_list$permuted$IDs_interactor_viral)
-  splitX$U5TQE9
-
-  pval_list = lapply(splitX, function(one_fold_enrichment_dist, observed){
-    merged = one_fold_enrichment_dist[observed, nomatch = 0, on = "IDs_interactor_viral", allow.cartesian = T]
-    #merged[, Pval := mean(observed_statistic <= permuted_statistic), by = IDs_domain_human]
-    #unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])
-  }, data_list$observed)
-  pval_list$U5TQE9
-  pval_table = Reduce(rbind, pval_list)
-  setorder(X, IDs_interactor_viral, permuted_statistic,IDs_interactor_human,IDs_interactor_viral_degree,IDs_domain_human,domain_count,observed_statistic)
-  setorder(pval_table, IDs_interactor_viral, permuted_statistic,IDs_interactor_human,IDs_interactor_viral_degree,IDs_domain_human,domain_count,observed_statistic)
-  all.equal(X, pval_table)
+  return(temp[,.(higher_counts, not_missing)])
 }
