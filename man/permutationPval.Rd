@@ -6,7 +6,7 @@
 \usage{
 permutationPval(interactions2permute = nodeX ~ nodeY,
   associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic,
-  select_nodes = NULL, N = 1000, cores = NULL, seed = 1,
+  select_nodes = NULL, N = 1000, cores = NULL, seed = NULL,
   include_missing_Z_as_zero = T)
 }
 \arguments{
@@ -18,13 +18,13 @@ permutationPval(interactions2permute = nodeX ~ nodeY,
 
 \item{data}{data.table containing interaction data and attributes}
 
-\item{statistic}{formula that specifies how to calculate statistic using attibutes from \code{node_attr} by node \code{X} in \code{interactions2permute} and \code{Z} in \code{associations2test}, details: \code{\link[MItools]{calcObservedStatistic}}, \code{\link[MItools]{calcPermutedStatistic}}. In data.table synthax: \code{DT[, (observed/permuted)statistic := eval(right-hand-side of formula), by = .(eval(column names in the left-hand-side of formula))]}}
+\item{statistic}{formula that specifies how to calculate statistic using attibutes from \code{node_attr} by node \code{X} in \code{interactions2permute} and \code{Z} in \code{associations2test}, details: \code{\link[MItools]{permutationPvalHelper}}, \code{\link[MItools]{permutationPvalHelper}}. In data.table synthax: \code{DT[, (observed/permuted)statistic := eval(right-hand-side of formula), by = .(eval(column names in the left-hand-side of formula))]}}
 
 \item{select_nodes}{formula or list of formulas specifying which nodes of specific node type to select before permutation based on condition (\code{X} ~ \code{degree} > \code{10})}
 
 \item{N}{number of times to run permutation of PPI network}
 
-\item{cores}{specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[BiocGenerics]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.}
+\item{cores}{specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[parallel]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.}
 
 \item{seed}{seed for RNG for reproducible sampling}
 
