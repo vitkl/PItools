@@ -13,7 +13,7 @@ res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interact
                 data = data,
                 statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
                 select_nodes = IDs_domain_human ~ domain_count >= 1,
-                N = 100,
+                N = 1000,
                 cores = NULL, seed = 2, include_missing_Z_as_zero = T)
 
 res_g = res
@@ -83,6 +83,39 @@ qplot(x = res$data_with_pval[p.value < 0.01, IDs_interactor_viral_degree], y = r
 # 38.02992 38.33805 38.7546 38.73306 38.86937 39.60011    10
 
 
+library(MItools)
+library(rtracklayer)
+library(ggplot2)
+data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
+time = proc.time()
+res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
+                      associations2test = IDs_interactor_viral ~ IDs_domain_human,
+                      node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
+                                       IDs_domain_human ~ domain_count,
+                                       IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
+                      data = data,
+                      statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
+                      select_nodes = IDs_domain_human ~ domain_count >= 1,
+                      N = 10000,
+                      cores = NULL, seed = 2, include_missing_Z_as_zero = T)
+proc.time() - time
+time = proc.time()
+resFISHER = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
+                            associations2test = IDs_interactor_viral ~ IDs_domain_human,
+                            node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
+                                             IDs_domain_human ~ domain_count + N_prot_w_interactors,
+                                             IDs_interactor_viral + IDs_domain_human ~ domain_count_per_IDs_interactor_viral),
+                            data = data,
+                            statistic = IDs_interactor_viral + IDs_domain_human ~ fisher.test(matrix(c(unique(domain_count), unique(N_prot_w_interactors) - unique(domain_count), unique(domain_count_per_IDs_interactor_viral), unique(IDs_interactor_viral_degree) - unique(domain_count_per_IDs_interactor_viral)),2,2), alternative = "greater", conf.int = F)$p.value,
+                            select_nodes = IDs_domain_human ~ domain_count >= 1,
+                            N = 10000,
+                            cores = NULL, seed = 1, include_missing_Z_as_zero = T)
+resFISHER$data_with_pval[, p.value := 1 - p.value]
+proc.time() - time
+
+resFISHER$IDs_interactor_viral_degreeVSdomain_count = qplot(x = resFISHER$data_with_pval[order(p.value)[1:250], IDs_interactor_viral_degree], y = resFISHER$data_with_pval[order(p.value)[1:250], domain_count], geom = "bin2d") + scale_x_log10() + scale_y_log10()
+res$IDs_interactor_viral_degreeVSdomain_count = qplot(x = res$data_with_pval[order(p.value)[1:250], IDs_interactor_viral_degree], y = res$data_with_pval[order(p.value)[1:250], domain_count], geom = "bin2d") + scale_x_log10() + scale_y_log10()
+
 interactiondomains = fread("http://elm.eu.org/interactiondomains.tsv")
 interactiondomains[, pfam_id := `Interaction Domain Id`]
 
@@ -95,15 +128,38 @@ domains_mapping = unique(data.table(any_id = as.character(InterProScan_domains_n
 domains_known_mapped = unique(domains_mapping[any_id %in% domains_known, interpro_id])
 domains_not_mapped = unique(domains_known[!domains_known %in% domains_mapping$any_id])
 
-res$data_with_pval[, pval_fdr := p.adjust(p.value, method = "fdr")]
-hist(res$data_with_pval[, pval_fdr], breaks = seq(0,1,0.01))
+test_enrichment = function(N, res, domains_known_mapped){
+  res$data_pval = unique(res$data_with_pval[,.(IDs_interactor_viral, IDs_domain_human, p.value, domain_type, domain_count, IDs_interactor_viral_degree)])
+  res$data_pval[, pval_fdr := p.adjust(p.value, method = "fdr")]
+  hist(res$data_pval[, pval_fdr], breaks = seq(0,1,0.01))
 
-domains_found = res$data_with_pval[pval_fdr < 0.05, unique(IDs_domain_human)]
+  domains_found = res$data_pval[order(p.value)[1:N], unique(IDs_domain_human)]
 
-alldomains = res$data_with_pval[, unique(IDs_domain_human)]
-known = factor(alldomains %in% domains_known_mapped, levels = c("TRUE", "FALSE"))
-found = factor(alldomains %in% domains_found, levels = c("TRUE", "FALSE"))
-table(known, found)
-fisher.test(table(set, found), alternative = "greater", conf.int = T)
+  alldomains = res$data_pval[, unique(IDs_domain_human)]
+  known = factor(alldomains %in% domains_known_mapped, levels = c("TRUE", "FALSE"))
+  found = factor(alldomains %in% domains_found, levels = c("TRUE", "FALSE"))
+  table_res = table(known, found)
 
+  test = fisher.test(table(known, found), alternative = "greater", conf.int = T)
+
+  return(c(test$p.value, test$estimate, table_res["TRUE", "TRUE"]))
+}
+
+enrichment = sapply(seq(25, 500, 25), test_enrichment, res, domains_known_mapped)
+colnames(enrichment) = seq(25, 500, 25)
+enrichmentFISHER = sapply(seq(25, 500, 25), test_enrichment, resFISHER, domains_known_mapped)
+colnames(enrichmentFISHER) = seq(25, 500, 25)
+
+plot(colnames(enrichment), enrichment[2,], ylab = "Fisher test odds ratio", xlab = "top N viral protein - domain pairs selected", col = "red", type = "l", ylim = c(0,18))
+lines(x = colnames(enrichment), y = enrichmentFISHER[2,], col = "blue", type = "l")
+legend(x = 80, y = 17.5, c("statictic used in permutation test:","domain frequency among interactors of a viral protein", "Fisher test pval: domain overrepresentation over the background"), col = c("white","red", "blue"), lty = 1 ,merge = TRUE)
+
+plot(colnames(enrichment), enrichment[3,], ylab = "known domain found", xlab = "top N viral protein - domain pairs selected", col = "red", type = "l", ylim = c(0,length(domains_known_mapped)+1))
+lines(x = colnames(enrichment), y = enrichmentFISHER[3,], col = "blue", type = "l")
+abline(h = length(domains_known_mapped), col = "green")
+legend(x = 80, y = 50, c("statictic used in permutation test:","domain frequency among interactors of a viral protein", "Fisher test pval: domain overrepresentation over the background", "domains known to interact with linear motifs"), col = c("white","red", "blue", "green"), lty = 1 , merge = TRUE)
+
+plot(colnames(enrichment), enrichment[1,], ylab = "Fisher test pvalue", xlab = "top N viral protein - domain pairs selected", col = "red", type = "l", ylim = c(0,0.004))
+lines(x = colnames(enrichment), y = enrichmentFISHER[1,], col = "blue", type = "l")
+legend(x = 80, y = 0.0041, c("statictic used in permutation test:","domain frequency among interactors of a viral protein", "Fisher test pval: domain overrepresentation over the background"), col = c("white","red", "blue"), lty = 1 ,merge = TRUE)
 

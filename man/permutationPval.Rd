@@ -7,12 +7,12 @@
 permutationPval(interactions2permute = nodeX ~ nodeY,
   associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic,
   select_nodes = NULL, N = 1000, cores = NULL, seed = NULL,
-  include_missing_Z_as_zero = T)
+  also_permuteYZ = F)
 }
 \arguments{
 \item{interactions2permute}{formula specifying columns that contain X-Y interactions that will be permuted}
 
-\item{associations2test}{formula specifying columns that contain X-Z correspondence: empirical p-values for the association of X with Z will be tested}
+\item{associations2test}{formula specifying columns that contain X-Z correspondence: empirical p-values for the association of X with Z will be tested, NOTE: Y-Z interactions are assumed}
 
 \item{node_attr}{formula or list of formulas specifying columns that contain attributes of \code{X}, \code{Y} or \code{Z} or their combination (\code{X} ~ \code{degree}, \code{X} + \code{Z} ~ \code{pvalue})}
 
@@ -27,8 +27,6 @@ permutationPval(interactions2permute = nodeX ~ nodeY,
 \item{cores}{specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[parallel]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.}
 
 \item{seed}{seed for RNG for reproducible sampling}
-
-\item{include_missing_Z_as_zero}{not sure if this is needed - I have decided to treat X with missing observed Z as missing values, therefore any statistic is also missing for such cases}
 }
 \description{
 calculate permutation pval for association between X and Z if both are connected to Y

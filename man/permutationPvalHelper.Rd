@@ -14,8 +14,8 @@ cols = formula2colnames(node_attr, cols, nodes)
 cols = node_attr2colnames(node_attr, cols, nodes)
 nodes = formula2nodes(interactions2permute, associations2test)
 data_list = filterByFormula(data_list, select_nodes, cols, nodes)
-data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero)
-data_list = calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero)
+data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations)
+data_list = calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
 res = observedVSpermuted(data_list, nodes_call, nodes)
 temp2 = aggregatePermutations(temp, nodes, nodes_call)
 }
@@ -25,6 +25,8 @@ temp2 = aggregatePermutations(temp, nodes, nodes_call)
 \item{cols}{list of column names}
 
 \item{nodes}{list of node names (column names for columns that contain node names)}
+
+\item{nodes_call}{list of node names, each class call (to be evaluated within data.table expressions DT[,eval(nodes_call$nodeX)])}
 
 \item{interactions2permute}{decription: \code{\link[MItools]{permutationPval}}}
 
@@ -38,7 +40,9 @@ temp2 = aggregatePermutations(temp, nodes, nodes_call)
 
 \item{exprs}{right-hand side of \code{statistic} (\code{\link[MItools]{permutationPval}}), class call, \code{exprs} is evaluated by \code{by_cols}; in data.table synthax: DT[, statistic := eval(exprs), by = .(eval(by_cols))]}
 
-\item{include_missing_Z_as_zero}{decription: \code{\link[MItools]{permutationPval}}}
+\item{includeAssociations}{logical, if calculating statistic requires columns that contain attribute of X-Z pair associations table will be merged}
+
+\item{also_permuteYZ}{logical, permute Y-Z interactions as well as X-Y ?}
 }
 \value{
 updated list of column names

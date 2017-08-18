@@ -1,7 +1,7 @@
 ##' calculate permutation pval for association between X and Z if both are connected to Y
 ##' @name permutationPval
 ##' @param interactions2permute formula specifying columns that contain X-Y interactions that will be permuted
-##' @param associations2test formula specifying columns that contain X-Z correspondence: empirical p-values for the association of X with Z will be tested
+##' @param associations2test formula specifying columns that contain X-Z correspondence: empirical p-values for the association of X with Z will be tested, NOTE: Y-Z interactions are assumed
 ##' @param node_attr formula or list of formulas specifying columns that contain attributes of \code{X}, \code{Y} or \code{Z} or their combination (\code{X} ~ \code{degree}, \code{X} + \code{Z} ~ \code{pvalue})
 ##' @param data data.table containing interaction data and attributes
 ##' @param statistic formula that specifies how to calculate statistic using attibutes from \code{node_attr} by node \code{X} in \code{interactions2permute} and \code{Z} in \code{associations2test}, details: \code{\link[MItools]{permutationPvalHelper}}, \code{\link[MItools]{permutationPvalHelper}}. In data.table synthax: \code{DT[, (observed/permuted)statistic := eval(right-hand-side of formula), by = .(eval(column names in the left-hand-side of formula))]}
@@ -9,16 +9,22 @@
 ##' @param N number of times to run permutation of PPI network
 ##' @param cores specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[parallel]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.
 ##' @param seed seed for RNG for reproducible sampling
-##' @param include_missing_Z_as_zero not sure if this is needed - I have decided to treat X with missing observed Z as missing values, therefore any statistic is also missing for such cases
+##' @param also_permuteYZ logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?
 ##' @import data.table
 ##' @import qvalue
 ##' @import BiocGenerics
 ##' @author Vitalii Kleshchevnikov
 ##' @export permutationPval
-permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, include_missing_Z_as_zero = T){
+permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F){
   ########################################################################################################################
   # if data is not data.table or is not coerce-able to data.table: stop
   if(!is.data.table(data)) if(is.data.frame(data)) data = as.data.table(data) else if(is.matrix(data)) data = as.data.table(data) else stop("data is provided but is not data.table, data.frame or matrix")
+  # if character columns contain empty character "" => substutute that for NA
+  col_class_character = sapply(data, function(data_col) class(data_col)) == "character"
+  col_character = names(col_class_character)[col_class_character]
+  for (colname in col_character) {
+    data[eval(as.formula(paste0("~ ", colname," == \"\""))[[2]]), c(colname) := NA]
+  }
   ########################################################################################################################
   # extract nodes from formulas: interactions2permute and associations2test
   nodes = formula2nodes(interactions2permute, associations2test)
@@ -41,6 +47,14 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   associations = unique(data[, cols$associations_cols, with = F])
   data_list = list(interactionsXY = interactionsXY, interactionsYZ = interactionsYZ, associations = associations)
   ########################################################################################################################
+  # check if select_nodes asks to select nodes based on their attributes as specified in node_attr
+  checkSelectNodes = function(select_nodes, node_attr){
+    if(is.formula(select_nodes) & is.formula(node_attr)){
+      nodes_vs_attributes = formula2colnames(node_attr, nodes_vs_attributes = T)
+      checkSelectNodes
+    }
+
+  }
   # filter tables by node attribute if select_nodes is provided
   # extract nodes to filter and apply conditions
   if(is.list(select_nodes)){
@@ -57,7 +71,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
     names(select_nodes) = list_names
   } else if(is.formula(select_nodes)){ # extract element from single formula
     data_list = filterByFormula(data_list, select_nodes, cols, nodes)
-  } else if(is.null(node_attr)) NULL else stop("node_attr is provided but is neither a list nor a formula")
+  } else if(is.null(select_nodes)) NULL else stop("select_nodes is provided but is neither a list nor a formula")
   ########################################################################################################################
 
   # extract "by columns" and how to calculate statistic from formula provided in statistic argument as class "call"
@@ -68,10 +82,12 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   if(sum(exprs_vars %in% cols$associations_cols) >= 1) includeAssociations = T else includeAssociations = F
 
   # calculate observed statistic
-  data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero, includeAssociations)
+  data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations)
 
   # create a table to be used for permuting interactions
   data_list$permuted_interactionsXY = data_list$interactionsXY
+  # if both XY and YZ interactions are to be permuted create a table to be used for permuting YZ interactions
+  if(also_permuteYZ) data_list$permuted_interactionsYZ = data_list$interactionsYZ
 
   # set up parallel processing
   # create cluster
@@ -80,7 +96,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   # get library support needed to run the code
   clusterEvalQ(cl, {library(MItools); library(data.table); library(BiocGenerics)})
   # put objects in place that might be needed for the code
-  clusterExport(cl, c("data_list", "by_cols", "exprs", "nodes", "nodes_call", "include_missing_Z_as_zero", "includeAssociations"), envir=environment())
+  clusterExport(cl, c("data_list", "by_cols", "exprs", "nodes", "nodes_call", "includeAssociations", "also_permuteYZ"), envir=environment())
   # set seed
   clusterSetRNGStream(cl, iseed = seed)
 
@@ -99,7 +115,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
     # inner replicate
     temp_inner = replicate(n = inner_N, expr = {
       # calculate statistic using permuted network
-      data_list = MItools:::calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, include_missing_Z_as_zero, includeAssociations)
+      data_list = MItools:::calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
       # count how many times observed is lower than permuted giving us the empirical probability of observing value as high or higher by chance
       data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
     })
@@ -118,10 +134,11 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   # merge p-value result to the original "data" data.table
   data_with_pval = temp2[data, on = c(nodes$nodeX, nodes$nodeZ)]
   # add observed statistic to the original "data" data.table
-  data_list$observed[,.(nodes$nodeX, nodes$nodeZ, "observed_statistic", "missingZ_statistic")]
+  data_list$observed = data_list$observed[,.(nodes$nodeX, nodes$nodeZ, "observed_statistic", "YmissingZ_perX")]
+  data_with_pval = data_list$observed[data, on = c(nodes$nodeX, nodes$nodeZ)]
 
 
-  return(list(input = match.call(), data_with_pval = data_with_pval))
+  return(list(input = match.call(), nodes = nodes, data_with_pval = data_with_pval))
 
 }
 
@@ -135,6 +152,6 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
 #                statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
 #                select_nodes = IDs_domain_human ~ domain_count > 16,
 #                N = 10,
-#                cores = NULL, seed = 1, include_missing_Z_as_zero = T)
+#                cores = NULL, seed = 1)
 # fisher.test(matrix(c(data$domain_count[1], data$N_prot[1] - data$domain_count[1], data$domain_count_per_IDs_interactor_viral[1], data$IDs_interactor_viral_degree[1] - data$domain_count_per_IDs_interactor_viral[1]),2,2), alternative = "greater", conf.int = F)$estimate
 # statistic = IDs_interactor_viral + IDs_domain_human ~ fisher.test(matrix(c(domain_count[1], N_prot[1] - domain_count[1], domain_count_per_IDs_interactor_viral[1], IDs_interactor_viral_degree[1] - domain_count_per_IDs_interactor_viral[1]),2,2), alternative = "greater", conf.int = F)$estimate #p.value
