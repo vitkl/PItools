@@ -47,31 +47,19 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   associations = unique(data[, cols$associations_cols, with = F])
   data_list = list(interactionsXY = interactionsXY, interactionsYZ = interactionsYZ, associations = associations)
   ########################################################################################################################
-  # check if select_nodes asks to select nodes based on their attributes as specified in node_attr
-  checkSelectNodes = function(select_nodes, node_attr){
-    if(is.formula(select_nodes) & is.formula(node_attr)){
-      nodes_vs_attributes = formula2colnames(node_attr, nodes_vs_attributes = T)
-      checkSelectNodes
+  # check if select_nodes asks to select nodes based on their attributes as specified in node_attr or (by the node name)
+  if(is.formula(select_nodes)) select_nodes = list(select_nodes)
+  select_nodes_new = list()
+  if(is.formula(node_attr)) node_attr = list(node_attr)
+  for (select_formula in select_nodes) {
+    for (node_attr_formula in node_attr) {
+      select_nodes_temp = checkSelectNodes(select_formula, node_attr_formula, nodes)
+      select_nodes_new = c(select_nodes_new, select_nodes_temp)
     }
-
   }
-  # filter tables by node attribute if select_nodes is provided
-  # extract nodes to filter and apply conditions
-  if(is.list(select_nodes)){
-    # how many formulas in a list?
-    N_attr = length(select_nodes)
-    list_names = character(N_attr)
-    for(i in 1:N_attr){ # for each formula extract elements
-      form_temp = select_nodes[[i]]
-      list_names[i] = as.character(as.expression(form_temp[[2]]))
 
-      data_list = filterByFormula(data_list, form_temp, cols, nodes)
-    }
-    # give list elements names
-    names(select_nodes) = list_names
-  } else if(is.formula(select_nodes)){ # extract element from single formula
-    data_list = filterByFormula(data_list, select_nodes, cols, nodes)
-  } else if(is.null(select_nodes)) NULL else stop("select_nodes is provided but is neither a list nor a formula")
+  # filter tables by node attribute if select_nodes is provided
+  data_list = filterByList(data_list, select_nodes, cols, nodes)
   ########################################################################################################################
 
   # extract "by columns" and how to calculate statistic from formula provided in statistic argument as class "call"

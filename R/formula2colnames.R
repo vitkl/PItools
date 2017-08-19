@@ -23,28 +23,25 @@ permutationPvalHelper = NULL
 ##' @import BiocGenerics
 ##' @author Vitalii Kleshchevnikov
 ##' @usage cols = formula2colnames(node_attr, cols, nodes)
-##' nodes_vs_attributes = formula2colnames(node_attr, nodes_vs_attributes = T)
 ##' data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations)
 ##' data_list = calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
 ##' res = observedVSpermuted(data_list, nodes_call, nodes)
 ##' temp2 = aggregatePermutations(temp, nodes, nodes_call)
-formula2colnames = function(node_attr, cols, nodes, nodes_vs_attributes = F){
+formula2colnames = function(node_attr, cols, nodes){
   # if not formula is provided
   if(!is.formula(node_attr)) stop(paste("node_attr is provided but is not a formula: class - ", class(node_attr), "; content - ",paste(paste0("[[",1:length(node_attr),"]]"), node_attr, collapse = " ")))
 
   # extract nodes
   node_temp = all.vars(node_attr[[2]])
+  if(mean(node_temp %in% unlist(nodes)) != 1) stop(paste0("node_attr is supplied for node: ",node_temp," , however, one or more of these nodes are not supplied in interactions2permute or associations2test"))
   # extract attributes
   attribute_temp = all.vars(node_attr[[3]])
-  if(!nodes_vs_attributes){
-    # attach attributes to a table if all nodes are present in that table
-    if(mean(node_temp %in% c(nodes$nodeX, nodes$nodeY)) == 1) cols$interactionsXY_cols = c(cols$interactionsXY_cols, attribute_temp)
-    if(mean(node_temp %in% c(nodes$nodeY, nodes$nodeZ)) == 1) cols$interactionsYZ_cols = c(cols$interactionsYZ_cols, attribute_temp)
-    # and in case of associations table both varibles in a formula should be nodeX and nodeZ
-    if(mean(c(nodes$nodeX, nodes$nodeZ) %in% node_temp) == 1) cols$associations_cols = c(cols$associations_cols, attribute_temp)
-    return(cols)
-  }
-  if(nodes_vs_attributes) return(nodes = node_temp, attributes = attribute_temp)
+  # attach attributes to a table if all nodes are present in that table
+  if(mean(node_temp %in% c(nodes$nodeX, nodes$nodeY)) == 1) cols$interactionsXY_cols = c(cols$interactionsXY_cols, attribute_temp)
+  if(mean(node_temp %in% c(nodes$nodeY, nodes$nodeZ)) == 1) cols$interactionsYZ_cols = c(cols$interactionsYZ_cols, attribute_temp)
+  # and in case of associations table both varibles in a formula should be nodeX and nodeZ
+  if(mean(c(nodes$nodeX, nodes$nodeZ) %in% node_temp) == 1) cols$associations_cols = c(cols$associations_cols, attribute_temp)
+  return(cols)
 }
 
 ##' @name node_attr2colnames
@@ -107,6 +104,49 @@ formula2nodes = function(interactions2permute, associations2test){
   return(nodes)
 }
 
+##' @name checkSelectNodes
+##' @rdname permutationPvalHelper
+##' @details \code{checkSelectNodes} checks if you want to select nodes based on the attributes of those nodes + splits a formula which selects a combination of nodes based on their shared properties (like count of X and Z pairs)
+##' @return a formula or a list of formulas if they have passed the check - error if otherwise
+##' @usage select_nodes = checkSelectNodes(select_nodes, node_attr, nodes)
+checkSelectNodes = function(select_nodes, node_attr, nodes, cols){
+
+  if(!(is.formula(select_nodes))) stop("select_nodes is not formula")
+
+  select_node = all.vars(select_nodes[[2]])
+  select_attribute = all.vars(select_nodes[[3]])
+  all_nodes = unlist(nodes)
+  all_cols = unique(unlist(cols))
+
+  if(length(select_node) >= 3) stop("you cannot select 3 or more nodes based on their shared attribute, try filtering the data before using permutationPval")
+  if(mean(select_node %in% all_nodes) != 1) stop(paste0("select_nodes is supplied for node(s): ",paste0(select_node, collapse = " and ")," , however, one or more of these nodes are not supplied in interactions2permute or associations2test"))
+  if(mean(select_attribute %in% all_cols) != 1) stop(paste0("select_nodes is supplied with attribute(s): ",paste0(select_attribute, collapse = " and ")," , however, one or more of these attributes are not supplied in node_attr"))
+
+  if(is.null(node_attr)){
+    if((mean(select_node %in% all_nodes) == 1) &
+       (mean(select_attribute %in% all_nodes) == 1)) select_nodes = select_nodes else stop(paste0("select_nodes is supplied for node(s): ",paste0(select_node, collapse = " and ")," , however, one or more of these nodes are not supplied in interactions2permute or associations2test"))
+  } else {
+    if(!(is.formula(node_attr))) stop("node_attr is not formula")
+    node = all.vars(node_attr[[2]])
+    node_attribute = all.vars(node_attr[[3]])
+
+    # if select_nodes select nodes by attribute in node_attr
+    if(mean(select_node %in% node) == 1){
+      if(mean(select_attribute %in% c(all_nodes, node_attribute)) == 1) select_nodes = select_nodes else {
+      } stop(paste0("select_nodes asks to select ",paste0(select_node, collapse = " and ")," by attribute (",paste0(select_attribute, collapse = " "),") not specified in node_attr as the attribute of ",paste0(select_node, collapse = " and ")))
+    }
+
+  }
+
+  if(length(select_node) == 1) return(select_nodes)
+  if(length(select_node) == 2) {
+    select_node_list = list()
+    select_node_list[[1]] = as.formula(paste0(select_node[1],"~", as.expression(select_nodes[[3]])))
+    select_node_list[[2]] = as.formula(paste0(select_node[2],"~", as.expression(select_nodes[[3]])))
+    return(select_node_list)
+  }
+}
+
 ##' @name filterByFormula
 ##' @rdname permutationPvalHelper
 ##' @details filters one or 2 of the XY, YZ or association tables based on a condition defining which nodes to keep (only one node type: X, Y or Z)
@@ -137,6 +177,31 @@ filterByFormula = function(data_list, select_nodes, cols, nodes){
   if(mean(node_temp %in% c(nodes$nodeX, nodes$nodeY)) == 1) data_list$interactionsXY = data_list$interactionsXY[eval(node_ftemp) %in% node2keep,]
   if(mean(node_temp %in% c(nodes$nodeY, nodes$nodeZ)) == 1) data_list$interactionsYZ = data_list$interactionsYZ[eval(node_ftemp) %in% node2keep,]
   if(mean(node_temp %in% c(nodes$nodeX, nodes$nodeZ)) == 1) data_list$associations = data_list$associations[eval(node_ftemp) %in% node2keep,]
+  return(data_list)
+}
+
+##' @name filterByList
+##' @rdname permutationPvalHelper
+##' @details filters one or 2 of the XY, YZ or association tables based on a condition defining which nodes to keep (only one node type: X, Y or Z)
+##' @return data_list in which interactionsXY, interactionsYZ, associations data.table-s were filtered by each formula if select_nodes was a list
+##' @usage data_list = filterByList(data_list, select_nodes, cols, nodes)
+filterByList = function(data_list, select_nodes, cols, nodes){
+  # extract nodes to filter and apply conditions
+  if(is.list(select_nodes)){
+    # how many formulas in a list?
+    N_attr = length(select_nodes)
+    list_names = character(N_attr)
+    for(i in 1:N_attr){ # for each formula extract elements
+      form_temp = select_nodes[[i]]
+      list_names[i] = as.character(as.expression(form_temp[[2]]))
+
+      data_list = filterByFormula(data_list, form_temp, cols, nodes)
+    }
+    # give list elements names
+    names(select_nodes) = list_names
+  } else if(is.formula(select_nodes)){ # extract element from single formula
+    data_list = filterByFormula(data_list, select_nodes, cols, nodes)
+  } else if(is.null(select_nodes)) NULL else stop("select_nodes is provided but is neither a list nor a formula")
   return(data_list)
 }
 
