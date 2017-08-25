@@ -114,12 +114,11 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   # merge p-value result to the original "data" data.table
   data_with_pval = temp2[data, on = c(nodes$nodeX, nodes$nodeZ)]
   # add observed statistic to the original "data" data.table
-  data_list$observed = data_list$observed[,.(nodes$nodeX, nodes$nodeZ, "observed_statistic", "YmissingZ_perX")]
-  setnames(data_list$observed, colnames(data_list$observed), c(nodes$nodeX, nodes$nodeZ, "observed_statistic", "YmissingZ_perX"))
-  data_with_pval = data_list$observed[data, on = c(nodes$nodeX, nodes$nodeZ)]
+  data_list$observed = data_list$observed[, c(nodes$nodeX, nodes$nodeZ, "observed_statistic", "YmissingZ_perX"), with = F]
+  data_with_pval = data_list$observed[data_with_pval, on = c(nodes$nodeX, nodes$nodeZ), allow.cartesian = TRUE]
 
 
-  return(list(input = match.call(), nodes = nodes, data_with_pval = data_with_pval))
+  return(list(input = match.call(), nodes = nodes, data_with_pval = unique(data_with_pval)))
 
 }
 

@@ -223,10 +223,10 @@ filterByList = function(data_list, select_nodes, cols, nodes){
 ##' @usage data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations)
 calcObservedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations){
 
-  # merge without removing X that don't have a match in Z, interactionsXY on the inside of "[" (in i position) means keep all interactionsXY, discard non-matching interactionsYZ
-  data_list$observed = unique(data_list$interactionsXY[data_list$interactionsYZ, on = nodes$nodeY, allow.cartesian = T, nomatch = 0])
+  # merge without removing X and Y that don't have a match in Z, interactionsXY on the inside of "[" (in i position) means keep all interactionsXY, discard non-matching interactionsYZ
+  data_list$observed = unique(data_list$interactionsYZ[data_list$interactionsXY, on = nodes$nodeY, allow.cartesian = T])
   # if calculating statistic requires some parameters of both X and Z -> merge associations table containing necessary data
-  if(includeAssociations) data_list$observed = unique(data_list$associations[data_list$observed, on = c(nodes$nodeX, nodes$nodeZ), allow.cartesian = T, nomatch = 0])
+  if(includeAssociations) data_list$observed = unique(data_list$associations[data_list$observed, on = c(nodes$nodeX, nodes$nodeZ), allow.cartesian = T])
 
   # record in how many cases statistic is missing per X
   data_list$observed[, YmissingZ_perX := sum(is.na(eval(nodes_call$nodeZ))),
