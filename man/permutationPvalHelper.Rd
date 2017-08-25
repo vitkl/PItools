@@ -5,47 +5,81 @@
 \alias{permutationPvalHelper}
 \alias{formula2colnames}
 \alias{node_attr2colnames}
+\alias{formula2nodes}
+\alias{checkSelectNodes}
+\alias{checkSelectNodesList}
+\alias{filterByFormula}
+\alias{filterByList}
+\alias{calcObservedStatistic}
+\alias{calcPermutedStatistic}
+\alias{observedVSpermuted}
+\alias{aggregatePermutations}
 \title{functions that are called inside permutationPval}
 \format{An object of class \code{NULL} of length 0.}
 \usage{
 permutationPvalHelper
 
 cols = formula2colnames(node_attr, cols, nodes)
+
 cols = node_attr2colnames(node_attr, cols, nodes)
+
 nodes = formula2nodes(interactions2permute, associations2test)
+
+select_nodes = checkSelectNodes(select_nodes, node_attr, nodes, cols)
+
+select_nodes = checkSelectNodesList(select_nodes, node_attr, nodes, cols)
+
 data_list = filterByFormula(data_list, select_nodes, cols, nodes)
+
+data_list = filterByList(data_list, select_nodes, cols, nodes)
+
 data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations)
+
 data_list = calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
-res = observedVSpermuted(data_list, nodes_call, nodes)
-temp2 = aggregatePermutations(temp, nodes, nodes_call)
+
+data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
+
+temp2_inner = MItools:::aggregatePermutations(temp_inner, nodes, nodes_call)
 }
 \arguments{
-\item{node_attr}{formula (formula2colnames and node_attr2colnames) or list of formulas (node_attr2colnames)}
-
 \item{cols}{list of column names}
 
 \item{nodes}{list of node names (column names for columns that contain node names)}
 
-\item{nodes_call}{list of node names, each class call (to be evaluated within data.table expressions DT[,eval(nodes_call$nodeX)])}
-
-\item{interactions2permute}{decription: \code{\link[MItools]{permutationPval}}}
-
-\item{associations2test}{decription: \code{\link[MItools]{permutationPval}}}
-
-\item{data_list}{list (or enviroment?) that contains data.tables necessary for these functions to work}
-
-\item{select_nodes}{decription: \code{\link[MItools]{permutationPval}}}
+\item{data_list}{list that contains data.tables necessary for these functions to work}
 
 \item{by_cols}{modified left-hand side of \code{statistic} (\code{\link[MItools]{permutationPval}}), class call}
 
 \item{exprs}{right-hand side of \code{statistic} (\code{\link[MItools]{permutationPval}}), class call, \code{exprs} is evaluated by \code{by_cols}; in data.table synthax: DT[, statistic := eval(exprs), by = .(eval(by_cols))]}
 
+\item{nodes_call}{list of node names, each class call (to be evaluated within data.table expressions DT[,eval(nodes_call$nodeX)])}
+
 \item{includeAssociations}{logical, if calculating statistic requires columns that contain attribute of X-Z pair associations table will be merged}
 
-\item{also_permuteYZ}{logical, permute Y-Z interactions as well as X-Y ?}
+\item{inheritParams}{permutationPval}
 }
 \value{
-updated list of column names
+\code{formula2colnames} returns list of column names for XY, YZ and association tables
+
+\code{node_attr2colnames} returns the same as \code{formula2colnames} but when node_attr2colnames is a list of formulas
+
+\code{formula2nodes} returns list of 3 node column names extracted from formulas supplied through \code{interactions2permute}, \code{associations2test}
+
+\code{checkSelectNodes} returns a formula or a list of formulas if they have passed the check - error if otherwise
+
+\code{checkSelectNodesList} returns a list of formulas (even of lenght 1) if they have passed the check - error if otherwise
+
+\code{filterByFormula} returns data_list in which interactionsXY, interactionsYZ, associations data.table-s were filtered by formula
+
+\code{filterByList} returns data_list in which interactionsXY, interactionsYZ, associations data.table-s were filtered by each formula if select_nodes was a list
+
+\code{calcObservedStatistic} returns \code{data_list}
+
+\code{calcPermutedStatistic} returns \code{data_list}
+
+\code{observedVSpermuted} returns data.table contatining the following columns: "higher_counts", "not_missing", nodeX names, nodeZ names
+
+\code{aggregatePermutations} returns the data.table of the same format as \code{observedVSpermuted}
 }
 \description{
 functions that are called inside permutationPval
@@ -53,13 +87,25 @@ functions that are called inside permutationPval
 extract and match attribute column names to data.tables that contain nodes which those attributes describe
 }
 \details{
-extract nodes
+\code{formula2colnames} extracts nodes, extracts attributes, attaches attributes to a table if all nodes are present in that table and in case of associations table both varibles in a formula should be nodeX and nodeZ
 
-extract attributes
+\code{formula2nodes} reorders node column names so that regardless of their order in formula we later permute XY interactions and test for XZ associations
 
-attach attributes to a table if all nodes are present in that table
+\code{checkSelectNodes} checks if you want to select nodes based on the attributes of those nodes + splits a formula which selects a combination of nodes based on their shared properties (like count of X and Z pairs) into a list of formulas each selecting separate nodes
 
-and in case of associations table both varibles in a formula should be nodeX and nodeZ
+\code{checkSelectNodesList} calls \code{checkSelectNodes} for each element in a list (or formula) \code{select_nodes} and each element in a list (or formula) \code{node_attr}. If \code{select_nodes} or \code{node_attr} is a formula then it is converted to a list of 1L
+
+\code{filterByFormula} filters one or 2 of the XY, YZ or association tables based on a condition defining which nodes to keep (only one node type: X, Y or Z)
+
+\code{filterByList} filters one or 2 of the XY, YZ or association tables based on a condition defining which nodes to keep (only one node type: X, Y or Z), takes a list of formulas or a formula as an argument
+
+\code{calcObservedStatistic} calculates Observed Statistic by evaluating \code{exprs} by \code{by_cols}, also calculates how many nodes Y are missing node Z for each node X, saves result to \code{data_list$observed}. includeAssociations specifies if \code{exprs} required any attributes of both X and Z.
+
+\code{calcPermutedStatistic} calculates Permuted Statistic by permuting node Y column in XY (and, optionally in YZ, if \code{also_permuteYZ} is true) and calculating statistic by evaluating \code{exprs} by \code{by_cols}, unlike \code{calcObservedStatistic} doesn't calculate how many nodes Y are missing node Z for each node X. Saves result to \code{data_list$permuted}.
+
+\code{observedVSpermuted} compares Observed Statistic to Permuted Statistic, records how many times permuted statistic is at least as large as the observed statistic (\code{higher_counts}) and how many of X-Z pairs have non-NA Observed Statistic or Permuted Statistic (\code{not_missing}. In each permutation round, node X might have many nodes Z, so when calculating empirical p-value all these comparisons should be counted (not just the number of permutations). On the other hand, not in all permutation rounda specific observed XZ pair might occur, so we need to cound non-NA "Observed Statistic to Permuted Statistic" comparisons
+
+\code{aggregatePermutations} aggregates the result of \code{observedVSpermuted} from many permutation rounds (output of replicate, class matrix)
 }
 \author{
 Vitalii Kleshchevnikov

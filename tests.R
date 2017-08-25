@@ -13,8 +13,8 @@ res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interact
                 data = data,
                 statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
                 select_nodes = IDs_domain_human ~ domain_count >= 1,
-                N = 1000,
-                cores = NULL, seed = 2, include_missing_Z_as_zero = T)
+                N = 100,
+                cores = NULL, seed = 2)
 
 res_g = res
 all.equal(res_g, res)
@@ -28,7 +28,7 @@ res2 = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interac
                       statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
                       select_nodes = IDs_domain_human ~ domain_count > 16,
                       N = 10,
-                      cores = NULL, seed = NULL, include_missing_Z_as_zero = T)
+                      cores = NULL, seed = NULL)
 
 microbenchmark::microbenchmark({res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
                                                       associations2test = IDs_interactor_viral ~ IDs_domain_human,
@@ -39,7 +39,7 @@ microbenchmark::microbenchmark({res = permutationPval(interactions2permute = IDs
                                                       statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
                                                       select_nodes = IDs_domain_human ~ domain_count >= 1,
                                                       N = 10,
-                                                      cores = NULL, seed = 1, include_missing_Z_as_zero = T)}, times = 10)
+                                                      cores = NULL, seed = 1)}, times = 10)
 
 profvis::profvis({resEnv = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
                                         associations2test = IDs_interactor_viral ~ IDs_domain_human,
@@ -50,7 +50,7 @@ profvis::profvis({resEnv = permutationPval(interactions2permute = IDs_interactor
                                         statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
                                         select_nodes = IDs_domain_human ~ domain_count >= 1,
                                         N = 10,
-                                        cores = NULL, seed = 1, include_missing_Z_as_zero = T)})
+                                        cores = NULL, seed = 1)})
 
 # Fisher test
 microbenchmark::microbenchmark({resFISHER = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
@@ -62,7 +62,7 @@ microbenchmark::microbenchmark({resFISHER = permutationPval(interactions2permute
                                                       statistic = IDs_interactor_viral + IDs_domain_human ~ fisher.test(matrix(c(unique(domain_count), unique(N_prot_w_interactors) - unique(domain_count), unique(domain_count_per_IDs_interactor_viral), unique(IDs_interactor_viral_degree) - unique(domain_count_per_IDs_interactor_viral)),2,2), alternative = "greater", conf.int = F)$p.value,
                                                       select_nodes = IDs_domain_human ~ domain_count >= 1,
                                                       N = 100,
-                                                      cores = NULL, seed = 1, include_missing_Z_as_zero = T)}, times = 10)
+                                                      cores = NULL, seed = 1)}, times = 10)
 
 qplot(x = resFISHER$data_with_pval[p.value < 0.5, IDs_interactor_viral_degree], y = resFISHER$data_with_pval[p.value < 0.5, domain_count], geom = "bin2d") + scale_x_log10() + scale_y_log10()
 qplot(x = res$data_with_pval[p.value < 0.5, IDs_interactor_viral_degree], y = res$data_with_pval[p.value < 0.5, domain_count], geom = "bin2d") + scale_x_log10() + scale_y_log10()
@@ -72,13 +72,13 @@ qplot(x = res$data_with_pval[p.value < 0.01, IDs_interactor_viral_degree], y = r
 
 # Unit: seconds (without inner and outer replicate)
 #expr
-#{     resFISHER = permutationPval(interactions2permute = IDs_interactor_viral ~          IDs_interactor_human, associations2test = IDs_interactor_viral ~          IDs_domain_human, node_attr = list(IDs_interactor_viral ~          IDs_interactor_viral_degree, IDs_domain_human ~ domain_count +          N_prot_w_interactors, IDs_interactor_viral + IDs_domain_human ~          domain_count_per_IDs_interactor_viral), data = data,          statistic = IDs_interactor_viral + IDs_domain_human ~              fisher.test(matrix(c(unique(domain_count), unique(N_prot_w_interactors) -                  unique(domain_count), unique(domain_count_per_IDs_interactor_viral),                  unique(IDs_interactor_viral_degree) - unique(domain_count_per_IDs_interactor_viral)),                  2, 2), alternative = "greater", conf.int = F)$p.value,          select_nodes = IDs_domain_human ~ domain_count >= 1,          N = 100, cores = NULL, seed = 1, include_missing_Z_as_zero = T) }
+#{     resFISHER = permutationPval(interactions2permute = IDs_interactor_viral ~          IDs_interactor_human, associations2test = IDs_interactor_viral ~          IDs_domain_human, node_attr = list(IDs_interactor_viral ~          IDs_interactor_viral_degree, IDs_domain_human ~ domain_count +          N_prot_w_interactors, IDs_interactor_viral + IDs_domain_human ~          domain_count_per_IDs_interactor_viral), data = data,          statistic = IDs_interactor_viral + IDs_domain_human ~              fisher.test(matrix(c(unique(domain_count), unique(N_prot_w_interactors) -                  unique(domain_count), unique(domain_count_per_IDs_interactor_viral),                  unique(IDs_interactor_viral_degree) - unique(domain_count_per_IDs_interactor_viral)),                  2, 2), alternative = "greater", conf.int = F)$p.value,          select_nodes = IDs_domain_human ~ domain_count >= 1,          N = 100, cores = NULL, seed = 1) }
 #min       lq    mean   median       uq      max neval
 #34.89687 35.35519 35.3463 35.39729 35.42503 35.49184    10
 
 # Unit: seconds (with inner and outer replicate)
 # expr
-# {     resFISHER = permutationPval(interactions2permute = IDs_interactor_viral ~          IDs_interactor_human, associations2test = IDs_interactor_viral ~          IDs_domain_human, node_attr = list(IDs_interactor_viral ~          IDs_interactor_viral_degree, IDs_domain_human ~ domain_count +          N_prot_w_interactors, IDs_interactor_viral + IDs_domain_human ~          domain_count_per_IDs_interactor_viral), data = data,          statistic = IDs_interactor_viral + IDs_domain_human ~              fisher.test(matrix(c(unique(domain_count), unique(N_prot_w_interactors) -                  unique(domain_count), unique(domain_count_per_IDs_interactor_viral),                  unique(IDs_interactor_viral_degree) - unique(domain_count_per_IDs_interactor_viral)),                  2, 2), alternative = "greater", conf.int = F)$p.value,          select_nodes = IDs_domain_human ~ domain_count >= 1,          N = 100, cores = NULL, seed = 1, include_missing_Z_as_zero = T) }
+# {     resFISHER = permutationPval(interactions2permute = IDs_interactor_viral ~          IDs_interactor_human, associations2test = IDs_interactor_viral ~          IDs_domain_human, node_attr = list(IDs_interactor_viral ~          IDs_interactor_viral_degree, IDs_domain_human ~ domain_count +          N_prot_w_interactors, IDs_interactor_viral + IDs_domain_human ~          domain_count_per_IDs_interactor_viral), data = data,          statistic = IDs_interactor_viral + IDs_domain_human ~              fisher.test(matrix(c(unique(domain_count), unique(N_prot_w_interactors) -                  unique(domain_count), unique(domain_count_per_IDs_interactor_viral),                  unique(IDs_interactor_viral_degree) - unique(domain_count_per_IDs_interactor_viral)),                  2, 2), alternative = "greater", conf.int = F)$p.value,          select_nodes = IDs_domain_human ~ domain_count >= 1,          N = 100, cores = NULL, seed = 1) }
 # min       lq    mean   median       uq      max neval
 # 38.02992 38.33805 38.7546 38.73306 38.86937 39.60011    10
 
@@ -97,7 +97,7 @@ res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interact
                       statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
                       select_nodes = IDs_domain_human ~ domain_count >= 1,
                       N = 10000,
-                      cores = NULL, seed = 2, include_missing_Z_as_zero = T)
+                      cores = NULL, seed = 2)
 proc.time() - time
 time = proc.time()
 resFISHER = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
@@ -109,7 +109,7 @@ resFISHER = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_in
                             statistic = IDs_interactor_viral + IDs_domain_human ~ fisher.test(matrix(c(unique(domain_count), unique(N_prot_w_interactors) - unique(domain_count), unique(domain_count_per_IDs_interactor_viral), unique(IDs_interactor_viral_degree) - unique(domain_count_per_IDs_interactor_viral)),2,2), alternative = "greater", conf.int = F)$p.value,
                             select_nodes = IDs_domain_human ~ domain_count >= 1,
                             N = 10000,
-                            cores = NULL, seed = 1, include_missing_Z_as_zero = T)
+                            cores = NULL, seed = 1)
 resFISHER$data_with_pval[, p.value := 1 - p.value]
 proc.time() - time
 

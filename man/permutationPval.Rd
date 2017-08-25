@@ -27,6 +27,8 @@ permutationPval(interactions2permute = nodeX ~ nodeY,
 \item{cores}{specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[parallel]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.}
 
 \item{seed}{seed for RNG for reproducible sampling}
+
+\item{also_permuteYZ}{logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?}
 }
 \description{
 calculate permutation pval for association between X and Z if both are connected to Y

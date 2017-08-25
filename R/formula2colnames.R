@@ -6,7 +6,8 @@ permutationPvalHelper = NULL
 ##' extract and match attribute column names to data.tables that contain nodes which those attributes describe
 ##' @name formula2colnames
 ##' @rdname permutationPvalHelper
-##' @param inheritParams permutationPval node_attr interactions2permute associations2test select_nodes also_permuteYZ
+##' @param inheritParams permutationPval
+##  node_attr interactions2permute associations2test select_nodes also_permuteYZ
 ##' @param cols list of column names
 ##' @param nodes list of node names (column names for columns that contain node names)
 ##' @param nodes_call list of node names, each class call (to be evaluated within data.table expressions DT[,eval(nodes_call$nodeX)])
@@ -14,19 +15,12 @@ permutationPvalHelper = NULL
 ##' @param by_cols modified left-hand side of \code{statistic} (\code{\link[MItools]{permutationPval}}), class call
 ##' @param exprs right-hand side of \code{statistic} (\code{\link[MItools]{permutationPval}}), class call, \code{exprs} is evaluated by \code{by_cols}; in data.table synthax: DT[, statistic := eval(exprs), by = .(eval(by_cols))]
 ##' @param includeAssociations logical, if calculating statistic requires columns that contain attribute of X-Z pair associations table will be merged
-##' @details extract nodes
-##' @details extract attributes
-##' @details attach attributes to a table if all nodes are present in that table
-##' @details and in case of associations table both varibles in a formula should be nodeX and nodeZ
-##' @return list of column names for XY, YZ and association tables
+##' @details \code{formula2colnames} extracts nodes, extracts attributes, attaches attributes to a table if all nodes are present in that table and in case of associations table both varibles in a formula should be nodeX and nodeZ
+##' @return \code{formula2colnames} returns list of column names for XY, YZ and association tables
 ##' @import data.table
 ##' @import BiocGenerics
 ##' @author Vitalii Kleshchevnikov
 ##' @usage cols = formula2colnames(node_attr, cols, nodes)
-##' data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations)
-##' data_list = calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
-##' res = observedVSpermuted(data_list, nodes_call, nodes)
-##' temp2 = aggregatePermutations(temp, nodes, nodes_call)
 formula2colnames = function(node_attr, cols, nodes){
   # if not formula is provided
   if(!is.formula(node_attr)) stop(paste("node_attr is provided but is not a formula: class - ", class(node_attr), "; content - ",paste(paste0("[[",1:length(node_attr),"]]"), node_attr, collapse = " ")))
@@ -46,7 +40,7 @@ formula2colnames = function(node_attr, cols, nodes){
 
 ##' @name node_attr2colnames
 ##' @rdname permutationPvalHelper
-##' @return the same as \code{formula2colnames} but when node_attr2colnames is a list of formulas
+##' @return \code{node_attr2colnames} returns the same as \code{formula2colnames} but when node_attr2colnames is a list of formulas
 ##' @usage cols = node_attr2colnames(node_attr, cols, nodes)
 node_attr2colnames = function(node_attr, cols, nodes) {
 
@@ -72,7 +66,7 @@ node_attr2colnames = function(node_attr, cols, nodes) {
 ##' @name formula2nodes
 ##' @rdname permutationPvalHelper
 ##' @details \code{formula2nodes} reorders node column names so that regardless of their order in formula we later permute XY interactions and test for XZ associations
-##' @return list of 3 node column names extracted from formulas supplied through \code{interactions2permute}, \code{associations2test}
+##' @return \code{formula2nodes} returns list of 3 node column names extracted from formulas supplied through \code{interactions2permute}, \code{associations2test}
 ##' @usage nodes = formula2nodes(interactions2permute, associations2test)
 formula2nodes = function(interactions2permute, associations2test){
   # if not formulas are provided
@@ -106,9 +100,9 @@ formula2nodes = function(interactions2permute, associations2test){
 
 ##' @name checkSelectNodes
 ##' @rdname permutationPvalHelper
-##' @details \code{checkSelectNodes} checks if you want to select nodes based on the attributes of those nodes + splits a formula which selects a combination of nodes based on their shared properties (like count of X and Z pairs)
-##' @return a formula or a list of formulas if they have passed the check - error if otherwise
-##' @usage select_nodes = checkSelectNodes(select_nodes, node_attr, nodes)
+##' @details \code{checkSelectNodes} checks if you want to select nodes based on the attributes of those nodes + splits a formula which selects a combination of nodes based on their shared properties (like count of X and Z pairs) into a list of formulas each selecting separate nodes
+##' @return \code{checkSelectNodes} returns a formula or a list of formulas if they have passed the check - error if otherwise
+##' @usage select_nodes = checkSelectNodes(select_nodes, node_attr, nodes, cols)
 checkSelectNodes = function(select_nodes, node_attr, nodes, cols){
 
   if(!(is.formula(select_nodes))) stop("select_nodes is not formula")
@@ -123,17 +117,16 @@ checkSelectNodes = function(select_nodes, node_attr, nodes, cols){
   if(mean(select_attribute %in% all_cols) != 1) stop(paste0("select_nodes is supplied with attribute(s): ",paste0(select_attribute, collapse = " and ")," , however, one or more of these attributes are not supplied in node_attr"))
 
   if(is.null(node_attr)){
-    if((mean(select_node %in% all_nodes) == 1) &
-       (mean(select_attribute %in% all_nodes) == 1)) select_nodes = select_nodes else stop(paste0("select_nodes is supplied for node(s): ",paste0(select_node, collapse = " and ")," , however, one or more of these nodes are not supplied in interactions2permute or associations2test"))
+    if(!((mean(select_node %in% all_nodes) == 1) &
+       (mean(select_attribute %in% all_nodes) == 1))) stop(paste0("select_nodes is supplied for node(s): ",paste0(select_node, collapse = " and ")," , however, one or more of these nodes are not supplied in interactions2permute or associations2test"))
   } else {
     if(!(is.formula(node_attr))) stop("node_attr is not formula")
     node = all.vars(node_attr[[2]])
     node_attribute = all.vars(node_attr[[3]])
 
     # if select_nodes select nodes by attribute in node_attr
-    if(mean(select_node %in% node) == 1){
-      if(mean(select_attribute %in% c(all_nodes, node_attribute)) == 1) select_nodes = select_nodes else {
-      } stop(paste0("select_nodes asks to select ",paste0(select_node, collapse = " and ")," by attribute (",paste0(select_attribute, collapse = " "),") not specified in node_attr as the attribute of ",paste0(select_node, collapse = " and ")))
+    if((mean(select_node %in% node) == 1) & (mean(node %in% select_node) == 1)){
+      if(mean(select_attribute %in% c(all_nodes, node_attribute)) != 1) stop(paste0("select_nodes asks to select ",paste0(select_node, collapse = " and ")," by attribute (",paste0(select_attribute, collapse = " "),") not specified in node_attr as the attribute of ",paste0(select_node, collapse = " and ")))
     }
 
   }
@@ -147,10 +140,28 @@ checkSelectNodes = function(select_nodes, node_attr, nodes, cols){
   }
 }
 
+##' @name checkSelectNodesList
+##' @rdname permutationPvalHelper
+##' @details \code{checkSelectNodesList} calls \code{checkSelectNodes} for each element in a list (or formula) \code{select_nodes} and each element in a list (or formula) \code{node_attr}. If \code{select_nodes} or \code{node_attr} is a formula then it is converted to a list of 1L
+##' @return \code{checkSelectNodesList} returns a list of formulas (even of lenght 1) if they have passed the check - error if otherwise
+##' @usage select_nodes = checkSelectNodesList(select_nodes, node_attr, nodes, cols)
+checkSelectNodesList = function(select_nodes, node_attr, nodes, cols){
+  if(is.formula(select_nodes)) select_nodes = list(select_nodes)
+  select_nodes_new = list()
+  if(is.formula(node_attr)) node_attr = list(node_attr)
+  for (select_formula in select_nodes) {
+    for (node_attr_formula in node_attr) {
+      select_nodes_temp = checkSelectNodes(select_formula, node_attr_formula, nodes, cols)
+      select_nodes_new = c(select_nodes_new, select_nodes_temp)
+    }
+  }
+  select_nodes = unique(select_nodes_new)
+}
+
 ##' @name filterByFormula
 ##' @rdname permutationPvalHelper
-##' @details filters one or 2 of the XY, YZ or association tables based on a condition defining which nodes to keep (only one node type: X, Y or Z)
-##' @return data_list in which interactionsXY, interactionsYZ, associations data.table-s were filtered by formula
+##' @details \code{filterByFormula} filters one or 2 of the XY, YZ or association tables based on a condition defining which nodes to keep (only one node type: X, Y or Z)
+##' @return \code{filterByFormula} returns data_list in which interactionsXY, interactionsYZ, associations data.table-s were filtered by formula
 ##' @usage data_list = filterByFormula(data_list, select_nodes, cols, nodes)
 filterByFormula = function(data_list, select_nodes, cols, nodes){
   # if not formula is provided
@@ -182,8 +193,8 @@ filterByFormula = function(data_list, select_nodes, cols, nodes){
 
 ##' @name filterByList
 ##' @rdname permutationPvalHelper
-##' @details filters one or 2 of the XY, YZ or association tables based on a condition defining which nodes to keep (only one node type: X, Y or Z)
-##' @return data_list in which interactionsXY, interactionsYZ, associations data.table-s were filtered by each formula if select_nodes was a list
+##' @details \code{filterByList} filters one or 2 of the XY, YZ or association tables based on a condition defining which nodes to keep (only one node type: X, Y or Z), takes a list of formulas or a formula as an argument
+##' @return \code{filterByList} returns data_list in which interactionsXY, interactionsYZ, associations data.table-s were filtered by each formula if select_nodes was a list
 ##' @usage data_list = filterByList(data_list, select_nodes, cols, nodes)
 filterByList = function(data_list, select_nodes, cols, nodes){
   # extract nodes to filter and apply conditions
@@ -205,6 +216,11 @@ filterByList = function(data_list, select_nodes, cols, nodes){
   return(data_list)
 }
 
+##' @name calcObservedStatistic
+##' @rdname permutationPvalHelper
+##' @details \code{calcObservedStatistic} calculates Observed Statistic by evaluating \code{exprs} by \code{by_cols}, also calculates how many nodes Y are missing node Z for each node X, saves result to \code{data_list$observed}. includeAssociations specifies if \code{exprs} required any attributes of both X and Z.
+##' @return \code{calcObservedStatistic} returns \code{data_list}
+##' @usage data_list = calcObservedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations)
 calcObservedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations){
 
   # merge without removing X that don't have a match in Z, interactionsXY on the inside of "[" (in i position) means keep all interactionsXY, discard non-matching interactionsYZ
@@ -224,6 +240,11 @@ calcObservedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
   return(data_list)
 }
 
+##' @name calcPermutedStatistic
+##' @rdname permutationPvalHelper
+##' @details \code{calcPermutedStatistic} calculates Permuted Statistic by permuting node Y column in XY (and, optionally in YZ, if \code{also_permuteYZ} is true) and calculating statistic by evaluating \code{exprs} by \code{by_cols}, unlike \code{calcObservedStatistic} doesn't calculate how many nodes Y are missing node Z for each node X. Saves result to \code{data_list$permuted}.
+##' @return \code{calcPermutedStatistic} returns \code{data_list}
+##' @usage data_list = calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
 calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ){
 
   # permute XY network (note: [, class character (1L) := eval(class call)])
@@ -258,6 +279,11 @@ calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
   return(data_list)
 }
 
+##' @name observedVSpermuted
+##' @rdname permutationPvalHelper
+##' @details \code{observedVSpermuted} compares Observed Statistic to Permuted Statistic, records how many times permuted statistic is at least as large as the observed statistic (\code{higher_counts}) and how many of X-Z pairs have non-NA Observed Statistic or Permuted Statistic (\code{not_missing}. In each permutation round, node X might have many nodes Z, so when calculating empirical p-value all these comparisons should be counted (not just the number of permutations). On the other hand, not in all permutation rounda specific observed XZ pair might occur, so we need to cound non-NA "Observed Statistic to Permuted Statistic" comparisons
+##' @return \code{observedVSpermuted} returns data.table contatining the following columns: "higher_counts", "not_missing", nodeX names, nodeZ names
+##' @usage data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
 observedVSpermuted = function(data_list, nodes_call, nodes){
   # merge keeping all observed in i and discarding all permuted in x
   result = data_list$permuted[data_list$observed, on = nodes$nodeX, allow.cartesian=TRUE]
@@ -277,6 +303,11 @@ observedVSpermuted = function(data_list, nodes_call, nodes){
   return(temp[, c("higher_counts", "not_missing", nodes$nodeX, nodes$nodeZ), with = F])
 }
 
+##' @name aggregatePermutations
+##' @rdname permutationPvalHelper
+##' @details \code{aggregatePermutations} aggregates the result of \code{observedVSpermuted} from many permutation rounds (output of replicate, class matrix)
+##' @return \code{aggregatePermutations} returns the data.table of the same format as \code{observedVSpermuted}
+##' @usage temp2_inner = MItools:::aggregatePermutations(temp_inner, nodes, nodes_call)
 aggregatePermutations = function(temp, nodes, nodes_call){
   # aggregate attributes across permutations
   temp2 = data.table(higher_counts = 0, not_missing = 0, temp[nodes$nodeX,1][[1]], temp[nodes$nodeZ,1][[1]])

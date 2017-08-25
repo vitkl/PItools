@@ -48,15 +48,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   data_list = list(interactionsXY = interactionsXY, interactionsYZ = interactionsYZ, associations = associations)
   ########################################################################################################################
   # check if select_nodes asks to select nodes based on their attributes as specified in node_attr or (by the node name)
-  if(is.formula(select_nodes)) select_nodes = list(select_nodes)
-  select_nodes_new = list()
-  if(is.formula(node_attr)) node_attr = list(node_attr)
-  for (select_formula in select_nodes) {
-    for (node_attr_formula in node_attr) {
-      select_nodes_temp = checkSelectNodes(select_formula, node_attr_formula, nodes)
-      select_nodes_new = c(select_nodes_new, select_nodes_temp)
-    }
-  }
+
 
   # filter tables by node attribute if select_nodes is provided
   data_list = filterByList(data_list, select_nodes, cols, nodes)
@@ -123,6 +115,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   data_with_pval = temp2[data, on = c(nodes$nodeX, nodes$nodeZ)]
   # add observed statistic to the original "data" data.table
   data_list$observed = data_list$observed[,.(nodes$nodeX, nodes$nodeZ, "observed_statistic", "YmissingZ_perX")]
+  setnames(data_list$observed, colnames(data_list$observed), c(nodes$nodeX, nodes$nodeZ, "observed_statistic", "YmissingZ_perX"))
   data_with_pval = data_list$observed[data, on = c(nodes$nodeX, nodes$nodeZ)]
 
 
