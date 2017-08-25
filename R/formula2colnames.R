@@ -281,7 +281,7 @@ calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
 
 ##' @name observedVSpermuted
 ##' @rdname permutationPvalHelper
-##' @details \code{observedVSpermuted} compares Observed Statistic to Permuted Statistic, records how many times permuted statistic is at least as large as the observed statistic (\code{higher_counts}) and how many of X-Z pairs have non-NA Observed Statistic or Permuted Statistic (\code{not_missing}. In each permutation round, node X might have many nodes Z, so when calculating empirical p-value all these comparisons should be counted (not just the number of permutations). On the other hand, not in all permutation rounda specific observed XZ pair might occur, so we need to cound non-NA "Observed Statistic to Permuted Statistic" comparisons
+##' @details \code{observedVSpermuted} compares Observed Statistic to Permuted Statistic, records how many times permuted statistic is at least as large as the observed statistic (\code{higher_counts}) and how many of X-Z pairs have non-NA Observed Statistic or Permuted Statistic (\code{not_missing}). In each permutation round, node X might have many nodes Z, so when calculating empirical p-value all these comparisons should be counted (not just the number of permutations). On the other hand, not in all permutation rounds a specific observed XZ pair might occur, so we need to cound non-NA "Observed Statistic to Permuted Statistic" comparisons
 ##' @return \code{observedVSpermuted} returns data.table contatining the following columns: "higher_counts", "not_missing", nodeX names, nodeZ names
 ##' @usage data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
 observedVSpermuted = function(data_list, nodes_call, nodes){
