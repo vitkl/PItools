@@ -15,6 +15,7 @@ res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interact
                 select_nodes = IDs_domain_human ~ domain_count >= 1,
                 N = 100,
                 cores = NULL, seed = 2)
+permutationPvalPlot(res)
 
 res_g = res
 all.equal(res_g, res)

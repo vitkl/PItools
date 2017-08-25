@@ -10,11 +10,16 @@
 ##' @param cores specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[parallel]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.
 ##' @param seed seed for RNG for reproducible sampling
 ##' @param also_permuteYZ logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?
+##' @param formula argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{out} object
+##' @param out argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration-PermutResult"
+##' @param ... argument for \code{permutationPvalPlot}, base R plotting parameters
+##' @return object of S3 class "XYZinteration-PermutResult" (list), containing \code{permutationPval} function call, standardised node names, and data.table containing the original data but appended with empirical p-value (p.value), observed_statistic, YmissingZ_perX, and higher_counts, not_missing used to calculate p-value
 ##' @import data.table
 ##' @import qvalue
 ##' @import BiocGenerics
 ##' @author Vitalii Kleshchevnikov
 ##' @export permutationPval
+##' @export permutationPvalPlot
 permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F){
   ########################################################################################################################
   # if data is not data.table or is not coerce-able to data.table: stop
@@ -117,11 +122,23 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   data_list$observed = data_list$observed[, c(nodes$nodeX, nodes$nodeZ, "observed_statistic", "YmissingZ_perX"), with = F]
   data_with_pval = data_list$observed[data_with_pval, on = c(nodes$nodeX, nodes$nodeZ), allow.cartesian = TRUE]
 
-
-  return(list(input = match.call(), nodes = nodes, data_with_pval = unique(data_with_pval)))
-
+  out = list(input = match.call(), nodes = nodes, data_with_pval = unique(data_with_pval))
+  class(out) = "XYZinteration-PermutResult"
+  return(out)
 }
 
+permutationPvalPlot = function(out, formula = NULL, main = "", ...){
+  if(!class(out) == "XYZinteration-PermutResult") stop("this function works only with the output of permutationPval function, class \"XYZinteration-PermutResult\"")
+  if(is.null(formula)) {
+    hist(unique(out$data_with_pval[, c(out$nodes$nodeX, out$nodes$nodeZ, "p.value"), with = FALSE])[, p.value],
+         breaks = seq(-0.01,1.01,0.01), xlab = "empirical P value", main = main, ...)
+  } else if(is.formula(formula)) {
+    vars = all.vars(formula[[2]])
+    vals = all.vars(formula[[3]])
+    hist(unique(out$data_with_pval[, c(vars[1], vars[2], vals[1]), with = FALSE])[, c(vals[1]), with = FALSE],
+         breaks = seq(-0.01,1.01,0.01), main = main, ...)
+  } else stop("formula argument supplied but is not a formula")
+}
 #data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
 #permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
 #                associations2test = IDs_interactor_viral ~ IDs_domain_human,

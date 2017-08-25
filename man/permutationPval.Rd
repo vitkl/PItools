@@ -29,6 +29,15 @@ permutationPval(interactions2permute = nodeX ~ nodeY,
 \item{seed}{seed for RNG for reproducible sampling}
 
 \item{also_permuteYZ}{logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?}
+
+\item{formula}{argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{out} object}
+
+\item{out}{argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration-PermutResult"}
+
+\item{...}{argument for \code{permutationPvalPlot}, base R plotting parameters}
+}
+\value{
+object of S3 class "XYZinteration-PermutResult" (list), containing \code{permutationPval} function call, standardised node names, and data.table containing the original data but appended with empirical p-value (p.value), observed_statistic, YmissingZ_perX, and higher_counts, not_missing used to calculate p-value
 }
 \description{
 calculate permutation pval for association between X and Z if both are connected to Y
