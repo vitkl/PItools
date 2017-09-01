@@ -72,7 +72,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   data_list = list(interactionsXY = interactionsXY, interactionsYZ = interactionsYZ, associations = associations)
   ########################################################################################################################
   # check if select_nodes asks to select nodes based on their attributes as specified in node_attr or (by the node name)
-  select_nodes = checkSelectNodesList(select_nodes, node_attr, nodes, cols)
+  if(!is.null(select_nodes)) select_nodes = checkSelectNodesList(select_nodes, node_attr, nodes, cols)
 
   # filter tables by node attribute if select_nodes is provided
   data_list = filterByList(data_list, select_nodes, cols, nodes)
