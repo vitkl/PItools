@@ -8,7 +8,7 @@ fullInteractome(MITABdata = NULL, taxid = "9606", database = "imex",
   format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL)
 }
 \arguments{
-\item{MITABdata}{data.table containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL}
+\item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL}
 
 \item{taxid}{character (1L), taxonomy id of the species which interaction participants should belong to, default is "9606" (which is human)}
 
@@ -23,7 +23,7 @@ fullInteractome(MITABdata = NULL, taxid = "9606", database = "imex",
 \item{directory}{directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data}
 }
 \value{
-data.table containing molecular interaction data in either of these two formats:
+object of class `input class`_fullInteractome containing data.table containing molecular interaction data in either of these two formats:
 
 if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 

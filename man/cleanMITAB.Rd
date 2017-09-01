@@ -4,10 +4,10 @@
 \alias{cleanMITAB}
 \title{\code{cleanMITAB} extracts interactor Uniprot (or other ID as specified by interactor_IDs_databases) IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values and generates unique pair ID}
 \usage{
-cleanMITAB(mitab)
+cleanMITAB(MITABdata)
 }
 \arguments{
-\item{mitab}{data.table containing molecular interaction data in MITAB 2.5 or 2.7 formats. Details: \code{\link{queryPSICQUIC}}}
+\item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}}
 }
 \value{
 data.table for MITAB 2.5: containing the interactor Uniprot IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values. All interactor attributes are sorted according to alphanumerically sorted interactor Uniprot IDs

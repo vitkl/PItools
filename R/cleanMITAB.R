@@ -1,7 +1,7 @@
 ##' \code{cleanMITAB} extracts interactor Uniprot (or other ID as specified by interactor_IDs_databases) IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values and generates unique pair ID
 ##' @name cleanMITAB
 ##' @author Vitalii Kleshchevnikov
-##' @param mitab data.table containing molecular interaction data in MITAB 2.5 or 2.7 formats. Details: \code{\link{queryPSICQUIC}}
+##' @param MITABdata object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}
 ##' @return data.table for MITAB 2.5: containing the interactor Uniprot IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values. All interactor attributes are sorted according to alphanumerically sorted interactor Uniprot IDs
 ##' @details Output column description (MITAB 2.5):
 ##' @details \code{pair_id} - unique identifier of the undirected interaction: ordered alphabetically and concatenated interacting molecule IDs
@@ -23,29 +23,58 @@
 ##' @details \code{binding_region_A_type}, \code{binding_region_B_type} - Type of the binding region. Details: \link{http://www.ebi.ac.uk/ols/ontologies/MI/terms?obo_id=MI:0117}, \link{https://psicquic.github.io/MITAB27Format.html}, \code{\link{MITABregionFeature}}
 ##' @import data.table
 ##' @export cleanMITAB
+##' @export print.clean_MItab25
+##' @export print.clean_MItab27
 ##' @seealso \code{\link{interactorFeatureTypes}}
-cleanMITAB = function(mitab){
+cleanMITAB = function(MITABdata){
 
   ###############################################################################
   # identifying MITAB format
   miformat = NA
-  if(ncol(mitab) == 15) miformat = "2.5"
-  if(ncol(mitab) == 42) miformat = "2.7"
-  mitab = copy(mitab)
-  if(is.na(miformat)) stop("the table is not in MITAB 2.5 or 2.7 format, check if any columns were added or deleted from the original query output")
+  if(class(MITABdata) == "RAW_MItab25") {
+    if(class(MITABdata$data)[1] == "data.table") if(ncol(MITABdata$data) == 15) miformat = "2.5"
+  } else {
+    if(class(MITABdata) == "RAW_MItab27") {
+      if(class(MITABdata$data)[1] == "data.table") if(ncol(MITABdata$data) == 42) miformat = "2.7"
+    } else {
+      if(class(MITABdata) %in% c("clean_MItab25", "clean_MItab27")) {
+        message("the data has already been cleaned")
+        return(MITABdata)
+      } else stop("data is neither class RAW_MItab25 not RAW_MItab27")
+    }
+  }
+  if(is.na(miformat)) stop("data is of the right class but not in MITAB 2.5 or 2.7 format, check if any columns were added or deleted from the original query output")
+
+  MITABdata$data = copy(MITABdata$data)
 
   ###############################################################################
   # cleaning MITAB 2.5
   if(miformat == "2.5"){
-    mitab = cleanMITAB25(mitab)
+    MITABdata$data = cleanMITAB25(MITABdata$data)
   }
 
   ###############################################################################
   # cleaning MITAB 2.7
   if(miformat == "2.7"){
-    mitab = cleanMITAB27(mitab)
+    MITABdata$data = cleanMITAB27(MITABdata$data)
   }
 
-  mitab = unique(mitab)
-  return(mitab)
+  MITABdata$data = unique(MITABdata$data)
+  if(miformat == "2.5") class(MITABdata) = "clean_MItab25"
+  if(miformat == "2.7") class(MITABdata) = "clean_MItab27"
+  return(MITABdata)
+}
+
+#print methods
+print.clean_MItab25 = function(data){
+  cat(paste0("\n` Object of class clean_MItab25 (molecular interaction data), for query, file, format, databases, date: `\n"))
+  print(data$metadata)
+  cat("\n` view of the $data: `\n")
+  print(data$data)
+}
+print.clean_MItab27 = function(data){
+  cat(paste0("\n` Object of class clean_MItab27 (molecular interaction data), for query, file, format, databases, date: `\n"))
+  print(data$metadata)
+  cat("\n` view of the $data: `\n")
+  print(data$data)
 }

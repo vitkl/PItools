@@ -10,8 +10,8 @@
 ##' @param cores specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[parallel]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.
 ##' @param seed seed for RNG for reproducible sampling
 ##' @param also_permuteYZ logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?
-##' @param formula argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{out} object
-##' @param out argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration-PermutResult"
+##' @param formula argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object
+##' @param x argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration-PermutResult"
 ##' @param ... argument for \code{permutationPvalPlot}, base R plotting parameters
 ##' @return object of S3 class "XYZinteration-PermutResult" (list), containing \code{permutationPval} function call, standardised node names, and data.table containing the original data but appended with empirical p-value (p.value), observed_statistic, YmissingZ_perX, and higher_counts, not_missing used to calculate p-value
 ##' @import data.table
@@ -19,7 +19,26 @@
 ##' @import BiocGenerics
 ##' @author Vitalii Kleshchevnikov
 ##' @export permutationPval
-##' @export permutationPvalPlot
+##' @export plot.XYZinteration_XZEmpiricalPval
+##' @export print.XYZinteration_XZEmpiricalPval
+##' @usage
+##' res = permutationPval(interactions2permute = nodeX ~ nodeY,
+##'  associations2test = nodeX ~ nodeZ,
+##'  node_attr = NULL, data, statistic,
+##'  select_nodes = NULL, N = 1000,
+##'  cores = NULL, seed = NULL,
+##'  also_permuteYZ = F)
+##'
+##' # print
+##' res
+##'
+##' # plot p-value distribution (hist)
+##' plot(res)
+##'
+##' # plot the number of Y without Z per X (hist),
+##' # formula is used to subset the table before plotting
+##' # to avoid plotting single number multiple times
+##' plot(res, nodeX ~ YmissingZ_perX)
 permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F){
   ########################################################################################################################
   # if data is not data.table or is not coerce-able to data.table: stop
@@ -53,7 +72,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   data_list = list(interactionsXY = interactionsXY, interactionsYZ = interactionsYZ, associations = associations)
   ########################################################################################################################
   # check if select_nodes asks to select nodes based on their attributes as specified in node_attr or (by the node name)
-
+  select_nodes = checkSelectNodesList(select_nodes, node_attr, nodes, cols)
 
   # filter tables by node attribute if select_nodes is provided
   data_list = filterByList(data_list, select_nodes, cols, nodes)
@@ -123,32 +142,25 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   data_with_pval = data_list$observed[data_with_pval, on = c(nodes$nodeX, nodes$nodeZ), allow.cartesian = TRUE]
 
   out = list(input = match.call(), nodes = nodes, data_with_pval = unique(data_with_pval))
-  class(out) = "XYZinteration-PermutResult"
+  class(out) = "XYZinteration_XZEmpiricalPval"
   return(out)
 }
 
-permutationPvalPlot = function(out, formula = NULL, main = "", ...){
-  if(!class(out) == "XYZinteration-PermutResult") stop("this function works only with the output of permutationPval function, class \"XYZinteration-PermutResult\"")
+plot.XYZinteration_XZEmpiricalPval = function(x, formula = NULL, main = "", ...){
   if(is.null(formula)) {
-    hist(unique(out$data_with_pval[, c(out$nodes$nodeX, out$nodes$nodeZ, "p.value"), with = FALSE])[, p.value],
+    hist(unique(x$data_with_pval[, c(x$nodes$nodeX, x$nodes$nodeZ, "p.value"), with = FALSE])[, p.value],
          breaks = seq(-0.01,1.01,0.01), xlab = "empirical P value", main = main, ...)
   } else if(is.formula(formula)) {
     vars = all.vars(formula[[2]])
     vals = all.vars(formula[[3]])
-    hist(unique(out$data_with_pval[, c(vars[1], vars[2], vals[1]), with = FALSE])[, c(vals[1]), with = FALSE],
-         breaks = seq(-0.01,1.01,0.01), main = main, ...)
+    hist(unique(x$data_with_pval[, c(vars, vals[1]), with = FALSE])[, eval(formula[[3]])], main = main, ...)
   } else stop("formula argument supplied but is not a formula")
 }
-#data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
-#permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
-#                associations2test = IDs_interactor_viral ~ IDs_domain_human,
-#                node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
-#                                 IDs_domain_human ~ domain_count,
-#                                 IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
-#                data = data,
-#                statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
-#                select_nodes = IDs_domain_human ~ domain_count > 16,
-#                N = 10,
-#                cores = NULL, seed = 1)
-# fisher.test(matrix(c(data$domain_count[1], data$N_prot[1] - data$domain_count[1], data$domain_count_per_IDs_interactor_viral[1], data$IDs_interactor_viral_degree[1] - data$domain_count_per_IDs_interactor_viral[1]),2,2), alternative = "greater", conf.int = F)$estimate
-# statistic = IDs_interactor_viral + IDs_domain_human ~ fisher.test(matrix(c(domain_count[1], N_prot[1] - domain_count[1], domain_count_per_IDs_interactor_viral[1], IDs_interactor_viral_degree[1] - domain_count_per_IDs_interactor_viral[1]),2,2), alternative = "greater", conf.int = F)$estimate #p.value
+
+print.XYZinteration_XZEmpiricalPval = function(x){
+  cat(paste0("\n This object contains the empirical p-value for the association between <", x$nodes$nodeX, "> and <", x$nodes$nodeZ, "> both of which are linked (connected through edges) by <", x$nodes$nodeY, "> \n"))
+  cat(paste0("\n Produced by permutationPval function call: \n\n"))
+  print(x$input)
+  cat("\n $data_with_pval is the data.table containing the original data and appended with empirical p-value (p.value) as well as observed_statistic, YmissingZ_perX, and higher_counts, not_missing used to calculate p-value,\n Details: `?permutationPval` \n\n x$data_with_pval \n")
+  print(x$data_with_pval)
+}

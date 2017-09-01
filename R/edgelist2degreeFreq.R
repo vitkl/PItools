@@ -17,14 +17,14 @@
 ##'      ylab = "degree frequency, log-scale",
 ##'      xlab = "degree, log-scale",
 ##'      las=1)
-edgelist2degreeFreq = function(mitab, prots = NULL, sep = "\\|"){
+edgelist2degreeFreq = function(mitab, prots = NULL){
   if(!(is.data.table(mitab) & c("IDs_interactor_A", "IDs_interactor_B") %in% colnames(mitab))) stop("mitab table (edge list) is not data.table or doesn't contain IDs_interactor_A and IDs_interactor_B columns")
   # use all proteins in mitab if no protein list supplied
   if(is.null(prots)) prots = mitab[, unique(c(IDs_interactor_A, IDs_interactor_B))]
 
   mitab = copy(mitab)
   # compute degree
-  degree = edgelist2degree(mitab, sep)[ID %in% prots,]
+  degree = edgelist2degree(mitab)[ID %in% prots,]
   # compute degree count
   degree_dist = unique(degree[, count := .N, by = N][, .(N,count)])
   # compute degree frequency

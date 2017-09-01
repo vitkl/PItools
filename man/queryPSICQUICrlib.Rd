@@ -7,10 +7,17 @@
 queryPSICQUICrlib(..., directory = NULL)
 }
 \arguments{
-\item{...}{args passed to \code{\link{queryPSICQUIC}}}
+\item{...}{Arguments passed on to \code{queryPSICQUIC}
+\describe{
+  \item{query}{search query in MIQL query language, as you would type in PSICQUIC View client: \url{http://www.ebi.ac.uk/Tools/webservices/psicquic/view/home.xhtml}}
+  \item{format}{output format (most widely used tabular format is tab25, use tab27 for more data columns)}
+  \item{database}{PSICQUIC service (full list: \url{http://www.ebi.ac.uk/Tools/webservices/psicquic/registry/registry?action=STATUS}), use "imex" shorthand to choose all IMEx databases}
+}}
+
+\item{directory}{character, directory (non-existing directory will be created) where to store the result. The default is to store the result in R library inside the MItools package}
 }
 \value{
-data.table containing the query result
+object of class "RAW_MItab25" or "RAW_MItab27" (list) containing 2 elements: data which is the query result (data.table) and metadata, a data.table which contains the query, the filepath, the format, the date or the IntAct release date, and the number of interactions per database
 }
 \description{
 saves PSIQUIC search results to the local R library or to the directory specified
@@ -19,7 +26,7 @@ saves PSIQUIC search results to the local R library or to the directory specifie
 \code{queryPSICQUICrlib} queries IMEx databases using PSICQUIC if the local copy of the query result is not available or if there is a new IntAct release. The functions will still work for non-IMEx databases but it will check the IntAct release date and that is not meaningful for tracking updates of other resources.
 }
 \examples{
-queryPSICQUIC:::downloadPSICQUICrlib(query = "id:P74565 AND detmethod:\\"MI:0018\\"", format = "tab27", database = "imex")
+MItools:::downloadPSICQUICrlib(query = "id:P74565 AND detmethod:\\"MI:0018\\"", format = "tab27", database = "imex")
 }
 \author{
 Vitalii Kleshchevnikov

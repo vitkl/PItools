@@ -6,18 +6,22 @@
 ##' @details \code{fullInteractome} can be used to retrive interactome data using PSICQUIC service using \code{\link{queryPSICQUIC}}, clean and select specific columns using \code{\link{cleanMITAB}} and filter resulting dataset for protein-protein interaction only. This is the default option.
 ##' @details Alternatively, \code{fullInteractome} can only retrive interactome data using PSICQUIC service without cleaning of filtering.
 ##' @details Another option is to supply \code{MITABdata} to be cleaned and filtered
-##' @param MITABdata data.table containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL
+##' @param MITABdata object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL
 ##' @param taxid character (1L), taxonomy id of the species which interaction participants should belong to, default is "9606" (which is human)
 ##' @param database character (1L), argument for \code{\link{queryPSICQUIC}}, default is "imex"
 ##' @param format character (1L), argument for \code{\link{queryPSICQUIC}}, default is "tab25"
 ##' @param clean logical (1L), if TRUE extract specific information using \code{\link{cleanMITAB}}, default is TRUE
 ##' @param protein_only logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE
 ##' @param directory directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data
-##' @return data.table containing molecular interaction data in either of these two formats:
+##' @return object of class `input class`_fullInteractome containing data.table containing molecular interaction data in either of these two formats:
 ##' @return if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 ##' @return if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
 ##' @import data.table
 ##' @export fullInteractome
+##' @export print.RAW_MItab25_fullInteractome
+##' @export print.RAW_MItab27_fullInteractome
+##' @export print.clean_MItab25_fullInteractome
+##' @export print.clean_MItab27_fullInteractome
 ##' @examples
 ##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns
 ##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
@@ -32,6 +36,7 @@ fullInteractome = function(MITABdata = NULL, taxid = "9606", database = "imex", 
                                          database = database,
                                          directory = directory)
   }
+
   if(!is.null(MITABdata)) full_interactome = copy(MITABdata)
 
   # clean this data to make it more useble if clean is TRUE
@@ -40,13 +45,50 @@ fullInteractome = function(MITABdata = NULL, taxid = "9606", database = "imex", 
     # filter out non-proteins
     if(protein_only){
       # removing interactions if at least one interactor has non-uniprot id
-      full_interactome_clean = full_interactome_clean[interactor_IDs_databases_A == "uniprotkb" & interactor_IDs_databases_B == "uniprotkb",]
+      full_interactome_clean$data = full_interactome_clean$data[interactor_IDs_databases_A == "uniprotkb" & interactor_IDs_databases_B == "uniprotkb",]
     }
+    full_interactome_clean$taxid = taxid
+    full_interactome_clean$protein_only = protein_only
+    class(full_interactome_clean) = paste0(class(full_interactome_clean),"_fullInteractome")
     return(full_interactome_clean)
   }
+
   # if clean is FALSE return the interactome date in the raw MITAB format
   if(!clean){
+    full_interactome$taxid = taxid
+    full_interactome_clean$protein_only = protein_only
+    class(full_interactome) = paste0(class(full_interactome),"_fullInteractome")
     return(full_interactome)
   }
 
+}
+
+#print methods
+print.RAW_MItab25_fullInteractome = function(data){
+  cat(paste0("\n` Object of class RAW_MItab25_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` file, format, databases, date: `\n"))
+  print(data$metadata)
+  cat("\n` view of the $data: `\n")
+  print(data$data)
+}
+print.RAW_MItab27_fullInteractome = function(data){
+  cat(paste0("\n` Object of class RAW_MItab27_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` file, format, databases, date: `\n"))
+  print(data$metadata)
+  cat("\n` view of the $data: `\n")
+  print(data$data)
+}
+print.clean_MItab25_fullInteractome = function(data){
+  cat(paste0("\n` Object of class clean_MItab25_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` file, format, databases, date: `\n"))
+  print(data$metadata)
+  cat("\n` view of the $data: `\n")
+  print(data$data)
+}
+print.clean_MItab27_fullInteractome = function(data){
+  cat(paste0("\n` Object of class clean_MItab27_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` file, format, databases, date: `\n"))
+  print(data$metadata)
+  cat("\n` view of the $data: `\n")
+  print(data$data)
 }

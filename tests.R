@@ -13,9 +13,13 @@ res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interact
                 data = data,
                 statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
                 select_nodes = IDs_domain_human ~ domain_count >= 1,
-                N = 100,
+                N = 1000,
                 cores = NULL, seed = 2)
-permutationPvalPlot(res)
+plot(res)
+res
+
+set.seed(1)
+random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE)
 
 res_g = res
 all.equal(res_g, res)

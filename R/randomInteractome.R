@@ -1,20 +1,20 @@
 ##' Retrieve molecular interactions for the random set of proteins (of a particular taxon)
 ##' @name randomInteractome
 ##' @author Vitalii Kleshchevnikov
-##' @param MITABdata data.table containing pre-loaded molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, usefull for taking multiple samples, the default in NULL
 ##' @param degree_data data.table containing pre-calculated (using \code{\link{edgelist2degree}}) degree for each node in MITABdata, usefull for taking multiple samples, the default in NULL
 ##' @param n_prot integer (1L), the number of proteins for which to retrieve the random set of interactions
 ##' @param degree_dist data.table, specifies the degree frequency () for each degree (N) to produce the network with the specific degree distribution, if set to NULL (default) the degree distribution will correspond to that of \code{taxid} interactome
-##' @param ... arguments to \code{\link{fullInteractome}} that specify interactome species and other attributes of the data
+##' @inheritDotParams fullInteractome -format -clean
 ##' @return list of two elements: 1. interactome - data.table containing molecular interaction data in either of these two formats:
 ##' @return if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 ##' @return if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
 ##' @return 2. seed - character vector containing IDs of proteins used as a seed to retrieve molecular interactions
-##' @details Random network can be specified to have specific degree distribution. If the (\code{degree} parameter is set \code{taxid} proteins will be split by degree and from each degree group a sample of the size specified by how many times specific degree number is repeated in \code{degree} will be taken.
+##' @details Not implemented: Random network can be specified to have specific degree distribution. If the (\code{degree} parameter is set \code{taxid} proteins will be split by degree and from each degree group a sample of the size specified by how many times specific degree number is repeated in \code{degree} will be taken.
 ##' @details If the degree distribution is not specified a sample of \code{n_prot} is taken from all proteins which have interaction data available in the \code{database} for \code{taxid}. In this case, the degree distribution of the resulting set of proteins will be similar to the degree distribution in the interactome of \code{taxid} in \code{database}.
 ##' @details \code{randomInteractome} retrieves molecular interactions using \code{\link{fullInteractome}}
 ##' @import data.table
 ##' @export randomInteractome
+##' @export print.clean_MItab25_randomInteractome
 ##' @examples
 ##' # retrive the interactome using PSICQIUC servise (or by reading local copy) from IMEx databases for a list of 200 random human (9606) proteins, not specifying their degree distribution
 ##' set.seed(1)
@@ -35,11 +35,11 @@ randomInteractome = function(MITABdata = NULL, degree_data = NULL, n_prot, degre
   if(!is.null(MITABdata)) full_interactome_clean = MITABdata
 
   # check if the data has necessary columns:
-  if(mean(c("pair_id") %in% colnames(full_interactome_clean)) != 1) stop("MITABdata is in the wrong format: no pair_id column")
+  if(mean(c("pair_id") %in% colnames(full_interactome_clean$data)) != 1) stop("MITABdata is in the wrong format: no pair_id column")
 
   # get interactors
-  #interactors = full_interactome_clean[, unique(unlist(strsplit(pair_id, "\\|")))]
-  interactors = full_interactome_clean[, unique(c(IDs_interactor_A, IDs_interactor_B))]
+  #interactors = full_interactome_clean$data[, unique(unlist(strsplit(pair_id, "\\|")))]
+  interactors = full_interactome_clean$data[, unique(c(IDs_interactor_A, IDs_interactor_B))]
 
   # if the degree_dist distribution is not specified - sample n_prot of interactors
   if(is.null(degree_dist)){
@@ -50,7 +50,7 @@ randomInteractome = function(MITABdata = NULL, degree_data = NULL, n_prot, degre
   if(!is.null(degree_dist)){
     if(mean(c("N", "degree_freq") %in% colnames(degree_dist)) != 1) stop("degree_dist does not contain \"N\" and \"degree_freq\" columns")
     # calculate degree_data data if not provided
-    if(is.null(degree_data)) degree_data = edgelist2degree(full_interactome_clean[,.(pair_id)])
+    if(is.null(degree_data)) degree_data = edgelist2degree(full_interactome_clean$data[,.(IDs_interactor_A, IDs_interactor_B)])
     # stop if degree_data doesn't match MITABdata
     if(!is.null(degree_data) & mean(degree_data$ID %in% interactors) != 1) stop("degree_data doesn't contain degree_dist information for all nodes in MITABdata")
     # attach each interactor degree_dist for the sample
@@ -61,6 +61,17 @@ randomInteractome = function(MITABdata = NULL, degree_data = NULL, n_prot, degre
   }
 
   # retrive interactions for a set of random proteins
-  return(list(interactome = interactors2interactions(full_interactome_clean, random_interactors), seed_proteins = random_interactors))
+  full_interactome_clean = subsetMITABbyID(full_interactome_clean, random_interactors, within_seed = F)
+  class(full_interactome_clean) = "clean_MItab25_randomInteractome"
+  return(full_interactome_clean)
+}
 
+#print methods
+print.clean_MItab25_randomInteractome = function(data){
+  cat(paste0("\n` Object of class clean_MItab25_randomInteractome, which is a subset of the full interactome for taxid: ", data$taxid, ", proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` file, format, databases, date: `\n"))
+  print(data$metadata)
+  cat(paste0("\n` this subset contains interactions of a random set of molecules (seed): ", length(data$ID_seed), " total, includes all interations these molecules form\n"))
+  cat("\n` view of the data: `\n")
+  print(data$data)
 }

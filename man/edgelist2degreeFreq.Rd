@@ -4,7 +4,7 @@
 \alias{edgelist2degreeFreq}
 \title{Find the degree distribution given edgelist (pair_id) and a list of proteins which degrees matter}
 \usage{
-edgelist2degreeFreq(mitab, prots = NULL, sep = "\\\\|")
+edgelist2degreeFreq(mitab, prots = NULL)
 }
 \arguments{
 \item{mitab}{data.table containing molecular interaction data, including pair_id}

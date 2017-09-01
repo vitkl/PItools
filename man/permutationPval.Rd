@@ -4,10 +4,23 @@
 \alias{permutationPval}
 \title{calculate permutation pval for association between X and Z if both are connected to Y}
 \usage{
-permutationPval(interactions2permute = nodeX ~ nodeY,
-  associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic,
-  select_nodes = NULL, N = 1000, cores = NULL, seed = NULL,
-  also_permuteYZ = F)
+res = permutationPval(interactions2permute = nodeX ~ nodeY,
+ associations2test = nodeX ~ nodeZ,
+ node_attr = NULL, data, statistic,
+ select_nodes = NULL, N = 1000,
+ cores = NULL, seed = NULL,
+ also_permuteYZ = F)
+
+# print
+res
+
+# plot p-value distribution (hist)
+plot(res)
+
+# plot the number of Y without Z per X (hist),
+# formula is used to subset the table before plotting
+# to avoid plotting single number multiple times
+plot(res, nodeX ~ YmissingZ_perX)
 }
 \arguments{
 \item{interactions2permute}{formula specifying columns that contain X-Y interactions that will be permuted}
@@ -30,9 +43,9 @@ permutationPval(interactions2permute = nodeX ~ nodeY,
 
 \item{also_permuteYZ}{logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?}
 
-\item{formula}{argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{out} object}
+\item{formula}{argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object}
 
-\item{out}{argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration-PermutResult"}
+\item{x}{argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration-PermutResult"}
 
 \item{...}{argument for \code{permutationPvalPlot}, base R plotting parameters}
 }

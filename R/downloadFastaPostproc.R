@@ -1,5 +1,5 @@
 ##' Download FASTA for a list of post-processed chain ID (e.g. PRO_0000261216)
-##' @name download_fasta_postproc
+##' @name downloadFastaPostproc
 ##' @author Vitalii Kleshchevnikov
 ##' @param uniprot_ac character vector containg post-processed chain ID
 ##' @param file_name file name and directory to save the result ("./dir/filename")
@@ -7,12 +7,12 @@
 ##' @import Biostrings
 ##' @importFrom GenomeInfoDb seqnames
 ##' @importMethodsFrom rtracklayer import
-##' @export download_fasta_postproc
+##' @export downloadFastaPostproc
 ##' @details function to download from Uniprot and write fasta sequence files (renaming the UniProt-given name of the sequence to proteinID-FeatureID: P04591-PRO_0000261216) given post-processed chain ID, such as PRO_0000261216. If the file already contains the sequences for given post-processed chain ID you get a message, if some sequences are missing all sequences will be reloaded.
 ##' @seealso \code{\link{download_fasta}}
 ##' @examples
-##' download_fasta_postproc(postproc_id = c("PRO_0000261216"), file_name = "my_post_processed_chain.fasta")
-download_fasta_postproc = function(postproc_id, file_name){
+##' downloadFastaPostproc(postproc_id = c("PRO_0000261216"), file_name = "my_post_processed_chain.fasta")
+downloadFastaPostproc = function(postproc_id, file_name){
   if(if(file.exists(file_name)) mean(postproc_id %in% gsub("^[[:alnum:]]+-","",fasta.index(file_name)$desc)) == 1 else F){
     message("all sequences for given post-processed chain ID are alredy downloaded")
   }
