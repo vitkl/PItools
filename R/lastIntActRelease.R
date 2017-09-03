@@ -6,6 +6,6 @@
 ##'
 lastIntActRelease = function(){
   last_release = fread("ftp://ftp.ebi.ac.uk/pub/databases/intact/current/")
-  last_release = last_release[V9 == "all.zip", paste0(V6,V7, "_", gsub(":",".", V8))]
+  last_release = last_release[V9 == "all.zip", paste0(V6,V7)]
   return(paste0(year(Sys.Date()), last_release))
 }
