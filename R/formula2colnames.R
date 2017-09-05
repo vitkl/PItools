@@ -247,10 +247,16 @@ calcObservedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
 ##' @usage data_list = calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
 calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ){
 
+  setkeyv(data_list$interactionsYZ, cols = nodes$nodeY)
+
   # permute XY network (note: [, class character (1L) := eval(class call)])
   data_list$permuted_interactionsXY[, nodes$nodeY := sample(eval(nodes_call$nodeY))]
+  setkeyv(data_list$permuted_interactionsXY, cols = nodes$nodeY)
   # if also_permuteYZ is TRUE permute YZ network
-  if(also_permuteYZ) data_list$permuted_interactionsYZ[, nodes$nodeY := sample(eval(nodes_call$nodeY))]
+  if(also_permuteYZ) {
+    data_list$permuted_interactionsYZ[, nodes$nodeY := sample(eval(nodes_call$nodeY))]
+    setkeyv(data_list$permuted_interactionsYZ, cols = nodes$nodeY)
+    }
 
   # merge without removing X that don't have a match in Z, interactionsXY on the inside of "[" (in i position) means keep all interactionsXY, discard non-matching interactionsYZ
   # if also_permuteYZ is FALSE merge permuted XY to observed YZ
@@ -258,7 +264,11 @@ calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
   # if also_permuteYZ is FALSE merge permuted XY to permuted YZ
   if(also_permuteYZ) data_list$permuted = unique(data_list$permuted_interactionsXY[data_list$permuted_interactionsYZ, on = nodes$nodeY, allow.cartesian = T, nomatch = 0])
   # if calculating statistic requires some parameters of both X and Z -> merge associations table containing necessary data
-  if(includeAssociations) data_list$permuted = unique(data_list$associations[data_list$permuted, on = c(nodes$nodeX, nodes$nodeZ), allow.cartesian = T, nomatch = 0])
+  if(includeAssociations) {
+    setkeyv(data_list$associations, cols = c(nodes$nodeX, nodes$nodeZ))
+    setkeyv(data_list$permuted, cols = c(nodes$nodeX, nodes$nodeZ))
+    data_list$permuted = unique(data_list$associations[data_list$permuted, on = c(nodes$nodeX, nodes$nodeZ), allow.cartesian = T, nomatch = 0])
+    }
 
   # record in how many cases statistic is missing per X: we don't care in permuted cases, so I don't track this
   # data_list$permuted[, YmissingZ_perX := sum(is.na(eval(nodes_call$nodeZ))),
@@ -286,6 +296,8 @@ calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
 ##' @usage data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
 observedVSpermuted = function(data_list, nodes_call, nodes){
   # merge keeping all observed in i and discarding all permuted in x
+  setkeyv(data_list$permuted, cols = nodes$nodeX)
+  setkeyv(data_list$observed, cols = nodes$nodeX)
   result = data_list$permuted[data_list$observed, on = nodes$nodeX, allow.cartesian=TRUE]
   # calculate in how many cases permuted statistic is at least as large as observed statistic
   result_pval = result[, sum(observed_statistic <= permuted_statistic, na.rm = T), by = .(eval(nodes_call$nodeX), eval(nodes_call$nodeZ))]
