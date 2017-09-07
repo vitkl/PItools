@@ -55,7 +55,7 @@ queryPSICQUICrlib = function(..., directory = NULL, releaseORdate = NULL, just_l
     }
     stopifnot(dir.exists(pkg_dir_last_release))
     # create a filepath name that uniquely identifies the search result
-    filepath = paste0(pkg_dir_last_release, "/query_", ..., ".tsv")
+    filepath = paste0(pkg_dir_last_release, "query_", ..., ".tsv")
     filepath = gsub(":",".", filepath)
     filepath = gsub("\"",".", filepath)
     filepath = gsub(" ",".", filepath)
@@ -76,10 +76,10 @@ queryPSICQUICrlib = function(..., directory = NULL, releaseORdate = NULL, just_l
                     overwrite = T, skip = F, remove = T)
     }
 
-    if(is.null(directory)){
-      res[, date_time := gsub(pkg_dir, "",pkg_dir_last_release)]
+    if(is.null(releaseORdate)){
+      suppressMessages({res[, date_time := lastIntActRelease()]})
     } else {
-      res[, date_time := gsub(directory, "",pkg_dir_last_release)]
+      res[, date_time := releaseORdate]
     }
     # read the result
     R.utils::gunzip(filename = filepath.gz,
@@ -109,19 +109,19 @@ print.RAW_MItab27 = function(data){
 
 generateDirName = function(database, releaseORdate, directory){
   # find out last release date if the database is IntAct or imex, use query date if else
-  if(is.null(database) | mean(database %in% "imex") == 1 | mean(database %in% "IntAct") == 1){
+  if(is.null(database) | mean(database %in% "imex") == 1 | mean(database %in% "IntAct") == 1 | mean(database %in% "IntActFTP") == 1){
     if(is.null(releaseORdate)) {
-      pkg_dir_last_release = paste0(directory, "IntActRelease_",lastIntActRelease())
+      pkg_dir_last_release = paste0(directory, "IntActRelease_",lastIntActRelease(), "/")
     } else {
-      pkg_dir_last_release = paste0(directory, "IntActRelease_", releaseORdate)
+      pkg_dir_last_release = paste0(directory, "IntActRelease_", releaseORdate, "/")
     }
   } else {
     if(is.null(releaseORdate)) {
       date = Sys.Date()
       date = gsub("-","",date)
-      pkg_dir_last_release = paste0(directory, "DownloadDate_",date)
+      pkg_dir_last_release = paste0(directory, "DownloadDate_",date, "/")
     } else {
-      pkg_dir_last_release = paste0(directory, "DownloadDate_", releaseORdate)
+      pkg_dir_last_release = paste0(directory, "DownloadDate_", releaseORdate, "/")
     }
   }
   return(pkg_dir_last_release)

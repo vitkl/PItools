@@ -1,4 +1,5 @@
 ##' \code{cleanMITAB} extracts and cleans a set of columns of MITAB2.7
+##' @name cleanMITAB27
 ##' @description function called internally by \code{\link{cleanMITAB}} if the format is MITAB2.7
 ##' @param mitab data.table containing molecular interaction data in MITAB 2.7 format
 ##' @author Vitalii Kleshchevnikov
@@ -43,6 +44,18 @@ cleanMITAB27 = function(mitab){
 
     # reorder by all interactor attribute columns by pair_id (alphanumeric order)
     mitab[, c("IDs_A_order", "IDs_B_order") := tstrsplit(pair_id, "\\|")]
+    mitab = reorderMITAB27(mitab)
+  }
+}
+
+##' \code{reorderMITAB27} extracts and cleans a set of columns of MITAB2.7
+##' @name reorderMITAB27
+##' @description function called internally by \code{\link{cleanMITAB}} if the format is MITAB2.7
+##' @param mitab data.table containing molecular interaction data in MITAB 2.7 format
+##' @author Vitalii Kleshchevnikov
+##' @import data.table
+reorderMITAB27 = function(mitab){
+  if((c("IDs_A_order", "IDs_B_order") %in% colnames(mitab)) != 1) stop("columns to order by not provided") else {
     mitab[IDs_interactor_A == IDs_B_order & IDs_interactor_B == IDs_A_order,
           c("IDs_interactor_A", "IDs_interactor_B",
             "interactor_IDs_databases_A", "interactor_IDs_databases_B",
@@ -53,27 +66,26 @@ cleanMITAB27 = function(mitab){
             "binding_region_A_start", "binding_region_A_end", "binding_region_B_start", "binding_region_B_end",
             "binding_region_A_type", "binding_region_B_type") :=
             .(IDs_interactor_B, IDs_interactor_A,
-               interactor_IDs_databases_B, interactor_IDs_databases_A,
-               Taxid_interactor_B, Taxid_interactor_A,
-               bait_prey_status_B, bait_prey_status_A,
-               Features_interactor_B, Features_interactor_A,
-               Identification_method_participant_B, Identification_method_participant_A,
-               binding_region_B_start, binding_region_B_end, binding_region_A_start, binding_region_A_end,
-               binding_region_B_type, binding_region_A_type)]
-
-    # start by keeping only relevant columns
-    mitab = unique(mitab[, .(IDs_interactor_A, IDs_interactor_B,
-                             interactor_IDs_databases_A, interactor_IDs_databases_B,
-                             Taxid_interactor_A, Taxid_interactor_B,
-                             Publication_Identifiers, Confidence_values,
-                             Host_organisms,
-                             bait_prey_status_A, bait_prey_status_B,
-                             Interaction_detection_methods, Interaction_types, Interaction_identifiers, Expansion_methods,
-                             Features_interactor_A, Features_interactor_B,
-                             Identification_method_participant_A, Identification_method_participant_B,
-                             binding_region_A_start, binding_region_A_end, binding_region_B_start, binding_region_B_end,
-                             binding_region_A_type, binding_region_B_type,
-                             pair_id)])
-    mitab = MITABregionFeature(mitab)
+              interactor_IDs_databases_B, interactor_IDs_databases_A,
+              Taxid_interactor_B, Taxid_interactor_A,
+              bait_prey_status_B, bait_prey_status_A,
+              Features_interactor_B, Features_interactor_A,
+              Identification_method_participant_B, Identification_method_participant_A,
+              binding_region_B_start, binding_region_B_end, binding_region_A_start, binding_region_A_end,
+              binding_region_B_type, binding_region_A_type)]
   }
+  # keep only relevant columns
+  mitab = unique(mitab[, .(IDs_interactor_A, IDs_interactor_B,
+                           interactor_IDs_databases_A, interactor_IDs_databases_B,
+                           Taxid_interactor_A, Taxid_interactor_B,
+                           Publication_Identifiers, Confidence_values,
+                           Host_organisms,
+                           bait_prey_status_A, bait_prey_status_B,
+                           Interaction_detection_methods, Interaction_types, Interaction_identifiers, Expansion_methods,
+                           Features_interactor_A, Features_interactor_B,
+                           Identification_method_participant_A, Identification_method_participant_B,
+                           binding_region_A_start, binding_region_A_end, binding_region_B_start, binding_region_B_end,
+                           binding_region_A_type, binding_region_B_type,
+                           pair_id)])
+  return(mitab)
 }

@@ -18,9 +18,10 @@ randomInteractome(MITABdata = NULL, degree_data = NULL, n_prot,
 \describe{
   \item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL}
   \item{taxid}{character (1L), taxonomy id of the species which interaction participants should belong to, default is "9606" (which is human)}
-  \item{database}{character (1L), argument for \code{\link{queryPSICQUIC}}, default is "imex"}
+  \item{database}{character (1L), argument for \code{\link{queryPSICQUIC}}, default is "imex" alternative to which is "IntActFTP"}
   \item{protein_only}{logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE}
   \item{directory}{directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data}
+  \item{releaseORdate}{character, if data has already been downloaded: which IntAct release or download date to read}
 }}
 }
 \value{
