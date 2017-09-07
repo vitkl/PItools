@@ -23,7 +23,7 @@ downloadFastaMixed = function(uniprot_ac, file_name){
   # dowloading FASTA for canonical_and_isoform sequences to a temporary directory
   downloadFasta(uniprot_ac = canonical_and_isoform, file_name = paste0(tempdir(), "/canonical_and_isoform.fasta"))
   # dowloading FASTA for post-processed sequences if file with this data doesn't exist or doesn't contain all sequences
-  download_fasta_postproc(postproc_id = postproc, file_name = paste0(tempdir(), "/postproc.fasta"))
+  downloadFastaPostproc(postproc_id = postproc, file_name = paste0(tempdir(), "/postproc.fasta"))
 
   all_human_viral_proteins.fasta = append(readAAStringSet(paste0(tempdir(), "/canonical_and_isoform.fasta")),
                                           readAAStringSet(paste0(tempdir(), "/postproc.fasta")))
