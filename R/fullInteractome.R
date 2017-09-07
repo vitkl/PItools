@@ -13,6 +13,7 @@
 ##' @param clean logical (1L), if TRUE extract specific information using \code{\link{cleanMITAB}}, default is TRUE
 ##' @param protein_only logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE
 ##' @param directory directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data
+##' @param releaseORdate character, if data has already been downloaded: which IntAct release or download date to read
 ##' @return object of class `input class`_fullInteractome containing data.table containing molecular interaction data in either of these two formats:
 ##' @return if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 ##' @return if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
@@ -28,13 +29,14 @@
 ##'
 ##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns; save it to the specific directory inside working directory
 ##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
-fullInteractome = function(MITABdata = NULL, taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL){
+fullInteractome = function(MITABdata = NULL, taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL, releaseORdate = NULL){
   # if the interaction data for species taxid and from database is not saved in the library - queryPSICQUIC for interaction data for taxid interactions in the database and in MITAB2.5 format, save results to the library
   if(is.null(MITABdata)){
     full_interactome = queryPSICQUICrlib(query = paste0("taxidA:",taxid," AND ", "taxidB:",taxid),
                                          format = format,
                                          database = database,
-                                         directory = directory)
+                                         directory = directory,
+                                         releaseORdate = releaseORdate)
   }
 
   if(!is.null(MITABdata)) full_interactome = copy(MITABdata)
@@ -65,28 +67,28 @@ fullInteractome = function(MITABdata = NULL, taxid = "9606", database = "imex", 
 
 #print methods
 print.RAW_MItab25_fullInteractome = function(data){
-  cat(paste0("\n` Object of class RAW_MItab25_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` Object of class RAW_MItab25_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.RAW_MItab27_fullInteractome = function(data){
-  cat(paste0("\n` Object of class RAW_MItab27_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` Object of class RAW_MItab27_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.clean_MItab25_fullInteractome = function(data){
-  cat(paste0("\n` Object of class clean_MItab25_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab25_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.clean_MItab27_fullInteractome = function(data){
-  cat(paste0("\n` Object of class clean_MItab27_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab27_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
