@@ -58,6 +58,12 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
                                              Taxid_interactor_B_clean %in% taxids1), ]
       full_interactome$data[, Taxid_interactor_A_clean := NULL]
       full_interactome$data[, Taxid_interactor_B_clean := NULL]
+      full_interactome$metadata = data.table(query = paste0("(taxidA:",taxid1," AND ", "taxidB:",taxid2, ") OR (taxidA:",taxid2," AND ", "taxidB:",taxid1, ")"),
+                                             file = paste0(dir_last_release,"intact",gsub("^.*IntActRelease_|/","", dir_last_release),".txt.gz"),
+                                             format = "tab27",
+                                             all.databases = paste0("IntActFTP_", names(table(full_interactome$data$`Source database(s)`))),
+                                             n.interactions.in.database = table(full_interactome$data$`Source database(s)`),
+                                             database.not.active = "NULL")
     } else {
     full_interactome = queryPSICQUICrlib(query = paste0("(taxidA:",taxid1," AND ", "taxidB:",taxid2, ") OR (taxidA:",taxid2," AND ", "taxidB:",taxid1, ")"),
                                          format = format,
@@ -78,10 +84,14 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
       full_interactome_clean$data = full_interactome_clean$data[interactor_IDs_databases_A == "uniprotkb" & interactor_IDs_databases_B == "uniprotkb",]
     }
     # reorder interactions so that all entities in IDs_interactor_A are of the same species and IDs_interactor_B are of the other
-    full_interactome_clean$data[Taxid_interactor_A == taxid1, IDs_A_order := IDs_interactor_A]
-    full_interactome_clean$data[Taxid_interactor_A == taxid1, IDs_B_order := IDs_interactor_B]
-    full_interactome_clean$data[Taxid_interactor_A == taxid2, IDs_A_order := IDs_interactor_B]
-    full_interactome_clean$data[Taxid_interactor_A == taxid2, IDs_B_order := IDs_interactor_A]
+    taxids1 = loadTaxIDAllLower(taxid = taxid1, dir = dir_last_release)
+    taxids1 = c(taxids1$AllLower, taxids1$input_taxid)
+    taxids2 = loadTaxIDAllLower(taxid = taxid2, dir = dir_last_release)
+    taxids2 = c(taxids2$AllLower, taxids2$input_taxid)
+    full_interactome_clean$data[Taxid_interactor_A %in% taxids1, IDs_A_order := IDs_interactor_A]
+    full_interactome_clean$data[Taxid_interactor_A %in% taxids1, IDs_B_order := IDs_interactor_B]
+    full_interactome_clean$data[Taxid_interactor_A %in% taxids2, IDs_A_order := IDs_interactor_B]
+    full_interactome_clean$data[Taxid_interactor_A %in% taxids2, IDs_B_order := IDs_interactor_A]
 
     if(class(full_interactome_clean) == "clean_MItab25") full_interactome_clean$data = reorderMITAB25(full_interactome_clean$data)
     if(class(full_interactome_clean) == "clean_MItab27") full_interactome_clean$data = reorderMITAB27(full_interactome_clean$data)
@@ -106,28 +116,28 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
 
 #print methods
 print.RAW_MItab25_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class RAW_MItab25_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class RAW_MItab25_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.RAW_MItab27_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class RAW_MItab27_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class RAW_MItab27_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.clean_MItab25_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class clean_MItab25_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab25_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.clean_MItab27_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class clean_MItab27_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab27_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")

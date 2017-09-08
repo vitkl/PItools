@@ -58,6 +58,12 @@ fullInteractome = function(MITABdata = NULL, taxid = 9606, database = "imex", fo
       full_interactome$data = full_interactome$data[Taxid_interactor_A_clean %in% taxids & Taxid_interactor_B_clean %in% taxids, ]
       full_interactome$data[, Taxid_interactor_A_clean := NULL]
       full_interactome$data[, Taxid_interactor_B_clean := NULL]
+      full_interactome$metadata = data.table(query = paste0("taxidA:",taxid," AND ", "taxidB:",taxid),
+                                             file = paste0(dir_last_release,"intact",gsub("^.*IntActRelease_|/","", dir_last_release),".txt.gz"),
+                                             format = "tab27",
+                                             all.databases = paste0("IntActFTP_", names(table(full_interactome$data$`Source database(s)`))),
+                                             n.interactions.in.database = table(full_interactome$data$`Source database(s)`),
+                                             database.not.active = "NULL")
     } else {
     full_interactome = queryPSICQUICrlib(query = paste0("taxidA:",taxid," AND ", "taxidB:",taxid),
                                          format = format,
