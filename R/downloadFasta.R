@@ -15,13 +15,17 @@ downloadFasta = function(uniprot_ac, file_name){
     message("all sequences for given uniprot_ac are alredy downloaded")
   }
   if(if(file.exists(file_name)) mean(uniprot_ac %in% fasta.index(file_name)$desc) != 1 else T){
+    tempdirectory = tempdir()
     message("downloading fasta sequences for given uniprot_ac ...")
     all_fasta = AAStringSet()
     sequences_per_id = numeric(length = length(uniprot_ac))
     names(sequences_per_id) = uniprot_ac
     for(protein in uniprot_ac){
       tryCatch({
-        new_fasta = readAAStringSet(paste0("http://www.uniprot.org/uniprot/", protein,".fasta"))
+        file = paste0(tempdirectory, protein)
+        download.file(paste0("http://www.uniprot.org/uniprot/", protein,".fasta"), file, quiet = T)
+        new_fasta = readAAStringSet(file)
+        unlink(file)
         # if the search has yielded fasta file with 1 sequence then rename to UniprotAC, otherwise save original name and deal with the problem manually
         if(length(new_fasta) == 1) names(new_fasta) = protein
         all_fasta = append(all_fasta, new_fasta)
@@ -37,5 +41,6 @@ downloadFasta = function(uniprot_ac, file_name){
     }
     # write final result
     writeXStringSet(all_fasta, file = file_name, format="fasta")
+    unlink(tempdirectory)
   }
 }
