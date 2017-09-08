@@ -5,7 +5,7 @@
 ##' @export lastIntActRelease
 ##'
 lastIntActRelease = function(){
-  message("... finding out the date of the latest IntAct release ...")
+  message("... looking for the date of the latest IntAct release ...")
   last_release = fread("ftp://ftp.ebi.ac.uk/pub/databases/intact/current/", showProgress=FALSE)
   last_release = last_release[V9 == "all.zip", paste0(V6,V7)]
   return(paste0(year(Sys.Date()), last_release))

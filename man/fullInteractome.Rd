@@ -2,7 +2,7 @@
 % Please edit documentation in R/fullInteractome.R
 \name{fullInteractome}
 \alias{fullInteractome}
-\title{Retrieve interactome (proteins only or not) of a given taxonomic species from a particular database}
+\title{Retrieve interactome (proteins only or not) of a given taxonomic species}
 \usage{
 fullInteractome(MITABdata = NULL, taxid = 9606, database = "imex",
   format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL,
@@ -33,7 +33,7 @@ if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB
 if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
 }
 \description{
-Retrieve interactome (proteins only or not) of a given taxonomic species from a particular database. Interactome can be additionally cleaned and includes only specific information: \code{\link{cleanMITAB}}
+Retrieve interactome (proteins only or not) of a given taxonomic species from a specified database. Interactome can be additionally cleaned and includes only specific information: \code{\link{cleanMITAB}}
 }
 \details{
 \code{taxid} is used to query specified database using PSICQUIC client, only interactions in which both participants belong the \code{taxid} are retured (\code{"taxidA:9606 AND taxidB:9606"}, not \code{"species:9606"}). Details: \code{\link{queryPSICQUIC}}
@@ -44,7 +44,7 @@ Alternatively, \code{fullInteractome} can only retrive interactome data using PS
 
 Another option is to supply \code{MITABdata} to be cleaned and filtered
 
-Finally, you can avoid using PSICQUIC service to download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download (>3Gb) and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't.
+Finally, you can avoid using PSICQUIC service and download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download (>3Gb) and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't.
 }
 \examples{
 # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns

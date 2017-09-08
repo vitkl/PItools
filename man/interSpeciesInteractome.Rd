@@ -2,16 +2,30 @@
 % Please edit documentation in R/interSpeciesInteractome.R
 \name{interSpeciesInteractome}
 \alias{interSpeciesInteractome}
-\title{Retrieve interactome (proteins only or not) of a given pair of taxonomic species from a particular database}
+\title{Retrieve interspecies interactions (proteins only or not) for a given pair of taxonomy IDs}
 \usage{
 interSpeciesInteractome(MITABdata = NULL, taxid1 = 9606, taxid2 = 10239,
   database = "imex", format = "tab25", clean = TRUE,
   protein_only = TRUE, directory = NULL, releaseORdate = NULL)
 }
 \arguments{
+\item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL}
+
 \item{taxid1}{character (1L), taxonomy id of the species which interaction participants should belong to, default is 9606 (which is human)}
 
-\item{taxid2}{character (1L), taxonomy id of the species which interaction participants should belong to, default is 9606 (which is human)}
+\item{taxid2}{character (1L), taxonomy id of the species which interaction participants should belong to, default is 10239 (which is all viral taxa)}
+
+\item{database}{character (1L), argument for \code{\link{queryPSICQUIC}}, default is "imex" alternative to which is "IntActFTP"}
+
+\item{format}{character (1L), argument for \code{\link{queryPSICQUIC}}, default is "tab25"}
+
+\item{clean}{logical (1L), if TRUE extract specific information using \code{\link{cleanMITAB}}, default is TRUE}
+
+\item{protein_only}{logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE}
+
+\item{directory}{directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data}
+
+\item{releaseORdate}{character, if data has already been downloaded: which IntAct release or download date to read}
 }
 \value{
 object of class `input class`_interSpeciesInteractome containing data.table containing molecular interaction data in either of these two formats:
@@ -21,7 +35,7 @@ if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB
 if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
 }
 \description{
-Retrieve interactome (proteins only or not) of a given pairs of taxonomic species from a particular database. Interactome can be additionally cleaned and includes only specific information: \code{\link{cleanMITAB}}
+Retrieve interspecies interactions (proteins only or not) for a given pair of taxonomy IDs from a specified database. Interactome can be additionally cleaned and includes only specific information: \code{\link{cleanMITAB}}
 }
 \details{
 \code{taxid1} and \code{taxid2} is used to query specified database using PSICQUIC client, only interacting pairs between \code{taxid1} and \code{taxid2} are retured (no interactions within the same species, \code{"(taxidA:taxid1 AND taxidB:taxid2) OR (taxidA:taxid2 AND taxidB:taxid1)"}).
@@ -32,7 +46,7 @@ Alternatively, \code{interSpeciesInteractome} can only retrive interactome data 
 
 Another option is to supply \code{MITABdata} to be cleaned and filtered
 
-Finally, you can avoid using PSICQUIC service to download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't. If database "IntActFTP" is chosen only MITAB2.7 is available and \code{format} is ignored
+Finally, you can avoid using PSICQUIC service and download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't. If database "IntActFTP" is chosen only MITAB2.7 is available and \code{format} is ignored
 }
 \examples{
 # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns

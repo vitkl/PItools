@@ -2,7 +2,7 @@
 % Please edit documentation in R/cleanMITAB27.R
 \name{reorderMITAB27}
 \alias{reorderMITAB27}
-\title{\code{reorderMITAB27} extracts and cleans a set of columns of MITAB2.7}
+\title{\code{reorderMITAB27} reorders interacting molecules in a pair (and all the corresponding columns) according to order provided in IDs_A_order and IDs_B_order columns (latter are deleted)}
 \usage{
 reorderMITAB27(mitab)
 }
@@ -10,7 +10,7 @@ reorderMITAB27(mitab)
 \item{mitab}{data.table containing molecular interaction data in MITAB 2.7 format}
 }
 \description{
-function called internally by \code{\link{cleanMITAB}} if the format is MITAB2.7
+function called internally by \code{\link{cleanMITAB27}} if the format is MITAB2.7
 }
 \author{
 Vitalii Kleshchevnikov

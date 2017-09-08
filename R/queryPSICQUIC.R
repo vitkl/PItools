@@ -49,6 +49,9 @@ queryPSICQUIC = function(query, format, database, file){
   }
 
   query = gsub("\"","%22", query)
+  # PSICQUIC servers want a space between ( and the query )
+  query = gsub("\\(","\\( ", query)
+  query = gsub("\\)"," \\) ", query)
 
   SPECIES_ID_interactome = data.table()
   N_SPECIES_ID_interactome = character(length = length(databases))

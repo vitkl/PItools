@@ -48,14 +48,14 @@ cleanMITAB27 = function(mitab){
   }
 }
 
-##' \code{reorderMITAB27} extracts and cleans a set of columns of MITAB2.7
+##' \code{reorderMITAB27} reorders interacting molecules in a pair (and all the corresponding columns) according to order provided in IDs_A_order and IDs_B_order columns (latter are deleted)
 ##' @name reorderMITAB27
-##' @description function called internally by \code{\link{cleanMITAB}} if the format is MITAB2.7
+##' @description function called internally by \code{\link{cleanMITAB27}} if the format is MITAB2.7
 ##' @param mitab data.table containing molecular interaction data in MITAB 2.7 format
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 reorderMITAB27 = function(mitab){
-  if((c("IDs_A_order", "IDs_B_order") %in% colnames(mitab)) != 1) stop("columns to order by not provided") else {
+  if((c("IDs_A_order", "IDs_B_order") %in% colnames(mitab)) != 1) stop("columns to order by not provided (IDs_A_order, IDs_B_order)") else {
     mitab[IDs_interactor_A == IDs_B_order & IDs_interactor_B == IDs_A_order,
           c("IDs_interactor_A", "IDs_interactor_B",
             "interactor_IDs_databases_A", "interactor_IDs_databases_B",

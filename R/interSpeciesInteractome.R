@@ -1,15 +1,15 @@
-##' Retrieve interactome (proteins only or not) of a given pair of taxonomic species from a particular database
+##' Retrieve interspecies interactions (proteins only or not) for a given pair of taxonomy IDs
 ##' @name interSpeciesInteractome
 ##' @author Vitalii Kleshchevnikov
-##' @description Retrieve interactome (proteins only or not) of a given pairs of taxonomic species from a particular database. Interactome can be additionally cleaned and includes only specific information: \code{\link{cleanMITAB}}
+##' @description  Retrieve interspecies interactions (proteins only or not) for a given pair of taxonomy IDs from a specified database. Interactome can be additionally cleaned and includes only specific information: \code{\link{cleanMITAB}}
 ##' @details \code{taxid1} and \code{taxid2} is used to query specified database using PSICQUIC client, only interacting pairs between \code{taxid1} and \code{taxid2} are retured (no interactions within the same species, \code{"(taxidA:taxid1 AND taxidB:taxid2) OR (taxidA:taxid2 AND taxidB:taxid1)"}).
 ##' @details \code{interSpeciesInteractome} can be used to retrive interactome data using PSICQUIC service using \code{\link{queryPSICQUIC}}, clean and select specific columns using \code{\link{cleanMITAB}} and filter resulting dataset for protein-protein interaction only. This is the default option.
 ##' @details Alternatively, \code{interSpeciesInteractome} can only retrive interactome data using PSICQUIC service without cleaning of filtering.
 ##' @details Another option is to supply \code{MITABdata} to be cleaned and filtered
-##' @details Finally, you can avoid using PSICQUIC service to download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't. If database "IntActFTP" is chosen only MITAB2.7 is available and \code{format} is ignored
-##' @inheritParams MItools fullInteractome
+##' @details Finally, you can avoid using PSICQUIC service and download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't. If database "IntActFTP" is chosen only MITAB2.7 is available and \code{format} is ignored
+##' @inheritParams fullInteractome
 ##' @param taxid1 character (1L), taxonomy id of the species which interaction participants should belong to, default is 9606 (which is human)
-##' @param taxid2 character (1L), taxonomy id of the species which interaction participants should belong to, default is 9606 (which is human)
+##' @param taxid2 character (1L), taxonomy id of the species which interaction participants should belong to, default is 10239 (which is all viral taxa)
 ##' @return object of class `input class`_interSpeciesInteractome containing data.table containing molecular interaction data in either of these two formats:
 ##' @return if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 ##' @return if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
@@ -47,12 +47,12 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
       }
       full_interactome = loadIntActFTP(dir_last_release)
       taxids1 = loadTaxIDAllLower(taxid = taxid1, dir = dir_last_release)
-      taxids1 = c(taxids$AllLower, taxids$input_taxid)
+      taxids1 = c(taxids1$AllLower, taxids1$input_taxid)
       taxids2 = loadTaxIDAllLower(taxid = taxid2, dir = dir_last_release)
-      taxids2 = c(taxids$AllLower, taxids$input_taxid)
+      taxids2 = c(taxids2$AllLower, taxids2$input_taxid)
       full_interactome$data[, Taxid_interactor_A_clean := gsub("taxid:|\\(.*$","",`Taxid interactor A`)]
       full_interactome$data[, Taxid_interactor_B_clean := gsub("taxid:|\\(.*$","",`Taxid interactor B`)]
-      full_interactome$data = all.intact$data[(Taxid_interactor_A_clean %in% taxids1 &
+      full_interactome$data = full_interactome$data[(Taxid_interactor_A_clean %in% taxids1 &
                                           Taxid_interactor_B_clean %in% taxids2) |
                                           (Taxid_interactor_A_clean %in% taxids2 &
                                              Taxid_interactor_B_clean %in% taxids1), ]
@@ -78,8 +78,14 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
       full_interactome_clean$data = full_interactome_clean$data[interactor_IDs_databases_A == "uniprotkb" & interactor_IDs_databases_B == "uniprotkb",]
     }
     # reorder interactions so that all entities in IDs_interactor_A are of the same species and IDs_interactor_B are of the other
-    full_interactome_clean$data
-    full_interactome_clean$data = reorderMITAB27(full_interactome_clean$data)
+    full_interactome_clean$data[Taxid_interactor_A == taxid1, IDs_A_order := IDs_interactor_A]
+    full_interactome_clean$data[Taxid_interactor_A == taxid1, IDs_B_order := IDs_interactor_B]
+    full_interactome_clean$data[Taxid_interactor_A == taxid2, IDs_A_order := IDs_interactor_B]
+    full_interactome_clean$data[Taxid_interactor_A == taxid2, IDs_B_order := IDs_interactor_A]
+
+    if(class(full_interactome_clean) == "clean_MItab25") full_interactome_clean$data = reorderMITAB25(full_interactome_clean$data)
+    if(class(full_interactome_clean) == "clean_MItab27") full_interactome_clean$data = reorderMITAB27(full_interactome_clean$data)
+
     full_interactome_clean$taxid1 = taxid1
     full_interactome_clean$taxid2 = taxid2
     full_interactome_clean$protein_only = protein_only
@@ -89,7 +95,8 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
 
   # if clean is FALSE return the interactome date in the raw MITAB format
   if(!clean){
-    full_interactome$taxid = taxid
+    full_interactome$taxid1 = taxid1
+    full_interactome$taxid2 = taxid2
     full_interactome$protein_only = protein_only
     class(full_interactome) = paste0(class(full_interactome),"_interSpeciesInteractome")
     return(full_interactome)
@@ -99,28 +106,28 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
 
 #print methods
 print.RAW_MItab25_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class RAW_MItab25_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2:", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class RAW_MItab25_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.RAW_MItab27_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class RAW_MItab27_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2:", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class RAW_MItab27_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.clean_MItab25_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class clean_MItab25_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2:", data$taxid2," , proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab25_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.clean_MItab27_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class clean_MItab27_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2:", data$taxid2," , proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab27_interSpeciesInteractome, contains interactions between molecular of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")

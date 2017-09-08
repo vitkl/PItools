@@ -1,12 +1,12 @@
-##' Retrieve interactome (proteins only or not) of a given taxonomic species from a particular database
+##' Retrieve interactome (proteins only or not) of a given taxonomic species
 ##' @name fullInteractome
 ##' @author Vitalii Kleshchevnikov
-##' @description Retrieve interactome (proteins only or not) of a given taxonomic species from a particular database. Interactome can be additionally cleaned and includes only specific information: \code{\link{cleanMITAB}}
+##' @description Retrieve interactome (proteins only or not) of a given taxonomic species from a specified database. Interactome can be additionally cleaned and includes only specific information: \code{\link{cleanMITAB}}
 ##' @details \code{taxid} is used to query specified database using PSICQUIC client, only interactions in which both participants belong the \code{taxid} are retured (\code{"taxidA:9606 AND taxidB:9606"}, not \code{"species:9606"}). Details: \code{\link{queryPSICQUIC}}
 ##' @details \code{fullInteractome} can be used to retrive interactome data using PSICQUIC service using \code{\link{queryPSICQUIC}}, clean and select specific columns using \code{\link{cleanMITAB}} and filter resulting dataset for protein-protein interaction only. This is the default option.
 ##' @details Alternatively, \code{fullInteractome} can only retrive interactome data using PSICQUIC service without cleaning of filtering.
 ##' @details Another option is to supply \code{MITABdata} to be cleaned and filtered
-##' @details Finally, you can avoid using PSICQUIC service to download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download (>3Gb) and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't.
+##' @details Finally, you can avoid using PSICQUIC service and download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download (>3Gb) and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't.
 ##' @param MITABdata object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL
 ##' @param taxid character (1L), taxonomy id of the species which interaction participants should belong to, default is "9606" (which is human)
 ##' @param database character (1L), argument for \code{\link{queryPSICQUIC}}, default is "imex" alternative to which is "IntActFTP"
@@ -55,7 +55,7 @@ fullInteractome = function(MITABdata = NULL, taxid = 9606, database = "imex", fo
       taxids = c(taxids$AllLower, taxids$input_taxid)
       full_interactome$data[, Taxid_interactor_A_clean := gsub("taxid:|\\(.*$","",`Taxid interactor A`)]
       full_interactome$data[, Taxid_interactor_B_clean := gsub("taxid:|\\(.*$","",`Taxid interactor B`)]
-      full_interactome$data = all.intact$data[Taxid_interactor_A_clean %in% taxids & Taxid_interactor_B_clean %in% taxids, ]
+      full_interactome$data = full_interactome$data[Taxid_interactor_A_clean %in% taxids & Taxid_interactor_B_clean %in% taxids, ]
       full_interactome$data[, Taxid_interactor_A_clean := NULL]
       full_interactome$data[, Taxid_interactor_B_clean := NULL]
     } else {

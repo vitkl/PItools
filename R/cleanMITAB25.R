@@ -29,18 +29,31 @@ cleanMITAB25 = function(mitab){
 
   # reorder by all interactor attribute columns by pair_id (alphanumeric order)
   mitab[, c("IDs_A_order", "IDs_B_order") := tstrsplit(pair_id, "\\|")]
-  mitab[IDs_interactor_A == IDs_B_order & IDs_interactor_B == IDs_A_order,
-        c("IDs_interactor_A", "IDs_interactor_B",
-          "interactor_IDs_databases_A", "interactor_IDs_databases_B",
-          "Taxid_interactor_A", "Taxid_interactor_B") :=
-          .(IDs_interactor_B, IDs_interactor_A,
-            interactor_IDs_databases_B, interactor_IDs_databases_A,
-            Taxid_interactor_B, Taxid_interactor_A)]
 
-  mitab = mitab[,.(IDs_interactor_A, IDs_interactor_B,
-                   interactor_IDs_databases_A, interactor_IDs_databases_B,
-                   Taxid_interactor_A, Taxid_interactor_B,
-                   Publication_Identifiers, Confidence_values,
-                   pair_id)]
   return(mitab)
+}
+
+##' \code{reorderMITAB25} reorders interacting molecules in a pair (and all the corresponding columns) according to order provided in IDs_A_order and IDs_B_order columns (latter are deleted)
+##' @name reorderMITAB25
+##' @description function called internally by \code{\link{cleanMITAB25}} if the format is MITAB2.5
+##' @param mitab data.table containing molecular interaction data in MITAB 2.5 format
+##' @author Vitalii Kleshchevnikov
+##' @import data.table
+reorderMITAB25 = function(mitab){
+  if((c("IDs_A_order", "IDs_B_order") %in% colnames(mitab)) != 1) stop("columns to order by not provided (IDs_A_order, IDs_B_order)") else {
+    mitab[IDs_interactor_A == IDs_B_order & IDs_interactor_B == IDs_A_order,
+          c("IDs_interactor_A", "IDs_interactor_B",
+            "interactor_IDs_databases_A", "interactor_IDs_databases_B",
+            "Taxid_interactor_A", "Taxid_interactor_B") :=
+            .(IDs_interactor_B, IDs_interactor_A,
+              interactor_IDs_databases_B, interactor_IDs_databases_A,
+              Taxid_interactor_B, Taxid_interactor_A)]
+
+    mitab = mitab[,.(IDs_interactor_A, IDs_interactor_B,
+                     interactor_IDs_databases_A, interactor_IDs_databases_B,
+                     Taxid_interactor_A, Taxid_interactor_B,
+                     Publication_Identifiers, Confidence_values,
+                     pair_id)]
+  return(mitab)
+    }
 }
