@@ -40,7 +40,7 @@ cleanMITAB25 = function(mitab){
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 reorderMITAB25 = function(mitab){
-  if((c("IDs_A_order", "IDs_B_order") %in% colnames(mitab)) != 1) stop("columns to order by not provided (IDs_A_order, IDs_B_order)") else {
+  if(mean(c("IDs_A_order", "IDs_B_order") %in% colnames(mitab)) != 1) stop("columns to order by not provided (IDs_A_order, IDs_B_order)") else {
     mitab[IDs_interactor_A == IDs_B_order & IDs_interactor_B == IDs_A_order,
           c("IDs_interactor_A", "IDs_interactor_B",
             "interactor_IDs_databases_A", "interactor_IDs_databases_B",

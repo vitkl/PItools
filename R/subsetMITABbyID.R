@@ -12,12 +12,26 @@
 ##' @export print.clean_MItab27_subset
 ##' @export print.clean_MItab25_fullInteractome_subset
 ##' @export print.clean_MItab27_fullInteractome_subset
-subsetMITABbyID = function(MITABdata, ID_seed, within_seed = F){
+subsetMITABbyID = function(MITABdata, ID_seed, within_seed = F, only_seed2nonseed = F){
   valid_class = c("clean_MItab25", "clean_MItab27", "clean_MItab25_fullInteractome", "clean_MItab27_fullInteractome")
   if(!(class(MITABdata) %in% valid_class)) stop("subsetMITABbyID works only on objects of class: ", paste(valid_class, collapse = ", "))
 
-  if(within_seed) MITABdata$data = MITABdata$data[IDs_interactor_A %in% ID_seed & IDs_interactor_B %in% ID_seed, ]
+  if(within_seed) {
+    if(only_seed2nonseed) stop("you can select interactions both only within seed proteins (within_seed = T) AND only between seed and non-seed proteins (only_seed2nonseed = T)")
+    MITABdata$data = MITABdata$data[IDs_interactor_A %in% ID_seed & IDs_interactor_B %in% ID_seed, ]
+    }
   if(!within_seed) MITABdata$data = MITABdata$data[IDs_interactor_A %in% ID_seed | IDs_interactor_B %in% ID_seed, ]
+
+  if(only_seed2nonseed){
+    MITABdata$data = MITABdata$data[(IDs_interactor_A %in% ID_seed & !(IDs_interactor_B %in% ID_seed)) |
+                                      (IDs_interactor_B %in% ID_seed & !(IDs_interactor_A %in% ID_seed)), ]
+    MITABdata$data[IDs_interactor_A %in% ID_seed, IDs_A_order := IDs_interactor_A]
+    MITABdata$data[IDs_interactor_A %in% ID_seed, IDs_B_order := IDs_interactor_B]
+    MITABdata$data[!(IDs_interactor_A %in% ID_seed), IDs_A_order := IDs_interactor_B]
+    MITABdata$data[!(IDs_interactor_A %in% ID_seed), IDs_B_order := IDs_interactor_A]
+    if(class(MITABdata) %in% c("clean_MItab25", "clean_MItab25_fullInteractome")) MITABdata$data = reorderMITAB25(MITABdata$data)
+    if(class(MITABdata) %in% c("clean_MItab27", "clean_MItab27_fullInteractome")) MITABdata$data = reorderMITAB27(MITABdata$data)
+  }
 
   MITABdata$ID_seed = ID_seed
   MITABdata$within_seed = within_seed
@@ -43,7 +57,7 @@ print.clean_MItab27_subset = function(data){
 }
 
 print.clean_MItab25_fullInteractome_subset = function(data){
-  cat(paste0("\n` Object of class clean_MItab25_fullInteractome_subset, which is a subset of the full interactome for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab25_fullInteractome_subset, which is a subset of the full interactome for taxid: ", data$taxid, ", proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat(paste0("\n` this subset contains interactions of a set of molecules (seed): ", length(data$ID_seed), " total, does it include ONLY interactions between these molecules? ", data$within_seed, " `\n"))
@@ -51,7 +65,7 @@ print.clean_MItab25_fullInteractome_subset = function(data){
   print(data$data)
 }
 print.clean_MItab27_fullInteractome_subset = function(data){
-  cat(paste0("\n` Object of class clean_MItab27_fullInteractome_subset, which is a subset of the full interactome for taxid: ", data$taxid, ", proteins only: ", protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab27_fullInteractome_subset, which is a subset of the full interactome for taxid: ", data$taxid, ", proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat(paste0("\n` this subset contains interactions of a set of molecules (seed): ", length(data$ID_seed), " total, does it include ONLY interactions between these molecules? ", data$within_seed)," `\n")
