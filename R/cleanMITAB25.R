@@ -49,11 +49,11 @@ reorderMITAB25 = function(mitab){
               interactor_IDs_databases_B, interactor_IDs_databases_A,
               Taxid_interactor_B, Taxid_interactor_A)]
 
-    mitab = mitab[,.(IDs_interactor_A, IDs_interactor_B,
+    mitab = unique(mitab[,.(IDs_interactor_A, IDs_interactor_B,
                      interactor_IDs_databases_A, interactor_IDs_databases_B,
                      Taxid_interactor_A, Taxid_interactor_B,
                      Publication_Identifiers, Confidence_values,
-                     pair_id)]
+                     pair_id)])
   return(mitab)
     }
 }

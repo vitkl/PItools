@@ -116,28 +116,28 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
 
 #print methods
 print.RAW_MItab25_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class RAW_MItab25_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class RAW_MItab25_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1 (IDs_interactor_A): ", data$taxid1, " and taxid2 (IDs_interactor_B): ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.RAW_MItab27_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class RAW_MItab27_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class RAW_MItab27_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1 (IDs_interactor_A): ", data$taxid1, " and taxid2 (IDs_interactor_B): ", data$taxid2," , \nnot ordered (the same species can be in IDs_interactor_A or IDs_interactor_B in different pairs), proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.clean_MItab25_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class clean_MItab25_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab25_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1 (IDs_interactor_A): ", data$taxid1, " and taxid2 (IDs_interactor_B): ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.clean_MItab27_interSpeciesInteractome = function(data){
-  cat(paste0("\n` Object of class clean_MItab27_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1: ", data$taxid1, " and taxid2: ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
+  cat(paste0("\n` Object of class clean_MItab27_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1 (IDs_interactor_A): ", data$taxid1, " and taxid2 (IDs_interactor_B): ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
   cat("\n` view of the $data: `\n")
