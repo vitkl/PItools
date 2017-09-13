@@ -7,13 +7,16 @@
 ##' @param domains_known_mapped domains from ELM mapped to InterProID
 ##' @param type what to plot: "pval"- Fisher test p-val (in out set vs in ELM), "odds_ratio" - Fisher test odds ratio, "count" of domains in our set that are in ELM
 ##' @param plot_type r-base plot type default is "l"
+##' @param plot_name to be passed to plot(main = *)
+##' @param plot_args other arguments to plot: to be passed as vector of characters, such as c("cex = 1.2", "family = \"Helvetica\"")
+##' @param legend_args other arguments to legend: to be passed as vector of characters, such as c("cex = 1.2")
 ##' @return plot
 ##' @import data.table
 ##' @export plotEnrichment
-plotEnrichment = function(..., list = list(), random_domains = NULL, domains_known_mapped, type = "count", plot_type = "l", plot_name = ""){
+plotEnrichment = function(..., runningTestEnrichmentlist = list(), random_domains = NULL, domains_known_mapped, type = "count", plot_type = "l", plot_name = "", plot_args = NULL, legend_args = NULL){
 
   res = list(...)
-  res = c(res, list)
+  res = c(res, runningTestEnrichmentlist)
   typenum = match(type, c("pval", "odds_ratio", "count"))
   ngroups = length(res)
 
@@ -25,14 +28,26 @@ plotEnrichment = function(..., list = list(), random_domains = NULL, domains_kno
   if(type == "count") leg_pos_y = length(domains_known_mapped) - 1
   leg_pos_x = max(sapply(res, function(x) max(as.numeric(colnames(x))))) * 0.20
 
+  xlim_up = max(sapply(res, function(x) max(as.numeric(colnames(x)))))
+
   if(type == "pval") {ylim = c(0, 1); ylab = "p-value"}
   if(type == "count") {ylim = c(0,length(domains_known_mapped)+1); ylab = "known domain found"}
   if(type == "odds_ratio") {ylim = c(0,leg_pos_y); ylab = "Fisher test odds ratio"}
 
-  plot(colnames(res[[1]]),rep(0,ncol(res[[1]])),
-       ylab = ylab, xlab = "top N viral protein - domain pairs selected",
-       type = plot_type, ylim = ylim, lwd = 0,
-       main = plot_name)
+  if(is.null(plot_args)){
+    plot(colnames(res[[1]]),rep(0,ncol(res[[1]])),
+         ylab = ylab, xlab = "top N viral protein - domain pairs selected",
+         type = plot_type, ylim = ylim, lwd = 0,
+         main = plot_name, xlim = c(0, xlim_up + 20))
+  } else {
+    additional_plot_args = paste0(plot_args, collapse = ",")
+    plot_text = paste0("plot(colnames(res[[1]]),rep(0,ncol(res[[1]])),
+       ylab = ylab, xlab = \"top N viral protein - domain pairs selected\",
+           type = plot_type, ylim = ylim, lwd = 0,
+           main = plot_name, xlim = c(0, xlim_up + 20),",additional_plot_args, ")")
+    eval(parse(text = plot_text))
+  }
+
   # plot random domains quantiles
   if(!is.null(random_domains)){
     random_legend = c("97.5% quantile", "75% quantile", "median", "25% quantile", "2.5% quantile")
@@ -64,7 +79,14 @@ plotEnrichment = function(..., list = list(), random_domains = NULL, domains_kno
     line_width = c(line_width, random_line_width)
   }
 
+  if(is.null(legend_args)){
+    legend(x = leg_pos_x, y = leg_pos_y, legend_names,
+           col = c("white", color), lty = 1, lwd = line_width, merge = TRUE)
+  } else {
+    additional_legend_args = paste0(legend_args, collapse = ",")
+    legend_text = paste0("legend(x = leg_pos_x, y = leg_pos_y, legend_names,
+         col = c(\"white\", color), lty = 1, lwd = line_width, merge = TRUE,",additional_legend_args, ")")
+    eval(parse(text = legend_text))
+  }
 
-  legend(x = leg_pos_x, y = leg_pos_y, legend_names,
-         col = c("white", color), lty = 1, lwd = line_width, merge = TRUE)
 }

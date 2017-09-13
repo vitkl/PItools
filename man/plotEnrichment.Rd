@@ -4,13 +4,12 @@
 \alias{plotEnrichment}
 \title{Plot the enrichment of domains that are likely to be mediating interactions in domain annotated by ELM as mediating linear motif mediated interactions}
 \usage{
-plotEnrichment(..., list = list(), random_domains = NULL,
-  domains_known_mapped, type = "count", plot_type = "l", plot_name = "")
+plotEnrichment(..., runningTestEnrichmentlist = list(),
+  random_domains = NULL, domains_known_mapped, type = "count",
+  plot_type = "l", plot_name = "", plot_args = NULL, legend_args = NULL)
 }
 \arguments{
 \item{...}{objects (matrix) the output of \code{runningTestEnrichment}}
-
-\item{list}{list of object (alternative way to pass the output of \code{runningTestEnrichment})}
 
 \item{random_domains}{the result of comparing random domain-protein pairs (by \code{random_domains} function), can be null}
 
@@ -19,6 +18,14 @@ plotEnrichment(..., list = list(), random_domains = NULL,
 \item{type}{what to plot: "pval"- Fisher test p-val (in out set vs in ELM), "odds_ratio" - Fisher test odds ratio, "count" of domains in our set that are in ELM}
 
 \item{plot_type}{r-base plot type default is "l"}
+
+\item{plot_name}{to be passed to plot(main = *)}
+
+\item{plot_args}{other arguments to plot: to be passed as vector of characters, such as c("cex = 1.2", "family = \"Helvetica\"")}
+
+\item{legend_args}{other arguments to legend: to be passed as vector of characters, such as c("cex = 1.2")}
+
+\item{list}{list of object (alternative way to pass the output of \code{runningTestEnrichment})}
 }
 \value{
 plot
