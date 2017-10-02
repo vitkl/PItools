@@ -13,26 +13,35 @@
 ##' @return plot
 ##' @import data.table
 ##' @export plotEnrichment
-plotEnrichment = function(..., runningTestEnrichmentlist = list(), random_domains = NULL, domains_known_mapped, type = "count", plot_type = "l", plot_name = "", plot_args = NULL, legend_args = NULL){
+plotEnrichment = function(..., runningTestEnrichmentlist = list(), random_domains = NULL, domains_known_mapped, type = "count", plot_type = "l", plot_name = "", plot_args = NULL, legend_args = NULL, leg_pos_x = NULL, show_known_domains = F, plot_total_domains_found = F){
 
   res = list(...)
   res = c(res, runningTestEnrichmentlist)
   typenum = match(type, c("pval", "odds_ratio", "count"))
   ngroups = length(res)
 
-  if(type == "count") color = colorRampPalette(brewer.pal(7, "Dark2"))(ngroups + 1) else color = colorRampPalette(brewer.pal(7, "Dark2"))(ngroups)
+  if(type == "count" & show_known_domains) color = colorRampPalette(brewer.pal(7, "Dark2"))(ngroups + 1) else color = colorRampPalette(brewer.pal(7, "Dark2"))(ngroups)
   if(is.na(typenum)) stop("'type' should be one of “count”, “odds_ratio”, “pval”")
 
   leg_pos_y = max(sapply(res, function(x, typenum) max(as.numeric(x[typenum,])), typenum))
   if(!is.null(random_domains)) leg_pos_y = max(leg_pos_y, random_domains[typenum][[1]])
-  if(type == "count") leg_pos_y = length(domains_known_mapped) - 1
-  leg_pos_x = max(sapply(res, function(x) max(as.numeric(colnames(x))))) * 0.20
+  if(is.null(leg_pos_x)){
+    leg_pos_x = max(sapply(res, function(x) max(as.numeric(colnames(x))))) * 0.20
+  }
 
   xlim_up = max(sapply(res, function(x) max(as.numeric(colnames(x)))))
 
   if(type == "pval") {ylim = c(0, 1); ylab = "p-value"}
-  if(type == "count") {ylim = c(0,length(domains_known_mapped)+1); ylab = "known domain found"}
-  if(type == "odds_ratio") {ylim = c(0,leg_pos_y); ylab = "Fisher test odds ratio"}
+  if(type == "count") {
+    if(show_known_domains){
+      leg_pos_y = length(domains_known_mapped) - 1
+      ylim = c(0, length(domains_known_mapped) + 1)
+    } else {
+      ylim = c(0,leg_pos_y)
+      }
+    ylab = "known domain found"
+    }
+  if(type == "odds_ratio") {ylim = c(0,leg_pos_y); ylab = "odds ratio: in top N pairs AND in ELM / \nnot in top N pairs AND in ELM"}
 
   if(is.null(plot_args)){
     plot(colnames(res[[1]]),rep(0,ncol(res[[1]])),
@@ -60,16 +69,23 @@ plotEnrichment = function(..., runningTestEnrichmentlist = list(), random_domain
 
   for (i in 1:ngroups) {
     lines(x = colnames(res[[i]]), y = res[[i]][typenum,], col = color[i], type = plot_type, lwd = 3)
+    if(type == "count" & plot_total_domains_found){
+      lines(x = colnames(res[[i]]), y = res[[i]]["total_count",], col = color[i], type = plot_type, lwd = 3)
+    }
   }
 
-  if(type == "count") abline(h = length(domains_known_mapped), col = color[ngroups + 1])
+  if(type == "count") {
+    if(show_known_domains){
+    abline(h = length(domains_known_mapped), col = color[ngroups + 1])
+    }
+    }
 
   legend_names = c("statictic used in permutation test:")
   for(i in 1:ngroups){
     legend_names = c(legend_names, unique(res[[i]]["name",]))
   }
 
-  if(type == "count") legend_names = c(legend_names, "domains known to interact with linear motifs")
+  if(type == "count" & show_known_domains) legend_names = c(legend_names, "domains known to interact with linear motifs")
 
   line_width = rep(3, length(color) + 1)
 

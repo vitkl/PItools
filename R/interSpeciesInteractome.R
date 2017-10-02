@@ -133,6 +133,8 @@ print.clean_MItab25_interSpeciesInteractome = function(data){
   cat(paste0("\n` Object of class clean_MItab25_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1 (IDs_interactor_A): ", data$taxid1, " and taxid2 (IDs_interactor_B): ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
+  if("subsetByMethodDetails" %in% names(data)) printSubsetByMethodDetails(data)
+  if("subsetByPMIDsDetails" %in% names(data)) printSubsetByPMIDsDetails(data)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
@@ -140,6 +142,8 @@ print.clean_MItab27_interSpeciesInteractome = function(data){
   cat(paste0("\n` Object of class clean_MItab27_interSpeciesInteractome, contains interactions between molecules (proteins, RNA) of taxid1 (IDs_interactor_A): ", data$taxid1, " and taxid2 (IDs_interactor_B): ", data$taxid2," , proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
+  if("subsetByMethodDetails" %in% names(data)) printSubsetByMethodDetails(data)
+  if("subsetByPMIDsDetails" %in% names(data)) printSubsetByPMIDsDetails(data)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }

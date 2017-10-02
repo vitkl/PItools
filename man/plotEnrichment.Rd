@@ -6,7 +6,8 @@
 \usage{
 plotEnrichment(..., runningTestEnrichmentlist = list(),
   random_domains = NULL, domains_known_mapped, type = "count",
-  plot_type = "l", plot_name = "", plot_args = NULL, legend_args = NULL)
+  plot_type = "l", plot_name = "", plot_args = NULL, legend_args = NULL,
+  leg_pos_x = NULL, show_known_domains = F, plot_total_domains_found = F)
 }
 \arguments{
 \item{...}{objects (matrix) the output of \code{runningTestEnrichment}}

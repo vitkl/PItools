@@ -69,12 +69,16 @@ cleanMITAB = function(MITABdata){
 print.clean_MItab25 = function(data){
   cat(paste0("\n` Object of class clean_MItab25 (molecular interaction data), for query, file, format, databases, date: `\n"))
   print(data$metadata)
+  if("subsetByMethodDetails" %in% names(data)) printSubsetByMethodDetails(data)
+  if("subsetByPMIDsDetails" %in% names(data)) printSubsetByPMIDsDetails(data)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
 print.clean_MItab27 = function(data){
   cat(paste0("\n` Object of class clean_MItab27 (molecular interaction data), for query, file, format, databases, date: `\n"))
   print(data$metadata)
+  if("subsetByMethodDetails" %in% names(data)) printSubsetByMethodDetails(data)
+  if("subsetByPMIDsDetails" %in% names(data)) printSubsetByPMIDsDetails(data)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }

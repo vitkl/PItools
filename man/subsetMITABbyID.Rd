@@ -17,7 +17,10 @@ subsetMITABbyID(MITABdata, ID_seed, within_seed = F, only_seed2nonseed = F)
 object of class `class of MITABdata`_subset (for example, clean_MItab27_subset, basically list), a subset of \code{MITABdata} that contains interactions for \code{ID_seed} molecules, and additionally includes the ID_seed and within_seed
 }
 \description{
-subset molecular interaction data (cleaned MITAB format in a data.table object) with a list of interactors
+subset molecular interaction data with a list of interactors
+}
+\seealso{
+\code{\link[MItools]{subsetMITABbyMethod}}), \code{\link[MItools]{subsetMITABbyPMIDs}})
 }
 \author{
 Vitalii Kleshchevnikov

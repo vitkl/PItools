@@ -28,6 +28,8 @@
 ##' @examples
 ##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns
 ##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+##' # Do the same using IntAct ftp instead of the PSICQUIC webservice, except that, IntAct ftp option always outputs tab27 format
+##' full = fullInteractome(taxid = "9606", database = "IntActFTP", clean = TRUE, protein_only = TRUE)
 ##'
 ##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns; save it to the specific directory inside working directory
 ##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
@@ -118,6 +120,8 @@ print.clean_MItab25_fullInteractome = function(data){
   cat(paste0("\n` Object of class clean_MItab25_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
+  if("subsetByMethodDetails" %in% names(data)) printSubsetByMethodDetails(data)
+  if("subsetByPMIDsDetails" %in% names(data)) printSubsetByPMIDsDetails(data)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }
@@ -125,6 +129,8 @@ print.clean_MItab27_fullInteractome = function(data){
   cat(paste0("\n` Object of class clean_MItab27_fullInteractome, for taxid: ", data$taxid, ", proteins only: ", data$protein_only," `\n"))
   cat(paste0("\n` file, format, databases, date: `\n"))
   print(data$metadata)
+  if("subsetByMethodDetails" %in% names(data)) printSubsetByMethodDetails(data)
+  if("subsetByPMIDsDetails" %in% names(data)) printSubsetByPMIDsDetails(data)
   cat("\n` view of the $data: `\n")
   print(data$data)
 }

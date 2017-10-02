@@ -21,11 +21,14 @@
 ##' @importFrom ggplot2 geom_density
 ##' @export PermutResult2D
 
-PermutResult2D = function(res, N, id.cols = c("IDs_interactor_viral", "IDs_domain_human"), value.cols = c("domain_count", "IDs_interactor_viral_degree", "domain_count_per_IDs_interactor_viral", "p.value"), top_by = "p.value"){
+PermutResult2D = function(res, N, id.cols = c("IDs_interactor_viral", "IDs_domain_human"), value.cols = c("domain_count", "IDs_interactor_viral_degree", "domain_count_per_IDs_interactor_viral", "p.value"), rank_by = "p.value", filter = NULL){
 
-  res_temp = unique(res$data_with_pval[, c(id.cols, value.cols), with = F])
+  res_temp = unique(res$data_with_pval[, unique(c(id.cols, value.cols, rank_by)), with = F])
+  if(!is.null(filter)){
+    res_temp = res_temp[eval(formula(paste0("~",filter))[[2]]),]
+  }
 
-  GGally::ggpairs(res_temp[order(eval(as.formula(paste0("~", top_by))[[2]]), decreasing = F)[1:N],],
+  GGally::ggpairs(res_temp[order(eval(as.formula(paste0("~", rank_by))[[2]]), decreasing = F)[1:N],],
                   columns = value.cols,
                   lower = list(continuous = GGally_d2_bin_log10)#,
                   #diag = list(continuous = geom_density)

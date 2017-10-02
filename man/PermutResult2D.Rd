@@ -7,7 +7,7 @@
 PermutResult2D(res, N, id.cols = c("IDs_interactor_viral",
   "IDs_domain_human"), value.cols = c("domain_count",
   "IDs_interactor_viral_degree", "domain_count_per_IDs_interactor_viral",
-  "p.value"), top_by = "p.value")
+  "p.value"), rank_by = "p.value", filter = NULL)
 }
 \arguments{
 \item{res}{\code{\link[MItools]{permutationPval}} output of (class XYZinteration_XZEmpiricalPval)}

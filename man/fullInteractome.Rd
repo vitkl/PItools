@@ -49,6 +49,8 @@ Finally, you can avoid using PSICQUIC service and download data from IntAct ftp 
 \examples{
 # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns
 full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+# Do the same using IntAct ftp instead of the PSICQUIC webservice, except that, IntAct ftp option always outputs tab27 format
+full = fullInteractome(taxid = "9606", database = "IntActFTP", clean = TRUE, protein_only = TRUE)
 
 # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns; save it to the specific directory inside working directory
 full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
