@@ -13,22 +13,32 @@
 ##' @export humanViralDegree
 ##' @examples
 ##' # Load data. This can be done internally by humanViralDegree(),
-##' # however, it takes time (minutes) so it's recommended to load data separately if it will be used multiple times
+##' # however, it takes time (minutes) so it's recommended to load data separately
+##' # if it will be used multiple times
 ##' HumanViralPPI = loadHumanViralPPI(directory = "./data_files/")
 ##'
 ##' # prepare all data for the degree distribution analysis
-##' degree_distributions = humanViralDegree(data = HumanViralPPI, directory = "./data_files/")
+##' degree_distributions = humanViralDegree(data = HumanViralPPI,
+##'   directory = "./data_files/")
 ##'
 ##' # prepare two-hybrid data for the degree distribution analysis
-##' degree_distributions = humanViralDegree(data = HumanViralPPI, directory = "./data_files/", Interaction_detection_methods = "MI:0018")
+##' degree_distributions = humanViralDegree(data = HumanViralPPI,
+##'   directory = "./data_files/", Interaction_detection_methods = "MI:0018")
 ##'
 ##' # prepare AP-MS data for the degree distribution analysis
-##' degree_distributions = humanViralDegree(data = HumanViralPPI, directory = "./data_files/", Interaction_detection_methods = "MI:0004", Identification_method = "MI:0433", PMIDs = NULL, inverse_filter = F)
+##' degree_distributions = humanViralDegree(data = HumanViralPPI,
+##'   directory = "./data_files/", Interaction_detection_methods = "MI:0004",
+##'   Identification_method = "MI:0433", PMIDs = NULL, inverse_filter = F)
 ##'
-##' # to see if viral-interacting human proteins are special in the human network, look at the Vidal published and unpublished datasets (only human-human network is modified (data for the top 2 plots))
-##' degree_distributions = humanViralDegree(data = HumanViralPPI, directory = "./data_files/", PMIDs = c("25416956", "unassigned1304"))
-##' # to see if viral-interacting human proteins are special in the human network, do the same for Matthias Mann 2015 paper dataset
-##' degree_distributions = humanViralDegree(data = HumanViralPPI, directory = "./data_files/", PMIDs = "26496610")
+##' # to see if viral-interacting human proteins are special in the human network,
+##' # look at the Vidal published and unpublished datasets (only human-human network
+##' # is modified (data for the top 2 plots))
+##' degree_distributions = humanViralDegree(data = HumanViralPPI,
+##'   directory = "./data_files/", PMIDs = c("25416956", "unassigned1304"))
+##' # to see if viral-interacting human proteins are special in the human network,
+##' # do the same for Matthias Mann 2015 paper dataset
+##' degree_distributions = humanViralDegree(data = HumanViralPPI,
+##'   directory = "./data_files/", PMIDs = "26496610")
 humanViralDegree = function(data = NULL, directory = "./data_files/", Interaction_detection_methods = NULL, Identification_method = NULL, PMIDs = NULL, inverse_filter = F){
 
   if(is.null(data)){
