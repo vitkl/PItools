@@ -39,7 +39,7 @@ fullInteractome = function(MITABdata = NULL, taxid = 9606, database = "imex", fo
     if(database == "IntActFTP"){
       if(is.null(directory)){
         pkg_dir = paste0(.libPaths(), "/MItools", "/data/")[1]
-        # create data directory in /default.library/queryPSICQUIC/ if it doesn't exist
+        # create /data/ directory in /default.library/queryPSICQUIC/ if it doesn't exist
         if(!dir.exists(pkg_dir)) dir.create(pkg_dir)
         # find out last release date if the database is IntActFTP and releaseORdate = NULL, generate dir_last_release
         dir_last_release = generateDirName(database, releaseORdate, pkg_dir)

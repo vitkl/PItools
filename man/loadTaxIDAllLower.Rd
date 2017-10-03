@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadTaxIDProteome.R
 \name{loadTaxIDAllLower}
 \alias{loadTaxIDAllLower}
-\title{load all lower taxonomy ID}
+\title{load all lower taxonomy ID (all descendants)}
 \usage{
 loadTaxIDAllLower(taxid, dir, with_description = F)
 }

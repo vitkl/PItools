@@ -13,14 +13,14 @@
 ##' @author Vitalii Kleshchevnikov
 loadTaxIDProteins = function(taxid, dir){
   uniprot_release = httr::headers(httr::GET("http://www.uniprot.org/"))$`x-uniprot-release`
-  filename = paste0("UniProt_accessions_taxid",taxid,"_release",uniprot_release)
+  filename = paste0(dir, "UniProt_accessions_taxid",taxid,"_release",uniprot_release)
   if(!file.exists(filename)) download(paste0("http://www.uniprot.org/uniprot/?query=taxonomy:",taxid,"&format=tab&columns=id"), filename)
   proteins = unlist(fread(filename)[,1])
   names(proteins) = NULL
   list(proteins = proteins, taxid = taxid)
 }
 
-##' load all lower taxonomy ID
+##' load all lower taxonomy ID (all descendants)
 ##' @name loadTaxIDAllLower
 ##' @author Vitalii Kleshchevnikov
 ##' @description \code{loadTaxIDAllLower} loads all load all lower taxonomy ID for a given taxonomy ID
@@ -36,7 +36,7 @@ loadTaxIDProteins = function(taxid, dir){
 ##' @author Vitalii Kleshchevnikov
 loadTaxIDAllLower = function(taxid, dir, with_description = F){
   uniprot_release = httr::headers(httr::GET("http://www.uniprot.org/"))$`x-uniprot-release`
-  filename = paste0("AllLowerTaxID_taxid",taxid,"_release",uniprot_release)
+  filename = paste0(dir,"AllLowerTaxID_taxid",taxid,"_release",uniprot_release)
   if(!file.exists(filename)) download(paste0("http://www.uniprot.org/taxonomy/?query=ancestor:",taxid,"&format=tab"), filename)
   proteins = unlist(fread(filename)[,1])
   names(proteins) = NULL

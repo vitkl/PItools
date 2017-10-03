@@ -110,7 +110,7 @@ humanViralDegree = function(data = NULL, directory = "./data_files/", Interactio
                                                      inViral_viral_human_degree_legend, inViral_human_viral_degree_legend,
                                                      inViral_human_human_degree_legend, inViral_viral_viral_degree_legend))]
   degree_distributions[, medianN := as.integer(median(N)), by = legend]
-  degree_distributions[, medianN_lab := paste0("median: ",signif(medianN,1), " interacting partners")]
+  degree_distributions[, medianN_lab := paste0("median: \n    ",signif(medianN,1), " interacting partners")]
   degree_distributions[, data_name := data_name]
   return(degree_distributions)
 }
