@@ -8,6 +8,7 @@
 ##' @param Identification_method arg for \code{\link[MItools]{subsetMITABbyMethod}}
 ##' @param PMIDs arg for \code{\link[MItools]{subsetMITABbyPMIDs}}
 ##' @param inverse_filter logical, inverse filtering criteria
+##' @param data_name to be displayed on plot
 ##' @return data.table to be ggplotted to compare viral and human protein degree distributions
 ##' @import data.table
 ##' @export humanViralDegree
@@ -19,27 +20,31 @@
 ##'
 ##' # prepare all data for the degree distribution analysis
 ##' degree_distributions = humanViralDegree(data = HumanViralPPI,
-##'   directory = "./data_files/")
+##'   directory = "./data_files/", data_name = "Full IntAct")
 ##'
 ##' # prepare two-hybrid data for the degree distribution analysis
 ##' degree_distributions = humanViralDegree(data = HumanViralPPI,
-##'   directory = "./data_files/", Interaction_detection_methods = "MI:0018")
+##'   directory = "./data_files/", Interaction_detection_methods = "MI:0018",
+##'   data_name = "two-hybrid data")
 ##'
 ##' # prepare AP-MS data for the degree distribution analysis
 ##' degree_distributions = humanViralDegree(data = HumanViralPPI,
 ##'   directory = "./data_files/", Interaction_detection_methods = "MI:0004",
-##'   Identification_method = "MI:0433", PMIDs = NULL, inverse_filter = F)
+##'   Identification_method = "MI:0433", PMIDs = NULL, inverse_filter = F,
+##'   data_name = "AP-MS data")
 ##'
 ##' # to see if viral-interacting human proteins are special in the human network,
 ##' # look at the Vidal published and unpublished datasets (only human-human network
 ##' # is modified (data for the top 2 plots))
 ##' degree_distributions = humanViralDegree(data = HumanViralPPI,
-##'   directory = "./data_files/", PMIDs = c("25416956", "unassigned1304"))
+##'   directory = "./data_files/", PMIDs = c("25416956", "unassigned1304"),
+##'   data_name = "Vidal published and unpublished")
 ##' # to see if viral-interacting human proteins are special in the human network,
 ##' # do the same for Matthias Mann 2015 paper dataset
 ##' degree_distributions = humanViralDegree(data = HumanViralPPI,
-##'   directory = "./data_files/", PMIDs = "26496610")
-humanViralDegree = function(data = NULL, directory = "./data_files/", Interaction_detection_methods = NULL, Identification_method = NULL, PMIDs = NULL, inverse_filter = F){
+##'   directory = "./data_files/", PMIDs = "26496610",
+##'   data_name = "Matthias Mann 2015 paper")
+humanViralDegree = function(data = NULL, directory = "./data_files/", Interaction_detection_methods = NULL, Identification_method = NULL, PMIDs = NULL, inverse_filter = F, data_name = ""){
 
   if(is.null(data)){
     HumanViralPPI = loadHumanViralPPI(directory = directory)
@@ -73,9 +78,9 @@ humanViralDegree = function(data = NULL, directory = "./data_files/", Interactio
   }
 
 
-  human_viral_proteins = extractInteractors(all_viral_interaction, taxid = 9606, not = F)
+  human_viral_proteins = extractInteractors(all_viral_interaction, taxid = 9606, inverse_filter = F)
   human_human_proteins = extractInteractors(all_human_interaction)
-  viral_proteins = extractInteractors(all_viral_interaction, taxid = 9606, not = T)
+  viral_proteins = extractInteractors(all_viral_interaction, taxid = 9606, inverse_filter = T)
 
   human_human_degree = edgelist2degree(all_human_interaction$data)
   human_human_degree_legend = paste0("full human-human: \n", NuniqueInteractions(all_human_interaction)," interacting pairs, \n", NuniqueInteractors(all_human_interaction)," human proteins")
@@ -88,15 +93,15 @@ humanViralDegree = function(data = NULL, directory = "./data_files/", Interactio
   inViral_human_human_degree[, legend := inViral_human_human_degree_legend]
 
   inViral_human_viral_degree = edgelist2degree(all_viral_interaction$data)[ID %in% human_viral_proteins]
-  inViral_human_viral_degree_legend = paste0("human-viral: \n", NuniqueInteractions(all_viral_interaction)," interacting pairs, \n", NuniqueInteractors(all_viral_interaction, taxid = 9606, not = F)," human proteins")
+  inViral_human_viral_degree_legend = paste0("human-viral: \n", NuniqueInteractions(all_viral_interaction)," interacting pairs, \n", NuniqueInteractors(all_viral_interaction, taxid = 9606, inverse_filter = F)," human proteins")
   inViral_human_viral_degree[, legend := inViral_human_viral_degree_legend]
 
   inViral_viral_human_degree = edgelist2degree(all_viral_interaction$data)[ID %in% viral_proteins]
-  inViral_viral_human_degree_legend = paste0("viral-human: \n", NuniqueInteractions(all_viral_interaction)," interacting pairs, \n", NuniqueInteractors(all_viral_interaction, taxid = 9606, not = T)," viral proteins")
+  inViral_viral_human_degree_legend = paste0("viral-human: \n", NuniqueInteractions(all_viral_interaction)," interacting pairs, \n", NuniqueInteractors(all_viral_interaction, taxid = 9606, inverse_filter = T)," viral proteins")
   inViral_viral_human_degree[, legend := inViral_viral_human_degree_legend]
 
   inViral_viral_viral_degree = edgelist2degree(all_within_viral_interaction$data)[ID %in% viral_proteins]
-  inViral_viral_viral_degree_legend = paste0("viral-viral (human host) \n", NuniqueInteractions(all_within_viral_interaction)," interacting pairs, \n", NuniqueInteractors(all_within_viral_interaction)," viral proteins")
+  inViral_viral_viral_degree_legend = paste0("viral-viral (human host): \n", NuniqueInteractions(all_within_viral_interaction)," interacting pairs, \n", NuniqueInteractors(all_within_viral_interaction)," viral proteins")
   inViral_viral_viral_degree[, legend := inViral_viral_viral_degree_legend]
 
   degree_distributions = rbind(human_human_degree, inViral_human_human_degree, inViral_human_viral_degree, inViral_viral_human_degree, inViral_viral_viral_degree)
@@ -106,6 +111,7 @@ humanViralDegree = function(data = NULL, directory = "./data_files/", Interactio
                                                      inViral_human_human_degree_legend, inViral_viral_viral_degree_legend))]
   degree_distributions[, medianN := as.integer(median(N)), by = legend]
   degree_distributions[, medianN_lab := paste0("median: ",signif(medianN,1), " interacting partners")]
+  degree_distributions[, data_name := data_name]
   return(degree_distributions)
 }
 
