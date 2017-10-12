@@ -44,7 +44,6 @@ QSLIMFinderCommand = function(file_list, i = 1,
 ##' @export mQSLIMFinderCommand
 ##' @param log_dir character, directory where to write log files (stout and sterr)
 ##' @param write_log whether to save stout and sterr
-##' @param recursive how to create directories
 ##' @return list containing: 1. command to set up enviromental variable IUPred_PATH; 2. character vector of bash commands that will lauch QSLIMFinder as a job on LSF cluster; 3, 4, 5 - directories where LSF should write stout and sterr
 ##' @examples
 ##' all_commands = mQSLIMFinderCommand(file_list = forSLIMFinder_file_list,

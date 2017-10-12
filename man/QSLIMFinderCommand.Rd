@@ -45,8 +45,6 @@ mQSLIMFinderCommand(file_list,
 \item{log_dir}{character, directory where to write log files (stout and sterr)}
 
 \item{write_log}{whether to save stout and sterr}
-
-\item{recursive}{how to create directories}
 }
 \value{
 character vector (1L), bash command that will lauch QSLIMFinder locally or as a job on LSF cluster

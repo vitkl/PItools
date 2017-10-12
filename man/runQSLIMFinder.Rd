@@ -6,7 +6,8 @@
 \alias{LSFrunQSLIMFinder}
 \title{Run a list of QSLIMFinder jobs}
 \usage{
-runQSLIMFinder(commands, file_list, max_memory = 5000, onLSF = T)
+runQSLIMFinder(commands, file_list, max_memory = 5000, onLSF = T,
+  recursive = F)
 
 modifyMemoryInBsub(commands, memory)
 
@@ -20,6 +21,8 @@ LSFrunQSLIMFinder(commands)
 \item{max_memory}{max memory to use for a job}
 
 \item{onLSF}{use LSF cluster to run QSLIMFinder jobs}
+
+\item{recursive}{how to create directories}
 
 \item{memory}{integer, how much memory should the job use}
 }
