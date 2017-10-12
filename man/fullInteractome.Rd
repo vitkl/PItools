@@ -6,7 +6,7 @@
 \usage{
 fullInteractome(MITABdata = NULL, taxid = 9606, database = "imex",
   format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL,
-  releaseORdate = NULL)
+  releaseORdate = NULL, remove_obsolete_id = F)
 }
 \arguments{
 \item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL}
@@ -24,6 +24,8 @@ fullInteractome(MITABdata = NULL, taxid = 9606, database = "imex",
 \item{directory}{directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data}
 
 \item{releaseORdate}{character, if data has already been downloaded: which IntAct release or download date to read}
+
+\item{remove_obsolete_id}{logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID)}
 }
 \value{
 object of class `input class`_fullInteractome containing data.table containing molecular interaction data in either of these two formats:

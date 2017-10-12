@@ -22,6 +22,7 @@ randomInteractome(MITABdata = NULL, degree_data = NULL, n_prot,
   \item{protein_only}{logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE}
   \item{directory}{directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data}
   \item{releaseORdate}{character, if data has already been downloaded: which IntAct release or download date to read}
+  \item{remove_obsolete_id}{logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID)}
 }}
 }
 \value{

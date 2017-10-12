@@ -12,7 +12,9 @@
 ##' downloadFastaMixed(uniprot_ac = c("P04637", "P04637-2", "P04591-PRO_0000261216"), file_name = "my_canonical_and_isoform.fasta")
 downloadFastaMixed = function(uniprot_ac, file_name){
   # Filtering sequence names by group
-  canonical_all_proteins = uniprot_ac[-c(grep("-[[:digit:]]+", uniprot_ac, value = F),grep("-PRO_[[:digit:]]+$", uniprot_ac, value = F))]
+  non_canonical = c(grep("-[[:digit:]]+", uniprot_ac, value = F),grep("-PRO_[[:digit:]]+$", uniprot_ac, value = F))
+  if(length(non_canonical) >= 1) canonical_all_proteins = uniprot_ac[-non_canonical] else
+    canonical_all_proteins = uniprot_ac
   isoform_all_proteins = grep("-[[:digit:]]+", uniprot_ac, value = T)
   canonical_and_isoform = c(canonical_all_proteins, isoform_all_proteins)
   # Filtering sequence names by group

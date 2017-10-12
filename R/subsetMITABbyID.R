@@ -16,8 +16,7 @@
 ##' @export print.clean_MItab25_interSpeciesInteractome_subset
 ##' @export print.clean_MItab27_interSpeciesInteractome_subset
 subsetMITABbyID = function(MITABdata, ID_seed, within_seed = F, only_seed2nonseed = F){
-  valid_class = c("clean_MItab25", "clean_MItab27", "clean_MItab25_fullInteractome", "clean_MItab27_fullInteractome", "clean_MItab25_interSpeciesInteractome", "clean_MItab27_interSpeciesInteractome")
-  if(!(class(MITABdata) %in% valid_class)) stop("subsetMITABbyID works only on objects of class: ", paste(valid_class, collapse = ", "))
+  if(!grepl("clean_MItab",class(MITABdata))) stop("MITABdata is not of class clean_MItab27 or related clean_MItab class")
 
   if(within_seed) {
     if(only_seed2nonseed) stop("you can select interactions both only within seed proteins (within_seed = T) AND only between seed and non-seed proteins (only_seed2nonseed = T)")

@@ -21,11 +21,12 @@ downloadFastaPostproc = function(postproc_id, file_name){
     message("downloading fasta sequences for given post-processed chain IDs ...")
     postproc_fasta = AAStringSet()
     for(feature in postproc_id){
-      tryCatch({
         # Read gff from UniProt
         gfffile = paste0(tempdirectory, feature)
+        tryCatch({
         download.file(paste0("http://www.uniprot.org/uniprot/?query=",feature,"&format=gff"), gfffile, quiet = T)
         new_feature = import(gfffile, format="gff")
+        }, error = function(e) e)
         unlink(gfffile)
         # subset features with ID
         new_feature = new_feature[!is.na(new_feature$ID)]
@@ -34,8 +35,10 @@ downloadFastaPostproc = function(postproc_id, file_name){
         # read FASTA for the protein
         protein = as.character(seqnames(new_feature))[1]
         file = paste0(tempdirectory, protein)
+        tryCatch({
         download.file(paste0("http://www.uniprot.org/uniprot/", protein,".fasta"), file, quiet = T)
         proteinFASTA = readAAStringSet(file)
+        }, error = function(e) e)
         unlink(file)
         # select the first and the only sequence in a set and subset it by feature range
         postproc_fasta_new = AAStringSet(proteinFASTA[[1]][ranges(new_feature)])
@@ -48,7 +51,6 @@ downloadFastaPostproc = function(postproc_id, file_name){
           # limit the number of requests per second to 10
           Sys.sleep(1)
         }
-      }, error = function(e) e)
     }
     # write final result
     writeXStringSet(postproc_fasta, file = file_name, format="fasta")

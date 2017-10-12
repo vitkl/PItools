@@ -47,3 +47,75 @@ loadTaxIDAllLower = function(taxid, dir, with_description = F){
     return(list(AllLower = proteins, input_taxid = taxid))
   }
 }
+
+##' load the list of all protein ID in UniProtKB
+##' @name loadAllIDProteins
+##' @author Vitalii Kleshchevnikov
+##' @description loadAllIDProteins function loads all UniProt accessions for a given taxonomy ID
+##' @param dir directory where to save/look for the local copy
+##' @return \code{loadAllIDProteins} returns list containing the character vector of all UniProt accessions (saves it to a file)
+##' @import data.table
+##' @importFrom httr GET
+##' @importFrom httr headers
+##' @importFrom downloader download
+##' @export loadAllIDProteins
+##' @examples loadAllIDProteins(dir = "./")
+##' @author Vitalii Kleshchevnikov
+loadAllIDProteins = function(dir){
+  uniprot_release = httr::headers(httr::GET("http://www.uniprot.org/uniprot/?query=*"))$`x-uniprot-release`
+  total_results = as.numeric(httr::headers(httr::GET("http://www.uniprot.org/uniprot/?query=*"))$`x-total-results`)
+  filename = paste0(dir, "All_UniProt_accessions_release",uniprot_release, ".txt")
+  if(!file.exists(filename) | file.size(filename) == 0){
+    system(paste0("touch ", filename))
+    for (i in seq(1, total_results, 1e6)) {
+      query = paste0("http://www.uniprot.org/uniprot/?format=list&limit=1000000&offset=",i)
+      temp_file = paste0(tempdir(), "All_UniProt_accessions",i, ".txt")
+      download.file(query, temp_file)
+      system(paste0("cat ",temp_file," >> ",filename))
+    }
+  }
+  #proteins = fread(filename, stringsAsFactors = F, header = F)
+  filename
+}
+
+##' Remove interactions if one participant has obsolete Uniprot accession (ID)
+##' @name removeInteractionObsoleteID
+##' @author Vitalii Kleshchevnikov
+##' @description filter molecular interaction data by Pubmed ID of publications
+##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[MItools]{cleanMITAB}})
+##' @param dir directory where to save/look for the local copy
+##' @import data.table
+##' @export removeInteractionObsoleteID
+removeInteractionObsoleteID = function(MITABdata, dir = "./"){
+  interactors = extractInteractors(MITABdata)
+  # shave off isoform ids
+  interactors = gsub("-[[:digit:]]+$", "", interactors)
+  # shave off post-processed chain ids
+  interactors = gsub("-PRO_[[:digit:]]+$", "", interactors)
+
+  filename = loadAllIDProteins(dir = dir)
+
+  which_interactors = sapply(interactors, function(interactor, filename){
+    length(system(paste("grep -w", interactor, filename), intern = T)) >=1
+  }, filename)
+  interactors = interactors[which_interactors]
+  MITABdata = subsetMITABbyID(MITABdata, interactors, within_seed = T)
+  MITABdata
+}
+
+##' Remove interactions if one participant doesn't have FASTA sequence
+##' @name removeInteractionNoFASTA
+##' @author Vitalii Kleshchevnikov
+##' @description filter molecular interaction data by the list of FASTA sequences in AAStringSet
+##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[MItools]{cleanMITAB}})
+##' @param fasta AAStringSet, names are UniProtKB accessions
+##' @import data.table
+##' @import Biostrings
+##' @export removeInteractionNoFASTA
+removeInteractionNoFASTA = function(MITABdata, fasta){
+  interactors = extractInteractors(MITABdata)
+  has_interactors = interactors %in% names(fasta)
+  interactors = interactors[has_interactors]
+  MITABdata = subsetMITABbyID(MITABdata, interactors, within_seed = T)
+  MITABdata
+}

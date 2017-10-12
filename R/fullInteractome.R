@@ -15,6 +15,7 @@
 ##' @param protein_only logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE
 ##' @param directory directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data
 ##' @param releaseORdate character, if data has already been downloaded: which IntAct release or download date to read
+##' @param remove_obsolete_id logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID)
 ##' @return object of class `input class`_fullInteractome containing data.table containing molecular interaction data in either of these two formats:
 ##' @return if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 ##' @return if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
@@ -33,7 +34,7 @@
 ##'
 ##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns; save it to the specific directory inside working directory
 ##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
-fullInteractome = function(MITABdata = NULL, taxid = 9606, database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL, releaseORdate = NULL){
+fullInteractome = function(MITABdata = NULL, taxid = 9606, database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL, releaseORdate = NULL, remove_obsolete_id = F){
   # if the interaction data for species taxid and from database is not saved in the library - queryPSICQUIC for interaction data for taxid interactions in the database and in MITAB2.5 format, save results to the library
   if(is.null(MITABdata)){
     if(database == "IntActFTP"){
@@ -87,12 +88,13 @@ fullInteractome = function(MITABdata = NULL, taxid = 9606, database = "imex", fo
     }
     full_interactome_clean$taxid = taxid
     full_interactome_clean$protein_only = protein_only
+    full_interactome_clean$remove_obsolete_id = remove_obsolete_id
     class(full_interactome_clean) = paste0(class(full_interactome_clean),"_fullInteractome")
+    if(remove_obsolete_id){
+      full_interactome_clean = removeInteractionObsoleteID(full_interactome_clean, dir = directory)
+    }
     return(full_interactome_clean)
-  }
-
-  # if clean is FALSE return the interactome date in the raw MITAB format
-  if(!clean){
+  } else {   # if clean is FALSE return the interactome date in the raw MITAB format
     full_interactome$taxid = taxid
     full_interactome$protein_only = protein_only
     class(full_interactome) = paste0(class(full_interactome),"_fullInteractome")

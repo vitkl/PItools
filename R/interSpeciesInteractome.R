@@ -10,6 +10,7 @@
 ##' @inheritParams fullInteractome
 ##' @param taxid1 character (1L), taxonomy id of the species which interaction participants should belong to, default is 9606 (which is human)
 ##' @param taxid2 character (1L), taxonomy id of the species which interaction participants should belong to, default is 10239 (which is all viral taxa)
+##' @param remove_obsolete_id logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID)
 ##' @return object of class `input class`_interSpeciesInteractome containing data.table containing molecular interaction data in either of these two formats:
 ##' @return if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 ##' @return if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};
@@ -26,7 +27,7 @@
 ##'
 ##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.7 format not using PSICQUIC (using IntAct ftp), clean and select specific columns; save it to the specific directory inside working directory
 ##' interSpecies = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, database = "IntActFTP", format = "tab27", clean = TRUE, protein_only = TRUE, directory = "./data/")
-interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 10239, database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL, releaseORdate = NULL){
+interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 10239, database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL, releaseORdate = NULL, remove_obsolete_id = F){
   # if the interaction data for species taxid and from database is not saved in the library - queryPSICQUIC for interaction data for taxid interactions in the database and in MITAB2.5 format, save results to the library
   if(is.null(MITABdata)){
     if(database == "IntActFTP"){
@@ -99,7 +100,11 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
     full_interactome_clean$taxid1 = taxid1
     full_interactome_clean$taxid2 = taxid2
     full_interactome_clean$protein_only = protein_only
+    full_interactome_clean$remove_obsolete_id = remove_obsolete_id
     class(full_interactome_clean) = paste0(class(full_interactome_clean),"_interSpeciesInteractome")
+    if(remove_obsolete_id){
+      full_interactome_clean = removeInteractionObsoleteID(full_interactome_clean, dir = directory)
+    }
     return(full_interactome_clean)
   }
 
