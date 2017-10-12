@@ -30,7 +30,7 @@ writeInteractionSubsetFASTA_list = function(interactionFASTA_list, dir = "./SLIM
   for (i in 1:length(interactionFASTA_list$fasta_subset_list)) {
     name = names(interactionFASTA_list$fasta_subset_list[i])
     name = gsub("\\:", "\\.", name)
-    name2 = unlist(split(gsub("interactors_of\\.|\\.","", name), "\\:"))
+    name2 = unlist(split(gsub("interactors_of\\.|\\.","", name), "\\."))
     fastafile = paste0(input_fasta_dir, name,"fas")
     queryfile = paste0(input_query_dir, name,"fas")
     outputdir = paste0(output_dir, name, "/")
