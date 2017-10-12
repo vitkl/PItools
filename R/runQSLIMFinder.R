@@ -14,9 +14,9 @@ runQSLIMFinder = function(commands, file_list, max_memory = 5000, onLSF = T){
   if(mean(c("set_env_var","run") %in% names(commands)) < 1) stop("`commands` doesn't contain `set_env_var` and/or `run`, check that `commands` is an output of mQSLIMFinderCommand")
   if(onLSF){
     # create dirs for stout and sterr
-    if(!is.null(commands$log_dirfull)) if(!dir.exists(log_dirfull)) dir.create(log_dirfull, recursive = recursive)
-    if(!is.null(commands$log_dirlog)) dir.create(log_dirlog, recursive = recursive)
-    if(!is.null(commands$log_direrror)) dir.create(log_direrror, recursive = recursive)
+    if(!is.null(commands$log_dirfull)) if(!dir.exists(commands$log_dirfull)) dir.create(commands$log_dirfull, recursive = recursive)
+    if(!is.null(commands$log_dirlog)) if(!dir.exists(commands$log_dirlog)) dir.create(commands$log_dirlog, recursive = recursive)
+    if(!is.null(commands$log_direrror)) if(!dir.exists(commands$log_direrror)) dir.create(commands$log_direrror, recursive = recursive)
 
     # set up enviromental variable IUPred_PATH
     system(commands$set_env_var)
