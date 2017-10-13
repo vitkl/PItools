@@ -71,8 +71,10 @@ LSFrunQSLIMFinder = function(commands) {
     }
   }
   bjobs = system("bjobs", intern =T)
-  while(sum(grepl("\\.fas", bjobs)) >= 1){
+  finished = sum(grepl("\\.fas", bjobs)) == 0
+  while(!finished){
     bjobs = system("bjobs", intern =T)
+    finished = sum(grepl("\\.fas", bjobs)) == 0
     Sys.sleep(10)
   }
 }

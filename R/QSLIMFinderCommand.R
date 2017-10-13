@@ -75,7 +75,7 @@ mQSLIMFinderCommand = function(file_list,
     }
 
     commands = sapply(1:nrow(file_list), function(i){
-      name = paste0("interactors_of",file_list$interactors_of,"QSLIMFinder_query", file_list$QSLIMFinder_query)
+      name = paste0("interactors_of",file_list$interactors_of[i],"QSLIMFinder_query", file_list$QSLIMFinder_query[i])
       if(write_log){
         LSF_cluster_par = paste0(LSF_cluster_par," -o ", log_dirlog, name,"log -e ", log_direrror, name, "error")
       } else {
