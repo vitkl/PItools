@@ -63,10 +63,8 @@ LSFrunQSLIMFinder = function(commands) {
       if(Nbjobs < 490){
         system(command, wait = F)
         done = TRUE
-        n = 1
       } else {
-        n = n + 1
-        Sys.sleep(n^1.6)
+        Sys.sleep(100)
       }
     }
   }
