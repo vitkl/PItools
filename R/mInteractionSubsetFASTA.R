@@ -80,8 +80,25 @@ singleInteractFromSet2 = function(subset1, set1_only, i){
   subset1_1$ids_set2 = subset1$ids_set2[i]
   subset1_1$length_set2 = 1
   if(!set1_only){
-    subset1_1$ids_set1 = c(subset1$ids_set1, subset1$ids_set2[-i])
-    subset1_1$length_set1 = length(subset1_1$ids_set1)
+    if("NULL" %in% subset1_1$ids_set1){
+      if("NULL" %in% subset1_1$ids_set2){
+        stop("no interactions in both set 1 and set 2")
+      } else {
+        if(length(subset1$ids_set2[-i]) >= 1){
+          subset1_1$ids_set1 = subset1$ids_set2[-i]
+          subset1_1$length_set1 = length(subset1_1$ids_set1)
+        }
+      }
+    } else {
+      if("NULL" %in% subset1_1$ids_set2){
+        subset1_1$ids_all = subset1_1$ids_set1
+      } else {
+        if(length(subset1$ids_set2[-i]) >= 1){
+          subset1_1$ids_set1 = c(subset1$ids_set1, subset1$ids_set2[-i])
+          subset1_1$length_set1 = length(subset1_1$ids_set1)
+        }
+      }
+    }
   }
   if("NULL" %in% subset1_1$ids_set1){
     if("NULL" %in% subset1_1$ids_set2){
