@@ -65,6 +65,7 @@ LSFrunQSLIMFinder = function(commands) {
         done = TRUE
       } else {
         Sys.sleep(100)
+        Nbjobs = length(system("bjobs", intern =T)) - 1
       }
     }
   }
