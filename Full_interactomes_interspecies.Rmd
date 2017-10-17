@@ -1,0 +1,126 @@
+---
+title: "Full interactomes and interspecies interactions"
+author: "Vitalii Kleshchevnikov"
+date: "17/10/2017"
+output: 
+  html_document: 
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install MItools
+
+```{r}
+if(!"MItools" %in% installed.packages()){
+  devtools::install_github("vitkl/MItools")
+}
+suppressPackageStartupMessages({
+  library(MItools)
+})
+```
+
+## Load full human-human interactome and count interactions
+
+By species search is taxonomy-hierarchy aware.
+
+```{r}
+human = fullInteractome(taxid = 9606, database = "IntActFTP",
+                        format = "tab25", clean = TRUE,
+                        protein_only = TRUE,
+                        directory = NULL) # keep data files inside R library - default
+```
+
+## Load all human-viral interactions
+
+10239 is the top viral clade identifier. 
+
+```{r}
+human_viral = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239,
+                                      database = "IntActFTP", format = "tab25",
+                                      clean = TRUE, protein_only = TRUE)
+```
+
+## Load all human-mouse interactions
+
+```{r}
+human_mouse = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10090,
+                                      database = "IntActFTP", format = "tab25",
+                                      clean = TRUE, protein_only = TRUE)
+```
+
+# Count interactors and interactions
+
+```{r}
+NuniqueInteractions(human)
+NuniqueInteractors(human)
+
+NuniqueInteractions(human_viral)
+NuniqueInteractors(human_viral)
+
+NuniqueInteractions(human_mouse)
+NuniqueInteractors(human_mouse)
+```
+
+# filter human-human data by detection method and recount interactors and interactions
+
+```{r}
+# subset two-hybrid interactions
+human_two_hybrid = subsetMITABbyMethod(MITABdata = human,
+               Interaction_detection_methods = "MI:0018")
+NuniqueInteractions(human_two_hybrid)
+NuniqueInteractors(human_two_hybrid)
+
+# subset all interactions but two-hybrid
+human_NOT_two_hybrid = subsetMITABbyMethod(MITABdata = human,
+                   Interaction_detection_methods = "MI:0018", inverse_filter = T)
+NuniqueInteractions(human_NOT_two_hybrid)
+NuniqueInteractors(human_NOT_two_hybrid)
+
+# subset affinity purification - mass spectrometry interactions
+human_AP_MS = subsetMITABbyMethod(MITABdata = human,
+               Interaction_detection_methods = "MI:0004",  Identification_method = "MI:0433")
+NuniqueInteractions(human_AP_MS)
+NuniqueInteractors(human_AP_MS)
+```
+
+# filter human-human data by PMID and recount interactors and interactions
+
+```{r}
+# subset both published and unpublished Vidal group data
+Vidal_all = subsetMITABbyPMIDs(MITABdata = human,
+               PMIDs = c("25416956", "unassigned1304"))
+NuniqueInteractions(Vidal_all)
+NuniqueInteractors(Vidal_all)
+
+# subset Mattias Mann 2015 paper data
+Mann = subsetMITABbyPMIDs(MITABdata = human,
+               PMIDs = "26496610")
+NuniqueInteractions(Mann)
+NuniqueInteractors(Mann)
+```
+
+You can get help and more details on these functions (for example, how to find which molecular ontology terms correspond to which methods): ?subsetMITABbyMethod
+
+# Find interactions between components of the mediator complex in the Vidal dataset
+
+```{r}
+mediator_complex_proteins = fread("http://www.uniprot.org/uniprot/?query=GO:0016592%20AND%20taxonomy:9606&format=tab&columns=id")
+mediator_complex = subsetMITABbyID(Vidal_all,
+                                   ID_seed = mediator_complex_proteins$Entry,
+                                   within_seed = T, only_seed2nonseed = F)
+NuniqueInteractions(mediator_complex)
+NuniqueInteractors(mediator_complex)
+```
+
+# Find interactions of the components of the mediator complex with other proteins
+
+```{r}
+mediator_complex_interactions = subsetMITABbyID(Vidal_all,
+                                   ID_seed = mediator_complex_proteins$Entry,
+                                   within_seed = F, only_seed2nonseed = T)
+NuniqueInteractions(mediator_complex_interactions)
+NuniqueInteractors(mediator_complex_interactions)
+```
