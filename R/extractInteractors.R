@@ -1,4 +1,5 @@
 ##' Subset MITAB to retrieve interactors, the number of interactions ot interactors
+##' @rdname extractInteractors
 ##' @name extractInteractors
 ##' @author Vitalii Kleshchevnikov
 ##' @description subset molecular interaction data (cleaned MITAB format in a data.table object) with a list of interactors
@@ -27,10 +28,18 @@ if(is.null(taxid)){
 }
 }
 
+##' @rdname extractInteractors
+##' @name NuniqueInteractions
+##' @import data.table
+##' @export NuniqueInteractions
 NuniqueInteractions = function(cleanMITAB){
   if(!grepl("clean_MItab",class(cleanMITAB))) stop("cleanMITAB is not of class clean_MItab27 or related clean_MItab class")
   length(unique(cleanMITAB$data$pair_id))
 }
+##' @rdname extractInteractors
+##' @name NuniqueInteractors
+##' @import data.table
+##' @export NuniqueInteractors
 NuniqueInteractors = function(cleanMITAB, taxid = NULL, inverse_filter = NULL){
   if(!grepl("clean_MItab",class(cleanMITAB))) stop("cleanMITAB is not of class clean_MItab27 or related clean_MItab class")
 

@@ -37,7 +37,7 @@ cleanMITAB = function(MITABdata){
     if(class(MITABdata) == "RAW_MItab27") {
       if(class(MITABdata$data)[1] == "data.table") if(ncol(MITABdata$data) == 42) miformat = "2.7"
     } else {
-      if(class(MITABdata) %in% c("clean_MItab25", "clean_MItab27")) {
+      if(grepl("clean_MItab",class(cleanMITAB))) {
         message("the data has already been cleaned")
         return(MITABdata)
       } else stop("data is neither class RAW_MItab25 not RAW_MItab27")
