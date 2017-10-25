@@ -31,8 +31,8 @@ subsetMITABbyID = function(MITABdata, ID_seed, within_seed = F, only_seed2nonsee
     MITABdata$data[IDs_interactor_A %in% ID_seed, IDs_B_order := IDs_interactor_B]
     MITABdata$data[!(IDs_interactor_A %in% ID_seed), IDs_A_order := IDs_interactor_B]
     MITABdata$data[!(IDs_interactor_A %in% ID_seed), IDs_B_order := IDs_interactor_A]
-    if(grepl("clean_MItab",class(MITABdata))) MITABdata$data = reorderMITAB25(MITABdata$data)
-    if(grepl("clean_MItab",class(MITABdata))) MITABdata$data = reorderMITAB27(MITABdata$data)
+    if(grepl("clean_MItab25",class(MITABdata))) MITABdata$data = reorderMITAB25(MITABdata$data)
+    if(grepl("clean_MItab27",class(MITABdata))) MITABdata$data = reorderMITAB27(MITABdata$data)
   }
 
   MITABdata$ID_seed = ID_seed
