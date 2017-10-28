@@ -17,6 +17,7 @@ readQSLIMFinderMain = function(outputfile = "forSLIMFinder_file_list$outputfile"
           } else exist = FALSE
     } else if(file.exists(file)) if(file.size(file) > 0) fread(file, stringsAsFactors = F)
   })
+  if(mean(sapply(main_result, is.null)) == 1) stop("no main_result files found (probably means mis-specified directory)")
   Reduce(rbind, main_result)
 }
 
@@ -41,6 +42,7 @@ readQSLIMFinderOccurence = function(outputdir = "forSLIMFinder_file_list$outputd
       } else if(length(occurence_file) == 1) if(file.size(file) > 0) fread(file, stringsAsFactors = F)
     }
   })
+  if(mean(sapply(Occurence_list, is.null)) == 1) stop("no occurence files (.occ.csv) found (probably means that no motifs were found or mis-specified directory)")
   Reduce(rbind, Occurence_list)
 }
 
