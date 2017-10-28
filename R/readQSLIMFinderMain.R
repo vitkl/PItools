@@ -43,6 +43,11 @@ readQSLIMFinderOccurence = function(outputdir = "forSLIMFinder_file_list$outputd
     }
   })
   if(mean(sapply(Occurence_list, is.null)) == 1) stop("no occurence files (.occ.csv) found (probably means that no motifs were found or mis-specified directory)")
+  Occurence_list = Occurence_list[!sapply(Occurence_list, is.null)]
+  Occurence_list = Occurence_list[sapply(Occurence_list, ncol) == 14]
+  sapply(Occurence_list, function(occurence){
+    colnames(occurence) = colnames(Occurence_list[[1]])
+  })
   Reduce(rbind, Occurence_list)
 }
 
