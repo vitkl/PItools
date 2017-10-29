@@ -6,14 +6,18 @@
 \alias{writePatternList}
 \title{Read and write QSLIMFinder results}
 \usage{
-readQSLIMFinderMain(outputfile = "forSLIMFinder_file_list$outputfile")
+readQSLIMFinderMain(outputfile = "forSLIMFinder_file_list$outputfile",
+  check_exist = F)
 
-readQSLIMFinderOccurence(outputdir = "forSLIMFinder_file_list$outputdir")
+readQSLIMFinderOccurence(outputdir = "forSLIMFinder_file_list$outputdir",
+  check_exist = F)
 
 writePatternList(QSLIMFinder_main_result, filename = "./motifs.txt")
 }
 \arguments{
 \item{outputfile}{character vector of paths to QSLIMFinder main output files, one way to get these is \code{\link{writeInteractionSubsetFASTA_list}}()$outputfile}
+
+\item{check_exist}{if TRUE, check that each file exists / is not empty, if false - read all existing and non-empty files}
 
 \item{outputdir}{character vector of paths to QSLIMFinder output directories, one way to get these is \code{\link{writeInteractionSubsetFASTA_list}}()$outputdir}
 

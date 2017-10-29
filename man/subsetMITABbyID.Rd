@@ -7,14 +7,14 @@
 subsetMITABbyID(MITABdata, ID_seed, within_seed = F, only_seed2nonseed = F)
 }
 \arguments{
-\item{MITABdata}{object of class "clean_MItab25", "clean_MItab27", "clean_MItab25_fullInteractome", "clean_MItab27_fullInteractome"}
+\item{MITABdata}{molecular interaction data, object of class "clean_MItab25", "clean_MItab27", "clean_MItab25_fullInteractome", "clean_MItab27_fullInteractome"}
 
 \item{ID_seed}{filter \code{MITABdata} using this list of interactors}
 
 \item{within_seed}{logical, should \code{subsetMITABbyID} return only interactions between molecules in \code{ID_seed} (TRUE) or any interactions molecules in \code{ID_seed} have in \code{MITABdata}}
 }
 \value{
-object of class `class of MITABdata`_subset (for example, clean_MItab27_subset, basically list), a subset of \code{MITABdata} that contains interactions for \code{ID_seed} molecules, and additionally includes the ID_seed and within_seed
+molecular interaction data, object of class `class of MITABdata`_subset (for example, clean_MItab27_subset, basically list), a subset of \code{MITABdata} that contains interactions for \code{ID_seed} molecules, and additionally includes the ID_seed and within_seed
 }
 \description{
 subset molecular interaction data with a list of interactors

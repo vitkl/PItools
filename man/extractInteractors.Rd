@@ -2,9 +2,15 @@
 % Please edit documentation in R/extractInteractors.R
 \name{extractInteractors}
 \alias{extractInteractors}
+\alias{NuniqueInteractions}
+\alias{NuniqueInteractors}
 \title{Subset MITAB to retrieve interactors, the number of interactions ot interactors}
 \usage{
 extractInteractors(cleanMITAB, taxid = NULL, inverse_filter = F)
+
+NuniqueInteractions(cleanMITAB)
+
+NuniqueInteractors(cleanMITAB, taxid = NULL, inverse_filter = NULL)
 }
 \arguments{
 \item{cleanMITAB}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[MItools]{cleanMITAB}})}
