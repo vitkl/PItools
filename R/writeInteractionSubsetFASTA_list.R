@@ -43,7 +43,13 @@ writeInteractionSubsetFASTA_list = function(interactionFASTA_list, dir = "./SLIM
                                               collapse = "."))
     file_list = rbind(file_list, temp_list)
 
-    writeXStringSet(interactionFASTA_list$fasta_subset_list[[i]],
+    fasta_seq = interactionFASTA_list$fasta_subset_list[[i]]
+    if(length(unique(fasta_seq)) < length(fasta_seq)) {
+      fasta_seq = unique(fasta_seq)
+      warning(paste0(temp_list$interactors_of,": duplicated sequences detected and removed (likely reason: set1 and set2 have 1 or more of the same interacting proteins)"))
+    }
+
+    writeXStringSet(fasta_seq,
                     file = fastafile,
                     format="fasta")
     fwrite(list(interactionFASTA_list$interaction_subset[[i]]$ids_set2), queryfile)
