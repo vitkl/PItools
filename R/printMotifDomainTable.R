@@ -35,7 +35,7 @@ XYZ.p.adjust = function(res, adj_by = "p.value", ...) {
 ##' @import data.table
 ##' @importFrom DT datatable
 ##' @export printMotifDomainTable
-printMotifDomainTable = function(input, doman_viral_pairs = F, motifs = F, destfile, fdr_pval_thresh = 0.05, only_with_motifs = F, fdr_motifs = 1, occurence_QSLIMFinder = NA, comparimotif_wdb = NA, print_table = T){
+printMotifDomainTable = function(input, doman_viral_pairs = F, motifs = F, destfile, fdr_pval_thresh = 0.05, only_with_motifs = F, fdr_motifs = 1, occurence_QSLIMFinder = NA, comparimotif_wdb = NA, patterns_QSLIMFinder = NA, print_table = T, one_from_cloud = T){
   res = copy(input)
 
   res = XYZ.p.adjust(res, method = "fdr")
@@ -51,10 +51,21 @@ printMotifDomainTable = function(input, doman_viral_pairs = F, motifs = F, destf
   if(motifs){
     occurence_QSLIMFinder[, IDs_interactor_viral := gsub("_UNK__.+$","",Seq)]
     occurence_QSLIMFinder = unique(occurence_QSLIMFinder[,.(IDs_interactor_viral,
-                                                            viral_Motif_Pattern = Pattern,
-                                                            viral_Motif_pval = Sig,
-                                                            viral_Motif_Match = Match)])
-    occurence_QSLIMFinder = occurence_QSLIMFinder[p.adjust(viral_Motif_pval, "fdr") < fdr_motifs]
+                                                            Motif_Pattern = Pattern,
+                                                            Motif_pval = Sig,
+                                                            Motif_Match = Match)])
+
+    patterns_QSLIMFinder[, IDs_interactor_viral := gsub("^interactors_of\\.([[:alnum:]]{6,10}|[[:alnum:]]{6,10}-[[:digit:]]{1,3})\\.","",Dataset)]
+    patterns_QSLIMFinder = unique(patterns_QSLIMFinder[,.(IDs_interactor_viral, Motif_Pattern = Pattern, Motif_IC = IC, Motif_SeqNum = SeqNum, Motif_OccNum = Occ, Motif_UPNum = UPNum, Motif_UPoccNum = UP, Cloud, Motif_Dataset = Dataset)])
+
+    occurence_QSLIMFinder = patterns_QSLIMFinder[occurence_QSLIMFinder, on = c("IDs_interactor_viral", "Motif_Pattern")]
+
+    if(one_from_cloud){
+      occurence_QSLIMFinder[, order_in_cloud := order(Motif_pval), by = .(Motif_Dataset, Cloud)]
+      occurence_QSLIMFinder = occurence_QSLIMFinder[order_in_cloud == 1][, c("order_in_cloud", "Cloud") := NULL]
+    }
+
+    occurence_QSLIMFinder = occurence_QSLIMFinder[p.adjust(Motif_pval, "fdr") < fdr_motifs]
 
     comparimotif_wdb = unique(comparimotif_wdb[,.(Motif1, Motif2, Name2, NormIC)])
     comparimotif_wdb = comparimotif_wdb[!grepl("CLV",Name2) & !grepl("TRG",Name2)]
@@ -64,9 +75,9 @@ printMotifDomainTable = function(input, doman_viral_pairs = F, motifs = F, destf
     comparimotif_wdb = unique(comparimotif_wdb)
     comparimotif_wdb[, motif_mapping := paste0(Name2,"(normIC:",NormIC,")", collapse = "; "), by = Motif1]
     comparimotif_wdb[, motif..............................................pattern_mapping := paste0(Name2,":",Motif2,"", collapse = "; "), by = Motif1]
-    comparimotif_wdb = unique(comparimotif_wdb[,.(viral_Motif_Pattern = Motif1, motif_mapping, motif..............................................pattern_mapping)])
+    comparimotif_wdb = unique(comparimotif_wdb[,.(Motif_Pattern = Motif1, motif_mapping, motif..............................................pattern_mapping)])
 
-    occurence_QSLIMFinder = comparimotif_wdb[occurence_QSLIMFinder, on = "viral_Motif_Pattern"]
+    occurence_QSLIMFinder = comparimotif_wdb[occurence_QSLIMFinder, on = "Motif_Pattern"]
 
     res$data_with_pval = occurence_QSLIMFinder[res$data_with_pval, on = "IDs_interactor_viral", allow.cartesian=TRUE]
     res$data_with_pval = res$data_with_pval[, .(human_domain = IDs_domain_human,
@@ -80,9 +91,10 @@ printMotifDomainTable = function(input, doman_viral_pairs = F, motifs = F, destf
                                                 total_domain_count = domain_count,
                                                 human_interactor_degree = IDs_interactor_human_degree,
                                                 total_background_proteins = N_prot_w_interactors,
-                                                viral_Motif_Pattern, viral_Motif_pval, viral_Motif_Match,
+                                                Motif_Pattern, Motif_pval, Motif_Match,
+                                                Motif_IC,  Motif_SeqNum,  Motif_OccNum,  Motif_UPNum,  Motif_UPoccNum, Motif_Dataset,
                                                 motif_mapping, motif..............................................pattern_mapping)]
-    if(only_with_motifs) res$data_with_pval = res$data_with_pval[!is.na(viral_Motif_Pattern)]
+    if(only_with_motifs) res$data_with_pval = res$data_with_pval[!is.na(Motif_Pattern)]
   } else {
     res$data_with_pval = res$data_with_pval[, .(human_domain = IDs_domain_human,
                                                 domain_name = domain_name,

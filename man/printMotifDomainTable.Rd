@@ -6,7 +6,8 @@
 \usage{
 printMotifDomainTable(input, doman_viral_pairs = F, motifs = F, destfile,
   fdr_pval_thresh = 0.05, only_with_motifs = F, fdr_motifs = 1,
-  occurence_QSLIMFinder = NA, comparimotif_wdb = NA, print_table = T)
+  occurence_QSLIMFinder = NA, comparimotif_wdb = NA,
+  patterns_QSLIMFinder = NA, print_table = T, one_from_cloud = T)
 }
 \arguments{
 \item{input}{object of class XYZinteration_XZEmpiricalPval and should be the output of permutationPval()}
