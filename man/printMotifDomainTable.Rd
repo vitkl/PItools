@@ -7,7 +7,8 @@
 printMotifDomainTable(input, doman_viral_pairs = F, motifs = F, destfile,
   fdr_pval_thresh = 0.05, only_with_motifs = F, fdr_motifs = 1,
   occurence_QSLIMFinder = NA, comparimotif_wdb = NA,
-  patterns_QSLIMFinder = NA, print_table = T, one_from_cloud = T)
+  patterns_QSLIMFinder = NA, print_table = T, one_from_cloud = T,
+  entry.list = NULL)
 }
 \arguments{
 \item{input}{object of class XYZinteration_XZEmpiricalPval and should be the output of permutationPval()}
@@ -29,6 +30,8 @@ printMotifDomainTable(input, doman_viral_pairs = F, motifs = F, destfile,
 \item{comparimotif_wdb}{data.table containing the output of the comparimotif tool (comparing motifs from \code{occurence_QSLIMFinder} to ELM DB)}
 
 \item{print_table}{if TRUE calls DT:datatable to print the interactive results table}
+
+\item{one_from_cloud}{pick only one motif per motif cloud by the lowest p-value (before multiple hypothesis testing correction)}
 }
 \description{
 \code{printMotifDomainTable} combines Domain enrichment and Motif search results

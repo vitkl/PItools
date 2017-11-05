@@ -31,11 +31,12 @@ XYZ.p.adjust = function(res, adj_by = "p.value", ...) {
 ##' @param occurence_QSLIMFinder data.table containing the motif occurence output of the QSLIMFinder
 ##' @param comparimotif_wdb data.table containing the output of the comparimotif tool (comparing motifs from \code{occurence_QSLIMFinder} to ELM DB)
 ##' @param print_table if TRUE calls DT:datatable to print the interactive results table
+##' @param one_from_cloud pick only one motif per motif cloud by the lowest p-value (before multiple hypothesis testing correction)
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 ##' @importFrom DT datatable
 ##' @export printMotifDomainTable
-printMotifDomainTable = function(input, doman_viral_pairs = F, motifs = F, destfile, fdr_pval_thresh = 0.05, only_with_motifs = F, fdr_motifs = 1, occurence_QSLIMFinder = NA, comparimotif_wdb = NA, patterns_QSLIMFinder = NA, print_table = T, one_from_cloud = T){
+printMotifDomainTable = function(input, doman_viral_pairs = F, motifs = F, destfile, fdr_pval_thresh = 0.05, only_with_motifs = F, fdr_motifs = 1, occurence_QSLIMFinder = NA, comparimotif_wdb = NA, patterns_QSLIMFinder = NA, print_table = T, one_from_cloud = T, entry.list = NULL){
   res = copy(input)
 
   res = XYZ.p.adjust(res, method = "fdr")
@@ -45,7 +46,8 @@ printMotifDomainTable = function(input, doman_viral_pairs = F, motifs = F, destf
   res$data_with_pval[, human_interactor_url := paste0("<a href='http://www.uniprot.org/uniprot/",IDs_interactor_human,"'>",IDs_interactor_human,"</a>")]
   res$data_with_pval[, viral_interactor_url := paste0("<a href='http://www.uniprot.org/uniprot/",IDs_interactor_viral,"'>",IDs_interactor_viral,"</a>")]
 
-  entry.list = unique(getInterProEntryTypes("./data_files/entry.list")[,.(IDs_domain_human = ENTRY_AC, domain_name = ENTRY_NAME)])
+  if(is.null(entry.list)) entry.list = getInterProEntryTypes("./entry.list")
+  entry.list = unique(entry.list[,.(IDs_domain_human = ENTRY_AC, domain_name = ENTRY_NAME)])
   res$data_with_pval = entry.list[res$data_with_pval, on = "IDs_domain_human", allow.cartesian=TRUE]
 
   if(motifs){
@@ -56,16 +58,15 @@ printMotifDomainTable = function(input, doman_viral_pairs = F, motifs = F, destf
                                                             Motif_Match = Match)])
 
     patterns_QSLIMFinder[, IDs_interactor_viral := gsub("^interactors_of\\.([[:alnum:]]{6,10}|[[:alnum:]]{6,10}-[[:digit:]]{1,3})\\.","",Dataset)]
-    patterns_QSLIMFinder = unique(patterns_QSLIMFinder[,.(IDs_interactor_viral, Motif_Pattern = Pattern, Motif_IC = IC, Motif_SeqNum = SeqNum, Motif_OccNum = Occ, Motif_UPNum = UPNum, Motif_UPoccNum = UP, Cloud, Motif_Dataset = Dataset)])
-
-    occurence_QSLIMFinder = patterns_QSLIMFinder[occurence_QSLIMFinder, on = c("IDs_interactor_viral", "Motif_Pattern")]
+    patterns_QSLIMFinder = unique(patterns_QSLIMFinder[,.(IDs_interactor_viral, Motif_Pattern = Pattern, Motif_IC = IC, Motif_SeqNum = SeqNum, Motif_OccNum = Occ, Motif_UPNum = UPNum, Motif_UPoccNum = UP, Cloud, Motif_Dataset = Dataset, Motif_pval = Sig)])
 
     if(one_from_cloud){
-      occurence_QSLIMFinder[, order_in_cloud := order(Motif_pval), by = .(Motif_Dataset, Cloud)]
-      occurence_QSLIMFinder = occurence_QSLIMFinder[order_in_cloud == 1][, c("order_in_cloud", "Cloud") := NULL]
+      patterns_QSLIMFinder[, order_in_cloud := order(Motif_pval), by = .(Motif_Dataset, Cloud)]
+      patterns_QSLIMFinder = patterns_QSLIMFinder[order_in_cloud == 1][, c("order_in_cloud", "Cloud") := NULL]
     }
+    patterns_QSLIMFinder = patterns_QSLIMFinder[p.adjust(Motif_pval, "fdr") < fdr_motifs]
 
-    occurence_QSLIMFinder = occurence_QSLIMFinder[p.adjust(Motif_pval, "fdr") < fdr_motifs]
+    occurence_QSLIMFinder = patterns_QSLIMFinder[occurence_QSLIMFinder, on = c("IDs_interactor_viral", "Motif_Pattern", "Motif_pval")]
 
     comparimotif_wdb = unique(comparimotif_wdb[,.(Motif1, Motif2, Name2, NormIC)])
     comparimotif_wdb = comparimotif_wdb[!grepl("CLV",Name2) & !grepl("TRG",Name2)]
