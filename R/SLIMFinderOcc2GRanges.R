@@ -2,7 +2,7 @@
 ##' @rdname SLIMFinderOcc2GRanges
 ##' @name SLIMFinderOcc2GRanges
 ##' @author Vitalii Kleshchevnikov
-##' @param file a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) occurence output
+##' @param occurence_file a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) occurence output
 ##' @param main_file a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) main output
 ##' @param one_from_cloud pick only one motif per motif cloud by the lowest p-value (before multiple hypothesis testing correction)
 ##' @return Genomic Ranges object containing QSLIMFinder (SLIMFinder) occurence output

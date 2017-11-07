@@ -4,12 +4,13 @@
 \alias{GRangesINinteractionSubsetFASTA}
 \title{Check if proteins in GRanges were used for motif search using QSLIMFinder (SLIMFinder)}
 \usage{
-GRangesINinteractionSubsetFASTA(grange, interactionSubsetFASTA)
+GRangesINinteractionSubsetFASTA(grange, interactionSubsetFASTA,
+  query_only = F)
 }
 \arguments{
-\item{GRanges}{object containing instances of linear motifs or domains in proteins (identified by UniProtKB accession)}
+\item{interactionSubsetFASTA}{object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.}
 
-\item{file}{object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.}
+\item{GRanges}{object containing instances of linear motifs or domains in proteins (identified by UniProtKB accession)}
 }
 \value{
 list containing 2 vectors: which GRanges are in InteractionSubsetFASTA_list and seqlengths vector for these GRanges

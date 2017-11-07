@@ -10,11 +10,11 @@
   one_from_cloud = T)
 }
 \arguments{
+\item{occurence_file}{a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) occurence output}
+
 \item{main_file}{a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) main output}
 
 \item{one_from_cloud}{pick only one motif per motif cloud by the lowest p-value (before multiple hypothesis testing correction)}
-
-\item{file}{a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) occurence output}
 }
 \value{
 Genomic Ranges object containing QSLIMFinder (SLIMFinder) occurence output
