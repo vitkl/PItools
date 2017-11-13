@@ -10,7 +10,7 @@ cleanMITAB(MITABdata)
 \item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}}
 }
 \value{
-data.table for MITAB 2.5: containing the interactor Uniprot IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values. All interactor attributes are sorted according to alphanumerically sorted interactor Uniprot IDs
+Object of S3 class "clean_MItab25" or "clean_MItab27" containing interaction data in a data.table. Within each interacting pair all interactor attributes are sorted according to alphanumerically sorted interactor UniprotKB accessions
 }
 \description{
 \code{cleanMITAB} extracts interactor Uniprot (or other ID as specified by interactor_IDs_databases) IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values and generates unique pair ID

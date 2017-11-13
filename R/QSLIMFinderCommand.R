@@ -4,32 +4,43 @@
 ##' @author Vitalii Kleshchevnikov
 ##' @param file_list data.table containing path to files and directories for QSLIMFinder: fastafile, queryfile, outputdir, outputfile
 ##' @param i integer, which set of files and directories to choose from \code{file_list}
-##' @param slimpath relative path (from the project folder) to qslimfinder.py
+##' @param slimpath relative path (from the project folder) to the directory containing qslimfinder.py or slimfinder.py
 ##' @param blast relative path (from the project folder) to /bin/ folder in BLAST package
 ##' @param iupred relative path (from the project folder) to iupred (compiled executable)
 ##' @param options any options from QSLIMFinder
 ##' @param LSF_cluster_mode logical, if FALSE \code{LSF_cluster_par} and \code{LSF_project_path} are ignored
 ##' @param LSF_cluster_par a string that will launch LSF job
 ##' @param LSF_project_path absolute path on LSF cluster
+##' @param analysis_type character 1L, qslimfinder or slimfinder. slimfinder doesn't need query: identical datasets with the same query will be removed and query files not written)
 ##' @return character vector (1L), bash command that will lauch QSLIMFinder locally or as a job on LSF cluster
 ##' @import data.table
 ##' @export QSLIMFinderCommand
 ##' @seealso \code{\link{listInteractionSubsetFASTA}}, \code{\link{runQSLIMFinder}}
 QSLIMFinderCommand = function(file_list, i = 1,
-                              slimpath = "../software/slimsuite/tools/qslimfinder.py",
+                              slimpath = "../software/slimsuite/tools/",
                               blast = "../software/ncbi_blast_2.6.0/bin/",
                               iupred = "../software/iupred/iupred",
                               options = "dismask=T consmask=F cloudfix=F probcut=0.1",
                               LSF_cluster_par = "bsub -n 1 -q research-rh7 -M 100 -R \"rusage[mem=100]\"",
-                              LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/")
+                              LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
+                              analysis_type = c("qslimfinder", "slimfinder")[1])
 {
+  if(!analysis_type %in% c("qslimfinder", "slimfinder")) stop("analysis_type should be one of the \"qslimfinder\", \"slimfinder\"")
   dirs = file_list[i,]
 
-  dirs_command = paste0("resdir=", LSF_project_path, dirs$outputdir,
-                        " resfile=", LSF_project_path, dirs$outputfile,
-                        " seqin=", LSF_project_path, dirs$fastafile,
-                        " query=", LSF_project_path, dirs$queryfile," ")
-  slimpath = paste0(LSF_project_path,slimpath)
+  if(analysis_type == "qslimfinder"){
+    dirs_command = paste0("resdir=", LSF_project_path, dirs$outputdir,
+                          " resfile=", LSF_project_path, dirs$outputfile,
+                          " seqin=", LSF_project_path, dirs$fastafile,
+                          " query=", LSF_project_path, dirs$queryfile," ")
+  }
+  if(analysis_type == "slimfinder"){
+    dirs_command = paste0("resdir=", LSF_project_path, dirs$outputdir,
+                          " resfile=", LSF_project_path, dirs$outputfile,
+                          " seqin=", LSF_project_path, dirs$fastafile, " ")
+  }
+
+  slimpath = paste0(LSF_project_path, slimpath, analysis_type, ".py")
   blast = paste0("blast+path=",LSF_project_path, blast)
   iupred = paste0("iupath=",LSF_project_path, iupred)
 
@@ -55,7 +66,7 @@ QSLIMFinderCommand = function(file_list, i = 1,
 ##'     LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
 ##'     LSF_cluster_par = "bsub -n 1 -q research-rh7 -M 100 -R \"rusage[mem=100]\"")
 mQSLIMFinderCommand = function(file_list,
-                               slimpath = "../software/slimsuite/tools/qslimfinder.py",
+                               slimpath = "../software/slimsuite/tools/",
                                blast = "../software/ncbi_blast_2.6.0/bin/",
                                iupred = "../software/iupred/iupred",
                                options = "dismask=T consmask=F cloudfix=F probcut=0.5",
@@ -63,7 +74,8 @@ mQSLIMFinderCommand = function(file_list,
                                LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
                                LSF_cluster_par = "bsub -n 1 -q research-rh7 -M 200 -R \"rusage[mem=200]\"",
                                log_dir = "./SLIMFinder/log_dir/",
-                               write_log = T, recursive = F)
+                               write_log = T, recursive = F,
+                               analysis_type = c("qslimfinder", "slimfinder")[1])
 {
   if(LSF_cluster_mode){
     commands1 = paste0("export IUPred_PATH=",LSF_project_path,iupred)
@@ -85,7 +97,8 @@ mQSLIMFinderCommand = function(file_list,
       QSLIMFinderCommand(file_list = file_list[i,], slimpath = slimpath,
                          blast = blast, iupred = iupred, options = options,
                          LSF_cluster_par = LSF_cluster_par,
-                         LSF_project_path = LSF_project_path)
+                         LSF_project_path = LSF_project_path,
+                         analysis_type = analysis_type)
     })
 
   } else {
@@ -94,7 +107,8 @@ mQSLIMFinderCommand = function(file_list,
       QSLIMFinderCommand(file_list = dirs, slimpath = slimpath,
                          blast = blast, iupred = iupred, options = options,
                          LSF_cluster_par = "",
-                         LSF_project_path = "")
+                         LSF_project_path = "",
+                         analysis_type = analysis_type)
     })
   }
 

@@ -2,7 +2,7 @@
 ##' @name cleanMITAB
 ##' @author Vitalii Kleshchevnikov
 ##' @param MITABdata object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}
-##' @return data.table for MITAB 2.5: containing the interactor Uniprot IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values. All interactor attributes are sorted according to alphanumerically sorted interactor Uniprot IDs
+##' @return Object of S3 class "clean_MItab25" or "clean_MItab27" containing interaction data in a data.table. Within each interacting pair all interactor attributes are sorted according to alphanumerically sorted interactor UniprotKB accessions
 ##' @details Output column description (MITAB 2.5):
 ##' @details \code{pair_id} - unique identifier of the undirected interaction: ordered alphabetically and concatenated interacting molecule IDs
 ##' @details \code{IDs_interactor_A}, \code{IDs_interactor_B} - interacting molecule ID

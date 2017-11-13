@@ -10,13 +10,13 @@ interSpeciesInteractome(MITABdata = NULL, taxid1 = 9606, taxid2 = 10239,
   remove_obsolete_id = F)
 }
 \arguments{
-\item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL}
+\item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}} or \code{\link{loadIntActFTP}}, default in NULL}
 
 \item{taxid1}{character (1L), taxonomy id of the species which interaction participants should belong to, default is 9606 (which is human)}
 
 \item{taxid2}{character (1L), taxonomy id of the species which interaction participants should belong to, default is 10239 (which is all viral taxa)}
 
-\item{database}{character (1L), argument for \code{\link{queryPSICQUIC}}, default is "imex" alternative to which is "IntActFTP"}
+\item{database}{character (1L), argument for \code{\link{queryPSICQUIC}}, PSICQUIC-compliant database to query for interactions. The default is "imex" alternative to which is "IntActFTP"}
 
 \item{format}{character (1L), argument for \code{\link{queryPSICQUIC}}, default is "tab25"}
 
@@ -28,7 +28,7 @@ interSpeciesInteractome(MITABdata = NULL, taxid1 = 9606, taxid2 = 10239,
 
 \item{releaseORdate}{character, if data has already been downloaded: which IntAct release or download date to read}
 
-\item{remove_obsolete_id}{logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID)}
+\item{remove_obsolete_id}{logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID), not implemented properly: will never finish.}
 }
 \value{
 object of class `input class`_interSpeciesInteractome containing data.table containing molecular interaction data in either of these two formats:

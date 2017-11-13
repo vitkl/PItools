@@ -6,14 +6,14 @@
 \usage{
 fullInteractome(MITABdata = NULL, taxid = 9606, database = "imex",
   format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL,
-  releaseORdate = NULL, remove_obsolete_id = F)
+  releaseORdate = NULL, remove_obsolete_id = F, within_species = T)
 }
 \arguments{
-\item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}}, default in NULL}
+\item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}} or \code{\link{loadIntActFTP}}, default in NULL}
 
 \item{taxid}{character (1L), taxonomy id of the species which interaction participants should belong to, default is "9606" (which is human)}
 
-\item{database}{character (1L), argument for \code{\link{queryPSICQUIC}}, default is "imex" alternative to which is "IntActFTP"}
+\item{database}{character (1L), argument for \code{\link{queryPSICQUIC}}, PSICQUIC-compliant database to query for interactions. The default is "imex" alternative to which is "IntActFTP"}
 
 \item{format}{character (1L), argument for \code{\link{queryPSICQUIC}}, default is "tab25"}
 
@@ -25,7 +25,9 @@ fullInteractome(MITABdata = NULL, taxid = 9606, database = "imex",
 
 \item{releaseORdate}{character, if data has already been downloaded: which IntAct release or download date to read}
 
-\item{remove_obsolete_id}{logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID)}
+\item{remove_obsolete_id}{logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID), not implemented properly: will never finish.}
+
+\item{within_species}{logical (1L), return interactions only between proteins of \code{taxid}. If FALSE returns interactions for \code{taxid} proteins both within \code{taxid} and with proteins from other species}
 }
 \value{
 object of class `input class`_fullInteractome containing data.table containing molecular interaction data in either of these two formats:
@@ -46,7 +48,7 @@ Alternatively, \code{fullInteractome} can only retrive interactome data using PS
 
 Another option is to supply \code{MITABdata} to be cleaned and filtered
 
-Finally, you can avoid using PSICQUIC service and download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download (>3Gb) and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't.
+Finally, you can avoid using PSICQUIC service and download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download (>3Gb) and is more computationally intensive for processing (clean = T). As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't.
 }
 \examples{
 # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns

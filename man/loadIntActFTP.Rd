@@ -15,7 +15,7 @@ loadIntActFTP(dir, release = NULL)
 \code{loadIntActFTP} saves intact.txt to a file, returns the object of class RAW_MItab27
 }
 \description{
-loadIntActFTP function loads all data that is stored in \link{ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/} in intact.txt file. Details: \link{http://www.ebi.ac.uk/intact/downloads}. This file contains the data from the following databases "IntAct", "MINT", "DIP", "bhf-ucl", "MPIDB", "MatrixDB", "HPIDb","I2D-IMEx","InnateDB-IMEx", "MolCon", "UniProt", "MBInfo"
+\code{loadIntActFTP} loads all data stored on \link{ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/} in intact.txt file. Details: \link{http://www.ebi.ac.uk/intact/downloads}. This file contains the data from the following databases "IntAct", "MINT", "DIP", "bhf-ucl", "MPIDB", "MatrixDB", "HPIDb","I2D-IMEx","InnateDB-IMEx", "MolCon", "UniProt", "MBInfo"
 }
 \examples{
 loadIntActFTP("./", release = NULL)

@@ -6,29 +6,30 @@
 \title{Generate a QSLIMFinder command}
 \usage{
 QSLIMFinderCommand(file_list, i = 1,
-  slimpath = "../software/slimsuite/tools/qslimfinder.py",
+  slimpath = "../software/slimsuite/tools/",
   blast = "../software/ncbi_blast_2.6.0/bin/",
   iupred = "../software/iupred/iupred",
   options = "dismask=T consmask=F cloudfix=F probcut=0.1",
   LSF_cluster_par = "bsub -n 1 -q research-rh7 -M 100 -R \\"rusage[mem=100]\\"",
-  LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/")
+  LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
+  analysis_type = c("qslimfinder", "slimfinder")[1])
 
-mQSLIMFinderCommand(file_list,
-  slimpath = "../software/slimsuite/tools/qslimfinder.py",
+mQSLIMFinderCommand(file_list, slimpath = "../software/slimsuite/tools/",
   blast = "../software/ncbi_blast_2.6.0/bin/",
   iupred = "../software/iupred/iupred",
   options = "dismask=T consmask=F cloudfix=F probcut=0.5",
   LSF_cluster_mode = F,
   LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
   LSF_cluster_par = "bsub -n 1 -q research-rh7 -M 200 -R \\"rusage[mem=200]\\"",
-  log_dir = "./SLIMFinder/log_dir/", write_log = T, recursive = F)
+  log_dir = "./SLIMFinder/log_dir/", write_log = T, recursive = F,
+  analysis_type = c("qslimfinder", "slimfinder")[1])
 }
 \arguments{
 \item{file_list}{data.table containing path to files and directories for QSLIMFinder: fastafile, queryfile, outputdir, outputfile}
 
 \item{i}{integer, which set of files and directories to choose from \code{file_list}}
 
-\item{slimpath}{relative path (from the project folder) to qslimfinder.py}
+\item{slimpath}{relative path (from the project folder) to the directory containing qslimfinder.py or slimfinder.py}
 
 \item{blast}{relative path (from the project folder) to /bin/ folder in BLAST package}
 
@@ -39,6 +40,8 @@ mQSLIMFinderCommand(file_list,
 \item{LSF_cluster_par}{a string that will launch LSF job}
 
 \item{LSF_project_path}{absolute path on LSF cluster}
+
+\item{analysis_type}{character 1L, qslimfinder or slimfinder. slimfinder doesn't need query: identical datasets with the same query will be removed and query files not written)}
 
 \item{LSF_cluster_mode}{logical, if FALSE \code{LSF_cluster_par} and \code{LSF_project_path} are ignored}
 

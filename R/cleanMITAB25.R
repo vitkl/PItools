@@ -29,6 +29,7 @@ cleanMITAB25 = function(mitab){
 
   # reorder by all interactor attribute columns by pair_id (alphanumeric order)
   mitab[, c("IDs_A_order", "IDs_B_order") := tstrsplit(pair_id, "\\|")]
+  mitab = reorderMITAB25(mitab)
 
   return(mitab)
 }

@@ -10,7 +10,6 @@
 ##' @inheritParams fullInteractome
 ##' @param taxid1 character (1L), taxonomy id of the species which interaction participants should belong to, default is 9606 (which is human)
 ##' @param taxid2 character (1L), taxonomy id of the species which interaction participants should belong to, default is 10239 (which is all viral taxa)
-##' @param remove_obsolete_id logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID)
 ##' @return object of class `input class`_interSpeciesInteractome containing data.table containing molecular interaction data in either of these two formats:
 ##' @return if \code{clean} is TRUE: contains columns as described in \code{\link{cleanMITAB}};
 ##' @return if \code{clean} is FALSE: contains a standard set of columns for MITAB2.5 or MITAB2.7 depending on \code{format};

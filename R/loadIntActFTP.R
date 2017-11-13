@@ -1,7 +1,7 @@
 ##' load all data from IntAct ftp
 ##' @name loadIntActFTP
 ##' @author Vitalii Kleshchevnikov
-##' @description loadIntActFTP function loads all data that is stored in \link{ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/} in intact.txt file. Details: \link{http://www.ebi.ac.uk/intact/downloads}. This file contains the data from the following databases "IntAct", "MINT", "DIP", "bhf-ucl", "MPIDB", "MatrixDB", "HPIDb","I2D-IMEx","InnateDB-IMEx", "MolCon", "UniProt", "MBInfo"
+##' @description \code{loadIntActFTP} loads all data stored on \link{ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/} in intact.txt file. Details: \link{http://www.ebi.ac.uk/intact/downloads}. This file contains the data from the following databases "IntAct", "MINT", "DIP", "bhf-ucl", "MPIDB", "MatrixDB", "HPIDb","I2D-IMEx","InnateDB-IMEx", "MolCon", "UniProt", "MBInfo"
 ##' @param dir directory where to save/look for the local copy
 ##' @param release which locally saved IntAct release to load (the default is to load the latest and read it into R)
 ##' @return \code{loadIntActFTP} saves intact.txt to a file, returns the object of class RAW_MItab27

@@ -4,12 +4,15 @@
 \alias{writeInteractionSubsetFASTA_list}
 \title{Write InteractionSubsetFASTA_list into directory system (creating directories as necessary) and return file locations for QSLIMFinder}
 \usage{
-writeInteractionSubsetFASTA_list(interactionFASTA_list, dir = "./SLIMFinder/")
+writeInteractionSubsetFASTA_list(interactionFASTA_list, dir = "./SLIMFinder/",
+  analysis_type = c("qslimfinder", "slimfinder")[1])
 }
 \arguments{
 \item{interactionFASTA_list}{object of class InteractionSubsetFASTA_list created by \code{\link{listInteractionSubsetFASTA}}, and (potentially) filtered using \code{\link{filterInteractionSubsetFASTA_list}} or \code{\link{domainProteinPairMatch}}}
 
 \item{dir}{directory where to write interactionFASTA_list}
+
+\item{analysis_type}{character 1L, qslimfinder or slimfinder. slimfinder doesn't need query: identical datasets with the same query will be removed and query files not written)}
 }
 \value{
 data.table containing path to files and directories for QSLIMFinder: fastafile, queryfile, outputdir, outputfile

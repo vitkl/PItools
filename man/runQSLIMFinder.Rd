@@ -7,7 +7,7 @@
 \title{Run a list of QSLIMFinder jobs}
 \usage{
 runQSLIMFinder(commands_list, file_list, max_memory = 5000, onLSF = T,
-  recursive = F)
+  recursive = F, analysis_type = c("qslimfinder", "slimfinder")[1])
 
 modifyMemoryInBsub(commands, memory)
 

@@ -28,10 +28,19 @@ benchmarkMotifsROC = function(res, data_type = c("both","query", "all")[1], col_
     text_args = unlist(strsplit(text_args, "\\|"))
   }
 
-  ROCR::plot(perf, col = col_query, ...)
-  abline(0,1)
+  if(data_type == "query"){
+    ROCR::plot(perf, col = col_query, ...)
+    abline(0,1)
+  }
+  if(data_type == "all"){
+    ROCR::plot(perf, col = col_all, ...)
+    abline(0,1)
+  }
+
 
   if(data_type == "both") {
+    ROCR::plot(perf, col = col_query, ...)
+    abline(0,1)
     perf_all = ROCR::performance(pred_all, "tpr", "fpr")
     auc.perf_all = ROCR::performance(pred_all, measure = "auc")
     ROCR::plot(perf_all, add = T, col = col_all, ...)
@@ -44,15 +53,32 @@ benchmarkMotifsROC = function(res, data_type = c("both","query", "all")[1], col_
   if(is.null(legend_args)) NULL else {
     legend_args = unlist(strsplit(legend_args, "\\|"))
   }
+
+  if(data_type == "both"){
+    legend_names = c("discovered / known & discoverable",
+                     paste0("query instances(proteins): \n",
+                            res$N_query_known_instances_found,"(",res$N_query_prot_with_known_instances_found,")",
+                            " / ",res$N_query_known_instances,"(",res$N_query_prot_with_known_instances,")"),
+                     paste0("non-query instances(proteins): \n",
+                            res$N_all_known_instances_found,"(",res$N_all_prot_with_known_instances_found,")",
+                            " / ",res$N_all_known_instances,"(",res$N_all_prot_with_known_instances,")"))
+    legend_cols = c("transparent",col_query, col_all)
+  }
+  if(data_type == "all"){
+    legend_names = c("discovered / known & discoverable",
+                     paste0("non-query instances(proteins): \n",
+                            res$N_all_known_instances_found,"(",res$N_all_prot_with_known_instances_found,")",
+                            " / ",res$N_all_known_instances,"(",res$N_all_prot_with_known_instances,")"))
+    legend_cols = c("transparent", col_all)
+  }
+  if(data_type == "query"){
   legend_names = c("discovered / known & discoverable",
                    paste0("query instances(proteins): \n",
                           res$N_query_known_instances_found,"(",res$N_query_prot_with_known_instances_found,")",
-                          " / ",res$N_query_known_instances,"(",res$N_query_prot_with_known_instances,")"),
-                   paste0("non-query instances(proteins): \n",
-                          res$N_all_known_instances_found,"(",res$N_all_prot_with_known_instances_found,")",
-                          " / ",res$N_all_known_instances,"(",res$N_all_prot_with_known_instances,")"))
-  legend_cols = c("white",col_query, col_all)
-  if(data_type != "both"){legend_names[2] = NULL; legend_cols[2] = NULL}
+                          " / ",res$N_query_known_instances,"(",res$N_query_prot_with_known_instances,")"))
+  legend_cols = c("transparent",col_query)
+  }
+
   legend_text = paste0("legend(legend = legend_names, col = legend_cols, lty = 1, lwd = 4, merge = TRUE,",
                        paste0(legend_args, collapse = ","), ")")
   eval(parse(text = legend_text))
