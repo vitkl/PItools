@@ -48,6 +48,7 @@ SLIMFinderOcc2GRanges = function(occurence_file = "../viral_project/SLIMFinder_V
 ##' @details ELM database containing motif occurrences in viral proteins (10239): "http://elm.eu.org/instances.gff?q=all&taxon=irus&instance_logic="
 ##' @return Genomic Ranges object containing ELM database motif occurrences
 ##' @import GenomicRanges
+##' @import data.table
 ##' @importFrom rtracklayer import.gff3
 ##' @export ELMdb2GRanges
 ##' @seealso \code{\link{SLIMFinderOcc2GRanges}}, \code{\link{GRangesINinteractionSubsetFASTA}}
@@ -56,12 +57,20 @@ SLIMFinderOcc2GRanges = function(occurence_file = "../viral_project/SLIMFinder_V
 ##'                   dburl = "http://elm.eu.org/instances.gff?q=None&taxon=Homo%20sapiens&instance_logic=")
 ##' instances10239 = ELMdb2GRanges(dbfile = "../viral_project/data_files/instances10239.gff",
 ##'                   dburl = "http://elm.eu.org/instances.gff?q=all&taxon=irus&instance_logic=")
-ELMdb2GRanges = function(dbfile = "../viral_project/data_files/instances9606.gff", dburl = "http://elm.eu.org/instances.gff?q=None&taxon=Homo%20sapiens&instance_logic=") {
+ELMdb2GRanges = function(dbfile = "../viral_project/data_files/instances9606.gff", dburl = "http://elm.eu.org/instances.gff?q=None&taxon=Homo%20sapiens&instance_logic=", tsvurl =  "http://elm.eu.org/instances.tsv?q=None&taxon=Homo%20sapiens&instance_logic=", tsvfile = "../viral_project/data_files/instances9606.tsv") {
   if(!file.exists(dbfile)) download.file(dburl, dbfile)
   instances = rtracklayer::import.gff3(dbfile)
   instances$for_benchmarking = 1
   instances$score = NULL
   instances$phase = NULL
+  if(!is.null(tsvurl) & !is.null(tsvfile)) {
+    if(!file.exists(tsvfile)) download.file(tsvurl, tsvfile)
+    instances_tsv = as.data.table(read.delim(tsvfile, skip = 5))
+    granges_id = paste0(seqnames(instances), start(instances), instances$ID)
+    tsv_id = paste0(instances_tsv$Primary_Acc, instances_tsv$Start, instances_tsv$ELMIdentifier)
+    instances_tsv = instances_tsv[match(granges_id, tsv_id),]
+    mcols(instances) = cbind(mcols(instances), instances_tsv[,.(Accession, ELMType, ProteinName, Primary_Acc, Accessions, References, Methods, InstanceLogic, PDB, Organism)])
+  }
   instances
 }
 
