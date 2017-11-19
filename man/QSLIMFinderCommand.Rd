@@ -3,6 +3,7 @@
 \name{QSLIMFinderCommand}
 \alias{QSLIMFinderCommand}
 \alias{mQSLIMFinderCommand}
+\alias{groupQSLIMFinderCommand}
 \title{Generate a QSLIMFinder command}
 \usage{
 QSLIMFinderCommand(file_list, i = 1,
@@ -23,6 +24,11 @@ mQSLIMFinderCommand(file_list, slimpath = "../software/slimsuite/tools/",
   LSF_cluster_par = "bsub -n 1 -q research-rh7 -M 200 -R \\"rusage[mem=200]\\"",
   log_dir = "./SLIMFinder/log_dir/", write_log = T, recursive = F,
   analysis_type = c("qslimfinder", "slimfinder")[1])
+
+groupQSLIMFinderCommand(commands, InteractionSubsetFASTA_list,
+  sh_dir = "/sh_dir/",
+  LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
+  dataset_name = "SLIMFinder", N_seq = 200, write_log = T)
 }
 \arguments{
 \item{file_list}{data.table containing path to files and directories for QSLIMFinder: fastafile, queryfile, outputdir, outputfile}
@@ -48,11 +54,27 @@ mQSLIMFinderCommand(file_list, slimpath = "../software/slimsuite/tools/",
 \item{log_dir}{character, directory where to write log files (stout and sterr)}
 
 \item{write_log}{whether to save stout and sterr}
+
+\item{commands}{list returned by \code{mQSLIMFinderCommand()} containing: 1. command to set up enviromental variable IUPred_PATH; 2. character vector of bash commands that will lauch QSLIMFinder as a job on LSF cluster; 3, 4, 5 - directories where LSF should write stout and sterr}
+
+\item{InteractionSubsetFASTA_list}{object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.}
+
+\item{sh_dir}{directory within dataset directory (dataset_name) where to write batch command .sh files}
+
+\item{dataset_name}{character, name of the dataset, such as "SLIMFinder" or "SLIMFinder_Vidal"}
+
+\item{N_seq}{size of the batch. Groups QSLIMFinder jobs until the next job doesn't fit into N_seq, if jobs is larger than N_seq a single job will be written to a batch .sh file.}
+
+\item{LSF_project_path}{full path to the project where dataset directory (dataset_name) is located.}
+
+\item{write_log}{FALSE will not allow runQSLIMFinder to detect crashed jobs}
 }
 \value{
 character vector (1L), bash command that will lauch QSLIMFinder locally or as a job on LSF cluster
 
 list containing: 1. command to set up enviromental variable IUPred_PATH; 2. character vector of bash commands that will lauch QSLIMFinder as a job on LSF cluster; 3, 4, 5 - directories where LSF should write stout and sterr
+
+QSLIMFinderCommand split into batches by N_seq sequences. List containing: 1. command to set up enviromental variable IUPred_PATH; 2. character vector of bash commands that will lauch $SHELL as a job on LSF cluster and run QSLIMFinder commands from batch file; 3, 4, 5 - directories where LSF should write stout and sterr
 }
 \description{
 Generate a QSLIMFinder command

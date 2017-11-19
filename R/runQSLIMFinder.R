@@ -12,7 +12,7 @@
 ##' @import data.table
 ##' @export runQSLIMFinder
 ##' @seealso \code{\link{QSLIMFinderCommand}}
-runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T, recursive = F){
+runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T, recursive = F, lsf_keyword = "TERM_MEMLIMIT", rm_log = T){
   if(mean(c("set_env_var","run") %in% names(commands_list)) < 1) stop("`commands_list` doesn't contain `set_env_var` and/or `run`, check that `commands_list` is an output of mQSLIMFinderCommand")
   if(onLSF){
     # create dirs for stout and sterr
@@ -25,14 +25,14 @@ runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T
     # run runQSLIMFinder and wait until all jobs finish
     LSFrunQSLIMFinder(commands_list$run)
     # find which jobs have crashed
-    commands_crashed = commands_list$run[!file.exists(file_list$outputfile)]
+    commands_crashed = jobsCrashed(commands_list, rm_log = rm_log, lsf_keyword = lsf_keyword)
 
     memory_vals = seq(200, max_memory, 100)
     for(memory_val in memory_vals){
       if(length(commands_crashed) >= 1){
         commands_crashed = modifyMemoryInBsub(commands_crashed, memory = memory_val)
         LSFrunQSLIMFinder(commands_crashed)
-        commands_crashed = commands_list$run[!file.exists(file_list$outputfile)]
+        commands_crashed = jobsCrashed(commands_list, rm_log = rm_log, lsf_keyword = lsf_keyword)
       }
     }
 return((commands_crashed))
@@ -53,9 +53,10 @@ modifyMemoryInBsub = function(commands, memory){
 
 ##' @rdname runQSLIMFinder
 ##' @name LSFrunQSLIMFinder
+##' @param job_name_sig string common to all job names
 ##' @import data.table
 ##' @export LSFrunQSLIMFinder
-LSFrunQSLIMFinder = function(commands) {
+LSFrunQSLIMFinder = function(commands, job_name_sig = "batch_") {
   for (command in commands) {
     Nbjobs = length(system("bjobs", intern =T)) - 1
     done = FALSE
@@ -70,11 +71,31 @@ LSFrunQSLIMFinder = function(commands) {
       }
     }
   }
-  bjobs = system("bjobs", intern =T)
-  finished = sum(grepl("\\.fas", bjobs)) == 0
+  bjobs = system("bjobs -w", intern =T)
+  finished = sum(grepl(job_name_sig, bjobs)) == 0
   while(!finished){
-    bjobs = system("bjobs", intern =T)
-    finished = sum(grepl("\\.fas", bjobs)) == 0
+    bjobs = system("bjobs -w", intern =T)
+    finished = sum(grepl(job_name_sig, bjobs)) == 0
     Sys.sleep(10)
   }
+}
+
+##' @rdname runQSLIMFinder
+##' @name jobsCrashed
+##' @param lsf_keyword character, LSF termination reason keyword (https://www.ibm.com/support/knowledgecenter/en/SSETD4_9.1.3/lsf_admin/termination_reasons_lsf.html). Defaults to "TERM_MEMLIMIT"
+##' @param rm_log remove log after checking for termination reason
+##' @return \code{jobsCrashed()}: vector of commands that crashed
+##' @import data.table
+##' @export jobsCrashed
+jobsCrashed = function(commands_list, rm_log = T, lsf_keyword = "TERM_MEMLIMIT") {
+  logs = gsub("bsub.+ -o | -e.+$","", commands_list$run)
+  crashed = sapply(logs, function(log) {
+    suppressWarnings({
+      reason_length = length(system(paste0("grep ",lsf_keyword," ", log), intern = T))
+      reason_logic = reason_length == 1
+      if(rm_log & reason_logic) system(paste0("rm ", log))
+    })
+    reason_logic
+  })
+  commands_crashed = commands_list$run[crashed_MEMLIMIT]
 }

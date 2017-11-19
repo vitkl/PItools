@@ -45,7 +45,6 @@ QSLIMFinderCommand = function(file_list, i = 1,
   iupred = paste0("iupath=",LSF_project_path, iupred)
 
   command = paste(LSF_cluster_par, "python", slimpath, blast, iupred, options, dirs_command)
-  #system(command, ignore.stdout = T, ignore.stderr = T)
   return(command)
 }
 
@@ -119,4 +118,55 @@ mQSLIMFinderCommand = function(file_list,
     return(list(set_env_var = commands1, run = commands,
                 log_dirfull = NULL, log_dirlog = NULL, log_direrror = NULL))
   }
+}
+
+##' @rdname QSLIMFinderCommand
+##' @name groupQSLIMFinderCommand
+##' @import data.table
+##' @export groupQSLIMFinderCommand
+##' @param commands list returned by \code{mQSLIMFinderCommand()} containing: 1. command to set up enviromental variable IUPred_PATH; 2. character vector of bash commands that will lauch QSLIMFinder as a job on LSF cluster; 3, 4, 5 - directories where LSF should write stout and sterr
+##' @param InteractionSubsetFASTA_list object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.
+##' @param sh_dir directory within dataset directory (dataset_name) where to write batch command .sh files
+##' @param LSF_project_path full path to the project where dataset directory (dataset_name) is located.
+##' @param dataset_name character, name of the dataset, such as "SLIMFinder" or "SLIMFinder_Vidal"
+##' @param N_seq size of the batch. Groups QSLIMFinder jobs until the next job doesn't fit into N_seq, if jobs is larger than N_seq a single job will be written to a batch .sh file.
+##' @param write_log FALSE will not allow runQSLIMFinder to detect crashed jobs
+##' @return QSLIMFinderCommand split into batches by N_seq sequences. List containing: 1. command to set up enviromental variable IUPred_PATH; 2. character vector of bash commands that will lauch $SHELL as a job on LSF cluster and run QSLIMFinder commands from batch file; 3, 4, 5 - directories where LSF should write stout and sterr
+groupQSLIMFinderCommand = function(commands, InteractionSubsetFASTA_list, sh_dir = "/sh_dir/", LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/", dataset_name = "SLIMFinder", N_seq = 200, write_log = T) {
+  if(class(InteractionSubsetFASTA_list) != "InteractionSubsetFASTA_list") stop("InteractionSubsetFASTA_list should be of class \"InteractionSubsetFASTA_list\"")
+  if(mean(c("set_env_var", "run", "log_dirfull", "log_dirlog", "log_direrror") %in% names(commands)) != 1) stop("commands should be the output of mQSLIMFinderCommand()")
+
+  sh_dir = paste0("./", dataset_name,sh_dir)
+  if(!dir.exists(sh_dir)) dir.create(sh_dir)
+
+  seqNUM = sapply(InteractionSubsetFASTA_list$fasta_subset_list, function(x) length(unique(x)))
+  cum_seqNUM = cumsum(seqNUM)
+  batches = seq(N_seq, max(cum_seqNUM), N_seq)
+  batches_ass = sapply(batches, function(batch, cum_seqNUM) {
+    cum_seqNUM < batch
+  }, cum_seqNUM)
+  batches_ass = apply(batches_ass, 1, function(sample) which(sample)[1])
+  batches_ass = paste0("batch_", batches_ass)
+  seq_per_batch = sapply(split(seqNUM, batches_ass), sum)
+  seq_per_batch = seq_per_batch[unique(names(seq_per_batch))]
+  commands_run = split(commands$run, batches_ass)
+  bsub = sapply(seq_along(commands_run), function(i) {
+    bsub_temp = unique(gsub("python.+","",commands_run[[i]]))
+    hps_dir = paste0(LSF_project_path, dataset_name,"/")
+
+    batch_name = names(commands_run[i])
+
+    sh_file = paste0(sh_dir, batch_name, ".sh")
+    command_temp = unique(gsub("^.+ python","python",commands_run[[i]]))
+    write(command_temp, sh_file)
+
+    bsub_temp = unique(gsub("-o .+/log_dir/log/.+ -e .+/log_dir/error/.+ ",
+                            paste0("-o ",hps_dir,"log_dir/log/",batch_name," -e ",hps_dir,"log_dir/error/",batch_name," -J ",batch_name," $SHELL "),
+                            bsub_temp))
+    hps_sh_file = paste0(LSF_project_path, sh_file)
+    bsub_temp = paste0(bsub_temp, hps_sh_file)
+  })
+
+  commands$run = bsub
+  commands
 }

@@ -83,6 +83,7 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
     instances_all = subsetByOverlaps(instances_all, instances_query, type = "equal", invert = T)
   } else instances_all = c(instances_all, subsetByOverlaps(instances_query, instances_all, type = "equal", invert = T))
 
+  ######################### Negative set: ranges in random locations ######################### START
   ### Generate random negative sets
   set.seed(seed)
   random_instances_all = randomGRanges(instances_all, N = N, replace = replace, within1sequence = within1sequence)
@@ -119,6 +120,13 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
                         labels_col = "for_benchmarking", normalise = normalise, maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
     })
   })
+  ######################### Negative set: ranges in random locations #########################  END
+
+  ######################### Negative set: protein in ELM, motif not in ELM  ######################### START
+  ######################### Negative set: protein in ELM, motif not in ELM  ######################### END
+
+  ######################### Negative set: protein not in ELM or protein in ELM but motif not in ELM  ######################### START
+  ######################### Negative set: protein not in ELM or protein in ELM but motif not in ELM  ######################### END
 
   ### Get  overlapping instances
   suppressWarnings({

@@ -28,24 +28,45 @@
 ##' interSpecies = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, database = "IntActFTP", format = "tab27", clean = TRUE, protein_only = TRUE, directory = "./data/")
 interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 10239, database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL, releaseORdate = NULL, remove_obsolete_id = F){
   # if the interaction data for species taxid and from database is not saved in the library - queryPSICQUIC for interaction data for taxid interactions in the database and in MITAB2.5 format, save results to the library
-  if(is.null(MITABdata)){
-    if(database == "IntActFTP"){
-      if(is.null(directory)){
-        pkg_dir = paste0(.libPaths(), "/MItools", "/data/")[1]
-        # create data directory in /default.library/queryPSICQUIC/ if it doesn't exist
-        if(!dir.exists(pkg_dir)) dir.create(pkg_dir)
-        # find out last release date if the database is IntActFTP and releaseORdate = NULL, generate dir_last_release
-        dir_last_release = generateDirName(database, releaseORdate, pkg_dir)
-      } else {
-        dir_last_release = generateDirName(database, releaseORdate, directory)
-      }
-      # create directory for the last release date
-      if(is.null(releaseORdate)) {
-        if(!dir.exists(dir_last_release)) dir.create(dir_last_release)
-      } else {
-        if(!dir.exists(dir_last_release)) stop(paste0("no data for IntAct release or date: ", releaseORdate," in the directory: ", directory))
-      }
-      full_interactome = loadIntActFTP(dir_last_release)
+  if(database == "IntActFTP"){
+    if(is.null(directory)){
+      pkg_dir = paste0(.libPaths(), "/MItools", "/data/")[1]
+      # create data directory in /default.library/queryPSICQUIC/ if it doesn't exist
+      if(!dir.exists(pkg_dir)) dir.create(pkg_dir)
+      # find out last release date if the database is IntActFTP and releaseORdate = NULL, generate dir_last_release
+      dir_last_release = generateDirName(database, releaseORdate, pkg_dir)
+    } else {
+      dir_last_release = generateDirName(database, releaseORdate, directory)
+    }
+    # create directory for the last release date
+    if(is.null(releaseORdate)) {
+      if(!dir.exists(dir_last_release)) dir.create(dir_last_release)
+    } else {
+      if(!dir.exists(dir_last_release)) stop(paste0("no data for IntAct release or date: ", releaseORdate," in the directory: ", directory))
+    }
+    if(!is.null(MITABdata)) full_interactome = copy(MITABdata) else full_interactome = loadIntActFTP(dir_last_release)
+
+    taxids1 = loadTaxIDAllLower(taxid = taxid1, dir = dir_last_release)
+    taxids1 = c(taxids1$AllLower, taxids1$input_taxid)
+    taxids2 = loadTaxIDAllLower(taxid = taxid2, dir = dir_last_release)
+    taxids2 = c(taxids2$AllLower, taxids2$input_taxid)
+    full_interactome$data[, Taxid_interactor_A_clean := gsub("taxid:|\\(.*$","",`Taxid interactor A`)]
+    full_interactome$data[, Taxid_interactor_B_clean := gsub("taxid:|\\(.*$","",`Taxid interactor B`)]
+    full_interactome$data = full_interactome$data[(Taxid_interactor_A_clean %in% taxids1 &
+                                                     Taxid_interactor_B_clean %in% taxids2) |
+                                                    (Taxid_interactor_A_clean %in% taxids2 &
+                                                       Taxid_interactor_B_clean %in% taxids1), ]
+    full_interactome$data[, Taxid_interactor_A_clean := NULL]
+    full_interactome$data[, Taxid_interactor_B_clean := NULL]
+    full_interactome$metadata = data.table(query = paste0("(taxidA:",taxid1," AND ", "taxidB:",taxid2, ") OR (taxidA:",taxid2," AND ", "taxidB:",taxid1, ")"),
+                                           file = paste0(dir_last_release,"intact",gsub("^.*IntActRelease_|/","", dir_last_release),".txt.gz"),
+                                           format = "tab27",
+                                           all.databases = paste0("IntActFTP_", names(table(full_interactome$data$`Source database(s)`))),
+                                           n.interactions.in.database = table(full_interactome$data$`Source database(s)`),
+                                           database.not.active = "NULL")
+  } else {
+    if(!is.null(MITABdata)) {
+      full_interactome = copy(MITABdata)
       taxids1 = loadTaxIDAllLower(taxid = taxid1, dir = dir_last_release)
       taxids1 = c(taxids1$AllLower, taxids1$input_taxid)
       taxids2 = loadTaxIDAllLower(taxid = taxid2, dir = dir_last_release)
@@ -53,27 +74,21 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
       full_interactome$data[, Taxid_interactor_A_clean := gsub("taxid:|\\(.*$","",`Taxid interactor A`)]
       full_interactome$data[, Taxid_interactor_B_clean := gsub("taxid:|\\(.*$","",`Taxid interactor B`)]
       full_interactome$data = full_interactome$data[(Taxid_interactor_A_clean %in% taxids1 &
-                                          Taxid_interactor_B_clean %in% taxids2) |
-                                          (Taxid_interactor_A_clean %in% taxids2 &
-                                             Taxid_interactor_B_clean %in% taxids1), ]
+                                                       Taxid_interactor_B_clean %in% taxids2) |
+                                                      (Taxid_interactor_A_clean %in% taxids2 &
+                                                         Taxid_interactor_B_clean %in% taxids1), ]
       full_interactome$data[, Taxid_interactor_A_clean := NULL]
       full_interactome$data[, Taxid_interactor_B_clean := NULL]
-      full_interactome$metadata = data.table(query = paste0("(taxidA:",taxid1," AND ", "taxidB:",taxid2, ") OR (taxidA:",taxid2," AND ", "taxidB:",taxid1, ")"),
-                                             file = paste0(dir_last_release,"intact",gsub("^.*IntActRelease_|/","", dir_last_release),".txt.gz"),
-                                             format = "tab27",
-                                             all.databases = paste0("IntActFTP_", names(table(full_interactome$data$`Source database(s)`))),
-                                             n.interactions.in.database = table(full_interactome$data$`Source database(s)`),
-                                             database.not.active = "NULL")
+      full_interactome$metadata$query = paste0("(taxidA:",taxid1," AND ", "taxidB:",taxid2, ") OR (taxidA:",taxid2," AND ", "taxidB:",taxid1, ")")
     } else {
-    full_interactome = queryPSICQUICrlib(query = paste0("(taxidA:",taxid1," AND ", "taxidB:",taxid2, ") OR (taxidA:",taxid2," AND ", "taxidB:",taxid1, ")"),
-                                         format = format,
-                                         database = database,
-                                         directory = directory,
-                                         releaseORdate = releaseORdate)
+      full_interactome = queryPSICQUICrlib(query = paste0("(taxidA:",taxid1," AND ", "taxidB:",taxid2, ") OR (taxidA:",taxid2," AND ", "taxidB:",taxid1, ")"),
+                                           format = format,
+                                           database = database,
+                                           directory = directory,
+                                           releaseORdate = releaseORdate)
     }
-  }
 
-  if(!is.null(MITABdata)) full_interactome = copy(MITABdata)
+  }
 
   # clean this data to make it more useble if clean is TRUE
   if(clean){

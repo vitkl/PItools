@@ -5,7 +5,9 @@
 \title{Download and read ELM database motif occurrences}
 \usage{
 ELMdb2GRanges(dbfile = "../viral_project/data_files/instances9606.gff",
-  dburl = "http://elm.eu.org/instances.gff?q=None&taxon=Homo\%20sapiens&instance_logic=")
+  dburl = "http://elm.eu.org/instances.gff?q=None&taxon=Homo\%20sapiens&instance_logic=",
+  tsvurl = "http://elm.eu.org/instances.tsv?q=None&taxon=Homo\%20sapiens&instance_logic=",
+  tsvfile = "../viral_project/data_files/instances9606.tsv")
 }
 \arguments{
 \item{dbfile}{a path to a gff (txt) file containing ELM database motif occurrences}

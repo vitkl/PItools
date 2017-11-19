@@ -6,7 +6,7 @@
 ##' @param seed_id_vect a vector of interactor IDs for which to retrieve interactions (for each separately)
 ##' @param fasta AAStringSet containing sequences for all proteins in interaction_set1 and interaction_set2
 ##' @param single_interact_from_set2 logical, split sequence sets to contain only one protein from interaction_set2 (only one query protein for QSLIMFinder). If FALSE, set2 will contain all proteins that interact with an element of \code{seed_id_vect} (which means multiple query proteins for QSLIMFinder).
-##' @param set1_only logical, only relevant if \code{single_interact_from_set2 = TRUE}, sequence set1 should contain only proteins that interact with an element of seed_id_vect in interaction_set1. If FALSE, proteins that interact with an element of seed_id_vect in interaction_set2 with the exception of the single one () are also included. Argument for \code{\link{singleInteractFromSet2}}
+##' @param set1_only logical, only relevant if \code{single_interact_from_set2 = TRUE}, sequence set1 should contain only proteins that interact with an element of seed_id_vect in interaction_set1. If FALSE, proteins that interact with an element of seed_id_vect in interaction_set2 but are not a single query protein are also included. Argument for \code{\link{singleInteractFromSet2}}
 ##' @return object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.
 ##' @import data.table
 ##' @import Biostrings
@@ -33,7 +33,7 @@ listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_i
                               interaction_set2 = interaction_set2,
                               seed_id = seed_id)
     subset_fasta = listSingleInteractFromSet2(subset1 = subset, single_interact_from_set2, set1_only, fasta)
-    subset1_fasta$fasta_subset_list = c(subset1_fasta$fasta_subset_list, subset_fasta$fasta_subset_list)
+    subset1_fasta$fasta_subset_list = c(subset1_fasta$fasta_subset_list, unique(subset_fasta$fasta_subset_list))
     subset1_fasta$interaction_subset = c(subset1_fasta$interaction_subset, subset_fasta$interaction_subset)
   }
   subset1_fasta$length = length(subset1_fasta$fasta_subset_list)

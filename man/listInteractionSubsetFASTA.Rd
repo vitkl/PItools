@@ -18,7 +18,7 @@ listInteractionSubsetFASTA(interaction_set1, interaction_set2, seed_id_vect,
 
 \item{single_interact_from_set2}{logical, split sequence sets to contain only one protein from interaction_set2 (only one query protein for QSLIMFinder). If FALSE, set2 will contain all proteins that interact with an element of \code{seed_id_vect} (which means multiple query proteins for QSLIMFinder).}
 
-\item{set1_only}{logical, only relevant if \code{single_interact_from_set2 = TRUE}, sequence set1 should contain only proteins that interact with an element of seed_id_vect in interaction_set1. If FALSE, proteins that interact with an element of seed_id_vect in interaction_set2 with the exception of the single one () are also included. Argument for \code{\link{singleInteractFromSet2}}}
+\item{set1_only}{logical, only relevant if \code{single_interact_from_set2 = TRUE}, sequence set1 should contain only proteins that interact with an element of seed_id_vect in interaction_set1. If FALSE, proteins that interact with an element of seed_id_vect in interaction_set2 but are not a single query protein are also included. Argument for \code{\link{singleInteractFromSet2}}}
 }
 \value{
 object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.
