@@ -38,13 +38,15 @@ loadTaxIDAllLower = function(taxid, dir, with_description = F){
   uniprot_release = httr::headers(httr::GET("http://www.uniprot.org/"))$`x-uniprot-release`
   filename = paste0(dir,"AllLowerTaxID_taxid",taxid,"_release",uniprot_release)
   if(!file.exists(filename)) download(paste0("http://www.uniprot.org/taxonomy/?query=ancestor:",taxid,"&format=tab"), filename)
-  proteins = unlist(fread(filename)[,1])
-  names(proteins) = NULL
+  if(file.size(filename) == 0) taxids = NULL else {
+    taxids = unlist(fread(filename)[,1])
+    names(taxids) = NULL
+  }
   if(with_description){
     description = fread(filename)
-    return(list(AllLower = proteins, input_taxid = taxid, description = description))
+    return(list(AllLower = taxids, input_taxid = taxid, description = description))
   } else {
-    return(list(AllLower = proteins, input_taxid = taxid))
+    return(list(AllLower = taxids, input_taxid = taxid))
   }
 }
 
