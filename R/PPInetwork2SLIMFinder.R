@@ -256,7 +256,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   # load the domain analysis results
   load(path2domain_enrich, envir = environment())
   eval(parse(text = paste0("domain_res = ",domain_enrich_object)))
-  rm(list = ls()[!ls() %in% c("domain_res", names(as.list(match.call()))[2:length(names(as.list(match.call())))])], envir = environment())
+  rm(list = ls()[!ls() %in% c("domain_res", "dataset_name", "interaction_main_set",  "interaction_query_set", "analysis_type", "options", "path2domain_enrich", "domain_enrich_object",  "seed4datasets_col", "fasta_path", "main_set_only", "domain_pvalue_cutoff", "SLIMFinder_dir", "LSF_project_path", "software_path", "length_set1_min", "length_set2_min", "write_log", "N_seq")], envir = environment())
 
   # choose pvalue cutoff:
   plot(domain_res)

@@ -35,6 +35,7 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
                            main_file = "./SLIMFinder_Vidal/result/main_result.txt",
                            domain_res = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
                            motif_setup = "./processed_data_files/QSLIMFinder_instances_h2v_Vidal_clust20171028.RData",
+                           neg_set = c("random", "all_instances", "all_proteins")[1],
                            domain_results_obj = "res_count", motif_input_obj = "forSLIMFinder_Ready",
                            one_from_cloud = T, type = "QSLIMFinder",
                            dbfile_main = "./data_files/instances_all.gff",
@@ -50,11 +51,11 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
 
   ### Load domain enrichment results, PPI data, and data used for QSLIMfinder
   load(domain_res, envir = envir)
-  rm(list = ls()[!ls() %in% c(domain_results_obj, "envir",names(as.list(match.call())[-1]))], envir = envir)
+  rm(list = ls()[!ls() %in% c(domain_results_obj, "envir", "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "seed", "N", "replace", "within1sequence", "predictor_col", "normalise", "minoverlap", "maxgap")], envir = envir)
   eval(parse(text = paste0("res_count = ", domain_results_obj)))
 
   load(motif_setup, envir = envir)
-  rm(list = ls()[!ls() %in% c("res_count", "envir", "all_human_interaction", "all_viral_interaction", motif_input_obj, names(as.list(match.call())[-1]))], envir = envir)
+  rm(list = ls()[!ls() %in% c("res_count", "envir", "all_human_interaction", "all_viral_interaction", motif_input_obj, "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "seed", "N", "replace", "within1sequence", "predictor_col", "normalise", "minoverlap", "maxgap")], envir = envir)
 
   ### Load QSLIMFinder results and ELM data
   occurence = SLIMFinderOcc2GRanges(occurence_file = occurence_file,
@@ -84,6 +85,7 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
   } else instances_all = c(instances_all, subsetByOverlaps(instances_query, instances_all, type = "equal", invert = T))
 
   ######################### Negative set: ranges in random locations ######################### START
+  if(neg_set == "random") {
   ### Generate random negative sets
   set.seed(seed)
   random_instances_all = randomGRanges(instances_all, N = N, replace = replace, within1sequence = within1sequence)
@@ -102,39 +104,74 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
   suppressWarnings({
     predictions_all = lapply(combined_instances_all, function(inst){
       findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
-                        labels_col = "for_benchmarking", normalise = normalise, maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
+                        labels_col = "for_benchmarking", normalise = normalise,
+                        maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
     })
     labels_all = lapply(combined_instances_all, function(inst){
       findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
-                        labels_col = "for_benchmarking", normalise = normalise, maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
+                        labels_col = "for_benchmarking", normalise = normalise,
+                        maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
     })
   })
   # Query
   suppressWarnings({
     predictions_query = lapply(combined_instances_query, function(inst){
       findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
-                        labels_col = "for_benchmarking", normalise = normalise, maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
+                        labels_col = "for_benchmarking", normalise = normalise,
+                        maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
     })
     labels_query = lapply(combined_instances_query, function(inst){
       findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
-                        labels_col = "for_benchmarking", normalise = normalise, maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
+                        labels_col = "for_benchmarking", normalise = normalise,
+                        maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
     })
   })
+  }
   ######################### Negative set: ranges in random locations #########################  END
 
   ######################### Negative set: protein in ELM, motif not in ELM  ######################### START
+  if(neg_set = "all_instances"){
+
+    combined_instances_all = instances_all
+    combined_instances_query = instances_query
+
+    occurence
+    predictions_all
+    labels_all
+    predictions_query
+    labels_query
+  }
   ######################### Negative set: protein in ELM, motif not in ELM  ######################### END
 
   ######################### Negative set: protein not in ELM or protein in ELM but motif not in ELM  ######################### START
+  if(neg_set = "all_proteins"){
+
+    combined_instances_all = instances_all
+    combined_instances_query = instances_query
+    predictions_all
+    labels_all
+    predictions_query
+    labels_query
+  }
   ######################### Negative set: protein not in ELM or protein in ELM but motif not in ELM  ######################### END
 
   ### Get  overlapping instances
   suppressWarnings({
-    overlapping_GRanges_all = findOverlapsBench(occuring = occurence, benchmarking = combined_instances_all[[1]], predictor_col = predictor_col,
-                                                labels_col = "for_benchmarking", normalise = normalise, maxgap = maxgap, minoverlap = minoverlap)$overlapping_GRanges
+    overlapping_GRanges_all = findOverlapsBench(occuring = occurence,
+                                                benchmarking = combined_instances_all[[1]],
+                                                predictor_col = predictor_col,
+                                                labels_col = "for_benchmarking",
+                                                normalise = normalise,
+                                                maxgap = maxgap,
+                                                minoverlap = minoverlap)$overlapping_GRanges
     overlapping_GRanges_all = overlapping_GRanges_all[overlapping_GRanges_all$for_benchmarking == 1,]
-    overlapping_GRanges_query = findOverlapsBench(occuring = occurence, benchmarking = combined_instances_query[[1]], predictor_col = predictor_col,
-                                                  labels_col = "for_benchmarking", normalise = normalise, maxgap = maxgap, minoverlap = minoverlap)$overlapping_GRanges
+    overlapping_GRanges_query = findOverlapsBench(occuring = occurence,
+                                                  benchmarking = combined_instances_query[[1]],
+                                                  predictor_col = predictor_col,
+                                                  labels_col = "for_benchmarking",
+                                                  normalise = normalise,
+                                                  maxgap = maxgap,
+                                                  minoverlap = minoverlap)$overlapping_GRanges
     overlapping_GRanges_query = overlapping_GRanges_query[overlapping_GRanges_query$for_benchmarking == 1,]
   })
 
