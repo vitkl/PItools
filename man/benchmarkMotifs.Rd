@@ -8,7 +8,8 @@
 benchmarkMotifs(occurence_file = "./SLIMFinder_Vidal/result/occurence.txt",
   main_file = "./SLIMFinder_Vidal/result/main_result.txt",
   domain_res = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
-  motif_setup = "./processed_data_files/QSLIMFinder_instances_h2v_Vidal_clust20171028.RData",
+  motif_setup = "./processed_data_files/QSLIMFinder_instances_h2v_Vidal_clust201710.RData",
+  neg_set = c("random", "all_instances", "all_proteins")[1],
   domain_results_obj = "res_count", motif_input_obj = "forSLIMFinder_Ready",
   one_from_cloud = T, type = "QSLIMFinder",
   dbfile_main = "./data_files/instances_all.gff",
@@ -16,9 +17,10 @@ benchmarkMotifs(occurence_file = "./SLIMFinder_Vidal/result/occurence.txt",
   dbfile_query = "./data_files/instances_query.gff",
   dburl_query = "http://elm.eu.org/instances.gff?q=all&taxon=irus&instance_logic=",
   query_res_query_only = T, motif_types = c("DOC", "MOD", "LIG", "DEG",
-  "CLV", "TRG"), all_res_excl_query = T, seed = 21, N = 100,
-  replace = T, within1sequence = T, predictor_col = "Sig",
-  normalise = T, minoverlap = 2, maxgap = 0, ...)
+  "CLV", "TRG"), all_res_excl_query = T, isolate_class = F, seed = 21,
+  N = 100, replace = T, within1sequence = T, predictor_col = "Sig",
+  normalise = T, minoverlap = 2, maxgap = 0, minoverlap_redundant = 5,
+  ...)
 
 mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
   dir = "./",
@@ -46,9 +48,13 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
 
 \item{motif_input_obj}{character, name of the object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.}
 
+\item{all_res_excl_query}{all results in the output is all occurences excluding the query proteins. If FALSE, all results include occurences in all proteins.}
+
 \item{minoverlap}{integer, passed to \code{\link[GenomicRanges]{findOverlaps}}}
 
 \item{maxgap}{integer, passed to \code{\link[GenomicRanges]{findOverlaps}}}
+
+\item{minoverlap_redundant}{for removing motif classes that match the same occurence}
 
 \item{...}{other arguments passed to passed to \code{\link[GenomicRanges]{findOverlaps}}}
 
@@ -57,6 +63,8 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
 \item{descriptions}{character vector, description of the datasets (title of the ROC plot)}
 
 \item{dir}{character, base directory. For example, "./" in "./SLIMFinder_Vidal/result/occurence.txt"}
+
+\item{merge_motif_variants}{If FALSE (default) merge motif occurences only if motifs are variants of the same motif (such as TRG_NLS).}
 }
 \description{
 Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)

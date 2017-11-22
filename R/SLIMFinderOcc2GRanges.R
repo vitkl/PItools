@@ -65,7 +65,7 @@ ELMdb2GRanges = function(dbfile = "../viral_project/data_files/instances9606.gff
   instances$phase = NULL
   if(!is.null(tsvurl) & !is.null(tsvfile)) {
     if(!file.exists(tsvfile)) download.file(tsvurl, tsvfile)
-    instances_tsv = as.data.table(read.delim(tsvfile, skip = 5))
+    instances_tsv = as.data.table(read.delim(tsvfile, skip = 5, stringsAsFactors = F))
     granges_id = paste0(seqnames(instances), start(instances), instances$ID)
     tsv_id = paste0(instances_tsv$Primary_Acc, instances_tsv$Start, instances_tsv$ELMIdentifier)
     instances_tsv = instances_tsv[match(granges_id, tsv_id),]

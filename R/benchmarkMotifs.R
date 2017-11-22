@@ -16,6 +16,8 @@
 ##' @param dburl_query
 ##' @param query_res_query_only
 ##' @param motif_types
+##' @param all_res_excl_query all results in the output is all occurences excluding the query proteins. If FALSE, all results include occurences in all proteins.
+##' @param merge_motif_variants If FALSE (default) merge motif occurences only if motifs are variants of the same motif (such as TRG_NLS).
 ##' @param seed
 ##' @param N
 ##' @param replace
@@ -24,6 +26,7 @@
 ##' @param normalise
 ##' @param minoverlap integer, passed to \code{\link[GenomicRanges]{findOverlaps}}
 ##' @param maxgap integer, passed to \code{\link[GenomicRanges]{findOverlaps}}
+##' @param minoverlap_redundant for removing motif classes that match the same occurence
 ##' @param ... other arguments passed to passed to \code{\link[GenomicRanges]{findOverlaps}}
 ##' @return object class \code{benchmarkMotifsResult) containing occurence (GRanges), instances_all (GRanges, known instances in all proteins or all excluding the query proteins), instances_query (GRanges, known instances in query proteins), predictions_all (for ROCR), labels_all (for ROCR), predictions_query (for ROCR), labels_query (for ROCR), overlapping_GRanges_all (GRanges, known instances that we also found), overlapping_GRanges_query(GRanges, known instances that we also found), N_query_prot_with_known_instances, N_query_known_instances, N_all_prot_with_known_instances, N_all_known_instances
 ##' @import GenomicRanges
@@ -34,7 +37,7 @@
 benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence.txt",
                            main_file = "./SLIMFinder_Vidal/result/main_result.txt",
                            domain_res = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
-                           motif_setup = "./processed_data_files/QSLIMFinder_instances_h2v_Vidal_clust20171028.RData",
+                           motif_setup = "./processed_data_files/QSLIMFinder_instances_h2v_Vidal_clust201710.RData",
                            neg_set = c("random", "all_instances", "all_proteins")[1],
                            domain_results_obj = "res_count", motif_input_obj = "forSLIMFinder_Ready",
                            one_from_cloud = T, type = "QSLIMFinder",
@@ -43,10 +46,11 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
                            dbfile_query = "./data_files/instances_query.gff",
                            dburl_query = "http://elm.eu.org/instances.gff?q=all&taxon=irus&instance_logic=",
                            query_res_query_only = T, motif_types = c("DOC", "MOD", "LIG", "DEG", "CLV", "TRG"),
-                           all_res_excl_query = T,
+                           all_res_excl_query = T, isolate_class = F,
                            seed = 21, N = 100, replace = T, within1sequence = T,
                            predictor_col = "Sig", normalise = T,
-                           minoverlap = 2, maxgap = 0, ...) {
+                           minoverlap = 2, maxgap = 0,
+                           minoverlap_redundant = 5, ...) {
   envir = environment()
 
   ### Load domain enrichment results, PPI data, and data used for QSLIMfinder
@@ -62,12 +66,22 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
                                     main_file = main_file,
                                     one_from_cloud = one_from_cloud)
   instances_all = ELMdb2GRanges(dbfile = dbfile_main,
-                                dburl = dburl_main)
+                                dburl = dburl_main,
+                                tsvurl = gsub("gff", "tsv", dburl_main),
+                                tsvfile = gsub("gff", "tsv", dbfile_main))
   instances_query = ELMdb2GRanges(dbfile = dbfile_query,
-                                  dburl = dburl_query)
+                                  dburl = dburl_query,
+                                  tsvurl = gsub("gff", "tsv", dburl_query),
+                                  tsvfile = gsub("gff", "tsv", dbfile_query))
+
+  ### Filter ELM instances by instance logic == "true positive"
+  instances_all = instances_all[instances_all$InstanceLogic == "true positive"]
+  instances_query = instances_query[instances_query$InstanceLogic == "true positive"]
+  table(instances_all$InstanceLogic)
 
   ### Filter ELM instances located in proteins that we use to search for motifs and select motif types of interest
   searched_all = GRangesINinteractionSubsetFASTA(grange = instances_all, interactionSubsetFASTA = forSLIMFinder_Ready)
+  message(paste0(sum(searched_all$granges_in_sequences_Searched), " occurences out of ", length(searched_all$granges_in_sequences_Searched), " total in ELM cound have been discovered (all proteins, all types of motifs)"))
   instances_all = instances_all[searched_all$granges_in_sequences_Searched]
   instances_all = filterBYmotifType(instances_all, motif_types = motif_types)
   seqlevels(instances_all) <- seqlevelsInUse(instances_all)
@@ -75,10 +89,25 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
 
 
   searched_query = GRangesINinteractionSubsetFASTA(grange = instances_query, interactionSubsetFASTA = forSLIMFinder_Ready, query_only = query_res_query_only)
+  message(paste0(sum(searched_query$granges_in_sequences_Searched), " occurences out of ", length(searched_query$granges_in_sequences_Searched), " total in ELM cound have been discovered (QSLIMFinder query proteins, all types of motifs)"))
   instances_query = instances_query[searched_query$granges_in_sequences_Searched]
   instances_query = filterBYmotifType(instances_query, motif_types = motif_types)
   seqlevels(instances_query) <- seqlevelsInUse(instances_query)
   seqlengths(instances_query) = searched_query$seqlengths[names(seqlengths(instances_query))]
+
+  ### Remove redundancy in known instances
+  instances_all = reduceOverlappingGRanges(instances_all, minoverlap = minoverlap_redundant, merge_motif_variants = merge_motif_variants)
+  instances_query = reduceOverlappingGRanges(instances_query, minoverlap = minoverlap_redundant, merge_motif_variants = merge_motif_variants)
+
+  #igraph::plot.igraph(overlapping_instances_graph, vertex.size = 1, arrow.mode = "-", vertex.label.cex = 0.6)
+
+  ### Filter discovered occurences to keep query occurences only
+  searched_query = GRangesINinteractionSubsetFASTA(grange = occurence, interactionSubsetFASTA = forSLIMFinder_Ready, query_only = T)
+  occurence_query = occurence[searched_query$granges_in_sequences_Searched]
+  ## filter by predicted motif type
+  seqlevels(occurence_query) <- seqlevelsInUse(occurence_query)
+  seqlengths(occurence_query) = searched_query$seqlengths[names(seqlengths(occurence_query))]
+
 
   if(all_res_excl_query){
     instances_all = subsetByOverlaps(instances_all, instances_query, type = "equal", invert = T)
@@ -86,56 +115,75 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
 
   ######################### Negative set: ranges in random locations ######################### START
   if(neg_set == "random") {
-  ### Generate random negative sets
-  set.seed(seed)
-  random_instances_all = randomGRanges(instances_all, N = N, replace = replace, within1sequence = within1sequence)
-  random_instances_query = randomGRanges(instances_query, N = N, replace = replace, within1sequence = within1sequence)
+    ### Generate random negative sets
+    set.seed(seed)
+    random_instances_all = randomGRanges(instances_all, N = N, replace = replace, within1sequence = within1sequence)
+    random_instances_query = randomGRanges(instances_query, N = N, replace = replace, within1sequence = within1sequence)
 
-  ### Combine positive and negative datasets
-  combined_instances_all = lapply(random_instances_all, function(random_instance, instances_all){
-    c(instances_all, random_instance)
-  },instances_all)
-  combined_instances_query = lapply(random_instances_query, function(random_instance, instances_query){
-    c(instances_query, random_instance)
-  },instances_query)
+    ### Combine positive and negative datasets
+    combined_instances_all = lapply(random_instances_all, function(random_instance, instances_all){
+      c(instances_all, random_instance)
+    },instances_all)
+    combined_instances_query = lapply(random_instances_query, function(random_instance, instances_query){
+      c(instances_query, random_instance)
+    },instances_query)
 
-  ### Find overlaps with predicted motifs
-  # All
-  suppressWarnings({
-    predictions_all = lapply(combined_instances_all, function(inst){
-      findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
-                        labels_col = "for_benchmarking", normalise = normalise,
-                        maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
+    ### Find overlaps with predicted motifs
+    # All
+    suppressWarnings({
+      predictions_all = lapply(combined_instances_all, function(inst){
+        findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
+                          labels_col = "for_benchmarking", normalise = normalise,
+                          maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
+      })
+      labels_all = lapply(combined_instances_all, function(inst){
+        findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
+                          labels_col = "for_benchmarking", normalise = normalise,
+                          maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
+      })
     })
-    labels_all = lapply(combined_instances_all, function(inst){
-      findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
-                        labels_col = "for_benchmarking", normalise = normalise,
-                        maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
+    # Query
+    suppressWarnings({
+      predictions_query = lapply(combined_instances_query, function(inst){
+        findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
+                          labels_col = "for_benchmarking", normalise = normalise,
+                          maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
+      })
+      labels_query = lapply(combined_instances_query, function(inst){
+        findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
+                          labels_col = "for_benchmarking", normalise = normalise,
+                          maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
+      })
     })
-  })
-  # Query
-  suppressWarnings({
-    predictions_query = lapply(combined_instances_query, function(inst){
-      findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
-                        labels_col = "for_benchmarking", normalise = normalise,
-                        maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
-    })
-    labels_query = lapply(combined_instances_query, function(inst){
-      findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = predictor_col,
-                        labels_col = "for_benchmarking", normalise = normalise,
-                        maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
-    })
-  })
   }
   ######################### Negative set: ranges in random locations #########################  END
 
   ######################### Negative set: protein in ELM, motif not in ELM  ######################### START
-  if(neg_set = "all_instances"){
+  if(neg_set == "all_instances"){
 
     combined_instances_all = instances_all
     combined_instances_query = instances_query
 
-    occurence
+    found = occurence_query
+    positive = instances_query
+    true_positive = findOverlapsBench(occuring = occurence_query,
+                                      benchmarking = instances_query,
+                                      predictor_col = predictor_col,
+                                      labels_col = "for_benchmarking",
+                                      normalise = normalise,
+                                      maxgap = maxgap,
+                                      minoverlap = minoverlap)$overlapping_GRanges
+    false_positive = subsetByOverlaps(occurence_query, true_positive, type = "equal", invert = T)
+    false_negative = subsetByOverlaps(instances_query,
+                                      findOverlapsBench(occuring = instances_query,
+                                                        benchmarking = occurence_query,
+                                                        predictor_col = predictor_col,
+                                                        labels_col = "for_benchmarking",
+                                                        normalise = normalise,
+                                                        maxgap = maxgap,
+                                                        minoverlap = minoverlap)$overlapping_GRanges,
+                                      type = "equal", invert = T)
+
     predictions_all
     labels_all
     predictions_query
@@ -144,7 +192,7 @@ benchmarkMotifs = function(occurence_file = "./SLIMFinder_Vidal/result/occurence
   ######################### Negative set: protein in ELM, motif not in ELM  ######################### END
 
   ######################### Negative set: protein not in ELM or protein in ELM but motif not in ELM  ######################### START
-  if(neg_set = "all_proteins"){
+  if(neg_set == "all_proteins"){
 
     combined_instances_all = instances_all
     combined_instances_query = instances_query
@@ -254,19 +302,19 @@ mBenchmarkMotifs = function(datasets = c("", "Vidal"),
     motif_setup = paste0(dir,"processed_data_files/QSLIMFinder_instances_h2v", dataset, "_clust",motif_setup_month,".RData")
 
     result = benchmarkMotifs(occurence_file = occurence_file,
-                    main_file = main_file,
-                    domain_res = domain_res,
-                    motif_setup = motif_setup,
-                    domain_results_obj = domain_results_obj, motif_input_obj = motif_input_obj,
-                    one_from_cloud = one_from_cloud, type = type,
-                    dbfile_main = dbfile_main,
-                    dburl_main = dburl_main,
-                    dbfile_query = dbfile_query,
-                    dburl_query = dburl_query,
-                    query_res_query_only = query_res_query_only, motif_types = motif_types,
-                    all_res_excl_query = all_res_excl_query,
-                    seed = seed, N = N, replace = replace, within1sequence = within1sequence,
-                    predictor_col = predictor_col, normalise = normalise, minoverlap = minoverlap, maxgap = maxgap)
+                             main_file = main_file,
+                             domain_res = domain_res,
+                             motif_setup = motif_setup,
+                             domain_results_obj = domain_results_obj, motif_input_obj = motif_input_obj,
+                             one_from_cloud = one_from_cloud, type = type,
+                             dbfile_main = dbfile_main,
+                             dburl_main = dburl_main,
+                             dbfile_query = dbfile_query,
+                             dburl_query = dburl_query,
+                             query_res_query_only = query_res_query_only, motif_types = motif_types,
+                             all_res_excl_query = all_res_excl_query,
+                             seed = seed, N = N, replace = replace, within1sequence = within1sequence,
+                             predictor_col = predictor_col, normalise = normalise, minoverlap = minoverlap, maxgap = maxgap)
 
     result$description = description
     result
@@ -278,4 +326,78 @@ mBenchmarkMotifs = function(datasets = c("", "Vidal"),
   names(results) = resnames
 
   results
+}
+
+##' Reduce GRanges keeping metadata (collapsing withing each column separated by pipes)
+##' @rdname reduceWithMcols
+##' @name reduceWithMcols
+##' @author Vitalii Kleshchevnikov
+##' @param range any Genomic Ranges object with metadata (mcols())
+##' @return reduced Genomic Ranges object
+##' @import GenomicRanges
+##' @export reduceWithMcols
+reduceWithMcols = function(range) {
+  metadata = mcols(range)
+  for(i in 1:ncol(metadata)) {
+    metadata[,i] = paste0(as.character(metadata[,i]), collapse = "|")
+  }
+  metadata = unique(metadata)
+  range = reduce(range, min.gapwidth = 0)
+  mcols(range) = metadata
+  range
+}
+
+##' Generate motif variant class (the first 2 element in the motif names)
+##' @rdname motifVariantClass
+##' @name motifVariantClass
+##' @author Vitalii Kleshchevnikov
+##' @param ids character vector of ELM motif IDs
+##' @return character vector of ELM motif variant class (such as TRG_NLS or LIG_SH3)
+##' @export motifVariantClass
+motifVariantClass = function(ids){
+  matches = gregexpr("^[[:alnum:]]+_[[:alnum:]]+", ids)
+  for (i in seq_along(matches)) {
+    ids[i] = substr(ids[i], matches[[i]][1], attr(matches[[i]],"match.length"))
+  }
+  ids
+}
+
+##' Reduce Overlapping GRanges keeping metadata (collapsing withing each column separated by pipes)
+##' @rdname reduceOverlappingGRanges
+##' @name reduceOverlappingGRanges
+##' @author Vitalii Kleshchevnikov
+##' @param GRanges any Genomic Ranges object with metadata (mcols())
+##' @param minoverlap min overlap between Genomic Ranges to continue with reduce
+##' @return reduced Genomic Ranges object
+##' @import GenomicRanges
+##' @import data.table
+##' @export reduceOverlappingGRanges
+reduceOverlappingGRanges = function(GRanges, minoverlap = 5, merge_motif_variants = F, ...){
+  overlapping_instances = findOverlaps(GRanges, minoverlap = minoverlap, ...)
+
+  overlapping_instances = as.data.frame(overlapping_instances[queryHits(overlapping_instances) < subjectHits(overlapping_instances)])
+  overlapping_instances$queryHits = as.character(overlapping_instances$queryHits)
+  overlapping_instances$subjectHits = as.character(overlapping_instances$subjectHits)
+
+  overlapping_instances_graph = igraph::graph.edgelist(as.matrix(overlapping_instances), directed = F)
+  overlapping_instances = igraph::fastgreedy.community(overlapping_instances_graph)
+  overlapping_instances = data.table(range_indx = as.integer(igraph::V(overlapping_instances_graph)$name), cluster = igraph::membership(overlapping_instances))
+  overlapping_instances = overlapping_instances[order(range_indx)]
+  non_overlapping_instances = GRanges[-overlapping_instances$range_indx]
+  overlapping_instances_ranges = GRanges[overlapping_instances$range_indx]
+  overlapping_instances_ranges = split(overlapping_instances_ranges, overlapping_instances$cluster)
+  instances_ranges = sapply(overlapping_instances_ranges, function(range, merge_motif_variants){
+    if(merge_motif_variants){
+      range = reduceWithMcols(range)
+    } else {
+      motif_variants_classes = split(range, motifVariantClass(range$ID))
+      range = sapply(motif_variants_classes, function(motif_variants_class) reduceWithMcols(motif_variants_class))
+      range = Reduce(c, range)
+    }
+    range
+  }, merge_motif_variants)
+
+  instances_ranges = Reduce(c, instances_ranges)
+  instances_ranges = c(instances_ranges, non_overlapping_instances)
+  instances_ranges
 }
