@@ -10,8 +10,7 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
   analysis_type = "qslimfinder",
   options = "dismask=T consmask=F cloudfix=T probcut=0.3 minwild=0 maxwild=2 slimlen=5 alphahelix=F maxseq=1500 savespace=1 iuchdir=T",
   path2domain_enrich = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
-  domain_enrich_object = "res_count",
-  seed4datasets_col = "IDs_interactor_human",
+  domain_enrich_object = "res_count", center_domains = F,
   fasta_path = "./data_files/all_human_viral_proteins.fasta",
   main_set_only = F, domain_pvalue_cutoff = 1,
   SLIMFinder_dir = paste0("./", dataset_name, "/"),
@@ -32,9 +31,9 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
 
 \item{path2domain_enrich}{relative path to domain enrichment results RData}
 
-\item{domain_enrich_object}{which object contains domain enrichment results in \code{path2domain_enrich}?}
+\item{domain_enrich_object}{which object contains domain enrichment results in \code{path2domain_enrich}, XYZinteration_XZEmpiricalPval?}
 
-\item{seed4datasets_col}{column in domain_enrich_object that specified seed for QSLIMFinder datasets}
+\item{center_domains}{logical, center QSLIMFinder datasets at domains?}
 
 \item{fasta_path}{relative path (from the project folder) to the FASTA file containing sequences for all proteins in \code{interaction_main_set} and \code{interaction_query_set}}
 
@@ -268,7 +267,7 @@ minic=X : Minimum information content for returned motifs [2.1]
 allsig=T/F : Whether to also output all SLiMChance combinations (Sig/SigV/SigPrime/SigPrimeV) [False]
 }
 \seealso{
-\code{\link{listInteractionSubsetFASTA}}, \code{\link{runQSLIMFinder}}, \code{\link{groupQSLIMFinderCommand}}, \code{\link{mQSLIMFinderCommand}}, \code{\link{runCompariMotif3}}, \code{\link{readQSLIMFinderMain}}, \code{\link{readQSLIMFinderOccurence}}, \code{\link{writeInteractionSubsetFASTA_list}}, \code{\link{domainProteinPairMatch}}, \code{\link{filterInteractionSubsetFASTA_list}}, \code{\link{removeInteractionNoFASTA}}
+\code{\link{listInteractionSubsetFASTA}}, \code{\link{runQSLIMFinder}}, \code{\link{groupQSLIMFinderCommand}}, \code{\link{mQSLIMFinderCommand}}, \code{\link{runCompariMotif3}}, \code{\link{readQSLIMFinderMain}}, \code{\link{readQSLIMFinderOccurence}}, \code{\link{writeInteractionSubsetFASTA_list}}, \code{\link{domainProteinPairMatch}}, \code{\link{filterInteractionSubsetFASTA_list}}, \code{\link{removeInteractionNoFASTA}}, \code{\link{centerDomains}}
 }
 \author{
 Vitalii Kleshchevnikov

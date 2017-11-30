@@ -8,8 +8,8 @@
 ##' @param analysis_type "qslimfinder" or "slimfinder"
 ##' @param options any options from QSLIMFinder or SLIMFinder. Detail http://rest.slimsuite.unsw.edu.au/docs&page=module:qslimfinder or http://rest.slimsuite.unsw.edu.au/docs&page=module:slimfinder => Commandline
 ##' @param path2domain_enrich relative path to domain enrichment results RData
-##' @param domain_enrich_object which object contains domain enrichment results in \code{path2domain_enrich}?
-##' @param seed4datasets_col column in domain_enrich_object that specified seed for QSLIMFinder datasets
+##' @param domain_enrich_object which object contains domain enrichment results in \code{path2domain_enrich}, XYZinteration_XZEmpiricalPval?
+##' @param center_domains logical, center QSLIMFinder datasets at domains?
 ##' @param fasta_path relative path (from the project folder) to the FASTA file containing sequences for all proteins in \code{interaction_main_set} and \code{interaction_query_set}
 ##' @param main_set_only logical, sequence set for motif search should contain only proteins from \code{interaction_main_set}. If FALSE, non-query proteins from \code{interaction_query_set} are also included. Argument for \code{\link{listInteractionSubsetFASTA}}
 ##' @param domain_pvalue_cutoff construct SLIMFinder datasets using interactions of proteins that contain domain associated to protein in the query set with p-value \code{domain_pvalue_cutoff} or lower
@@ -230,7 +230,7 @@
 ##' @import rtracklayer
 ##' @import Biostrings
 ##' @export PPInetwork2SLIMFinder
-##' @seealso \code{\link{listInteractionSubsetFASTA}}, \code{\link{runQSLIMFinder}}, \code{\link{groupQSLIMFinderCommand}}, \code{\link{mQSLIMFinderCommand}}, \code{\link{runCompariMotif3}}, \code{\link{readQSLIMFinderMain}}, \code{\link{readQSLIMFinderOccurence}}, \code{\link{writeInteractionSubsetFASTA_list}}, \code{\link{domainProteinPairMatch}}, \code{\link{filterInteractionSubsetFASTA_list}}, \code{\link{removeInteractionNoFASTA}}
+##' @seealso \code{\link{listInteractionSubsetFASTA}}, \code{\link{runQSLIMFinder}}, \code{\link{groupQSLIMFinderCommand}}, \code{\link{mQSLIMFinderCommand}}, \code{\link{runCompariMotif3}}, \code{\link{readQSLIMFinderMain}}, \code{\link{readQSLIMFinderOccurence}}, \code{\link{writeInteractionSubsetFASTA_list}}, \code{\link{domainProteinPairMatch}}, \code{\link{filterInteractionSubsetFASTA_list}}, \code{\link{removeInteractionNoFASTA}}, \code{\link{centerDomains}}
 PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                  interaction_main_set = all_human_interaction,
                                  interaction_query_set = all_viral_interaction,
@@ -238,7 +238,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                  options = "dismask=T consmask=F cloudfix=T probcut=0.3 minwild=0 maxwild=2 slimlen=5 alphahelix=F maxseq=1500 savespace=1 iuchdir=T",
                                  path2domain_enrich = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
                                  domain_enrich_object = "res_count",
-                                 seed4datasets_col = "IDs_interactor_human",
+                                 center_domains = F,
                                  fasta_path = "./data_files/all_human_viral_proteins.fasta",
                                  main_set_only = F,
                                  domain_pvalue_cutoff = 1,
@@ -256,11 +256,10 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   # load the domain analysis results
   load(path2domain_enrich, envir = environment())
   eval(parse(text = paste0("domain_res = ",domain_enrich_object)))
-  rm(list = ls()[!ls() %in% c("domain_res", "dataset_name", "interaction_main_set",  "interaction_query_set", "analysis_type", "options", "path2domain_enrich", "domain_enrich_object",  "seed4datasets_col", "fasta_path", "main_set_only", "domain_pvalue_cutoff", "SLIMFinder_dir", "LSF_project_path", "software_path", "length_set1_min", "length_set2_min", "write_log", "N_seq")], envir = environment())
+  rm(list = ls()[!ls() %in% c("domain_res", "dataset_name", "interaction_main_set",  "interaction_query_set", "analysis_type", "options", "path2domain_enrich", "domain_enrich_object", "fasta_path", "main_set_only", "domain_pvalue_cutoff", "SLIMFinder_dir", "LSF_project_path", "software_path", "length_set1_min", "length_set2_min", "write_log", "N_seq", "center_domains")], envir = environment())
 
   # choose pvalue cutoff:
-  plot(domain_res)
-  eval(parse(text = paste0("proteins_w_signif_domains = unique(domain_res$data_with_pval[p.value <= domain_pvalue_cutoff, ", seed4datasets_col,"])")))
+  eval(parse(text = paste0("proteins_w_signif_domains = unique(domain_res$data_with_pval[p.value <= domain_pvalue_cutoff, ", domain_res$nodes$nodeY,"])")))
 
   # load FASTA
   all.fasta = readAAStringSet(filepath = fasta_path, format = "fasta")
@@ -275,7 +274,12 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                              fasta = all.fasta,
                                              single_interact_from_set2 = T, set1_only = main_set_only)
 
-  forSLIMFinder_Ready = filterInteractionSubsetFASTA_list(forSLIMFinder,  length_set1_min = length_set1_min, length_set2_min = length_set2_min)
+  # center at domains (combine seed protein networks if those have the same domain)
+  if(center_domains) forSLIMFinder = centerDomains(forSLIMFinder, domain_res)
+
+  # filter datasets by size
+  forSLIMFinder_Ready = filterInteractionSubsetFASTA_list(forSLIMFinder,
+                                  length_set1_min = length_set1_min, length_set2_min = length_set2_min)
 
   # filter for only sets where seed protein - query protein pair matches significant domain - query protein pair
   domain_filt = domain_res
@@ -343,6 +347,6 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   AnalysisSessionInfo = sessionInfo()
 
   filename = paste0("./processed_data_files/QSLIMFinder_instances_h2v_",dataset_name,"_clust",format(Sys.Date(), "%Y%m"),".RData")
-  save(list = ls(), file=filename, envir = environment())
+  save(list = ls(envir = environment()), file=filename, envir = environment())
   return(filename)
 }

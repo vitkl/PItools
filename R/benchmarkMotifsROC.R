@@ -1,4 +1,4 @@
-##' Read QSLIMFinder (SLIMFinder) occurence output to Genomic Ranges object
+##' Plot ROC or precision-recall curves for motifs search benchmark
 ##' @rdname benchmarkMotifsROC
 ##' @name benchmarkMotifsROC
 ##' @author Vitalii Kleshchevnikov
@@ -8,11 +8,18 @@
 ##' @param text_args character 1L, arguments to \code{\link[base]{text}} and \code{\link[base]{legend}} that allow to manipulate the median AUC and legend on the plot
 ##' @param legend_args character 1L, arguments to \code{\link[base]{text}} and \code{\link[base]{legend}} that allow to manipulate the median AUC and legend on the plot
 ##' @param ROCR_data logical, return ROC performance data? If FALSE the function only plots ROC curve
+##' @param measure1 character, for example "tpr" or "prec", details: ?ROCR::performance
+##' @param measure2 character, for example "fpr" or "rec", details: ?ROCR::performance
 ##' @return benchmarkMotifsROC: list of ROCR objects (prediction, performance, auc.performance) used to plot ROC curve
 ##' @import ROCR
 ##' @export benchmarkMotifsROC
 ##' @seealso \code{\link{benchmarkMotifs}}
-benchmarkMotifsROC = function(res, data_type = c("both","query", "all")[1], col_query = c("grey"), col_all = c("black"), ..., text_args = "col = \"black\"", ROCR_data = F, legend_args = "x = 0.8 | y = 0.25", x_query = 0.25, x_all = 0.75){
+benchmarkMotifsROC = function(res, data_type = c("both","query", "all")[1],
+                              col_query = c("grey"), col_all = c("black"), ...,
+                              text_args = "col = \"black\"", ROCR_data = F,
+                              legend_args = "x = 0.8 | y = 0.25",
+                              x_query = 0.25, x_all = 0.75,
+                              measure1 = "tpr", measure2 = "fpr"){
   if(data_type == "query") pred = ROCR::prediction(res$predictions_query, res$labels_query)
   if(data_type == "all") pred = ROCR::prediction(res$predictions_all, res$labels_all)
   if(data_type == "both") {
@@ -20,7 +27,7 @@ benchmarkMotifsROC = function(res, data_type = c("both","query", "all")[1], col_
     pred_all = ROCR::prediction(res$predictions_all, res$labels_all)
   }
 
-  perf = ROCR::performance(pred, "tpr", "fpr")
+  perf = ROCR::performance(pred, measure1, measure2)
 
   auc.perf = ROCR::performance(pred, measure = "auc")
 
@@ -41,7 +48,7 @@ benchmarkMotifsROC = function(res, data_type = c("both","query", "all")[1], col_
   if(data_type == "both") {
     ROCR::plot(perf, col = col_query, ...)
     abline(0,1)
-    perf_all = ROCR::performance(pred_all, "tpr", "fpr")
+    perf_all = ROCR::performance(pred_all, measure1, measure2)
     auc.perf_all = ROCR::performance(pred_all, measure = "auc")
     ROCR::plot(perf_all, add = T, col = col_all, ...)
     eval(parse(text = paste0("text(x = x_all, y = median(as.numeric(auc.perf_all@y.values)), labels = paste0(\"Median AUC: \",signif(median(as.numeric(auc.perf_all@y.values)), 3)),",paste0(text_args, collapse = ","),")")))
@@ -86,7 +93,6 @@ benchmarkMotifsROC = function(res, data_type = c("both","query", "all")[1], col_
   if(ROCR_data) return(list(ROC_prediction = pred, ROC_performance = perf, ROC_auc.performance = auc.perf))
 }
 
-##' Read QSLIMFinder (SLIMFinder) occurence output to Genomic Ranges object
 ##' @rdname benchmarkMotifsROC
 ##' @name mBenchmarkMotifsROC
 ##' @author Vitalii Kleshchevnikov

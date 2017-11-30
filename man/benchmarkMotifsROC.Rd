@@ -3,12 +3,13 @@
 \name{benchmarkMotifsROC}
 \alias{benchmarkMotifsROC}
 \alias{mBenchmarkMotifsROC}
-\title{Read QSLIMFinder (SLIMFinder) occurence output to Genomic Ranges object}
+\title{Plot ROC or precision-recall curves for motifs search benchmark}
 \usage{
 benchmarkMotifsROC(res, data_type = c("both", "query", "all")[1],
   col_query = c("grey"), col_all = c("black"), ...,
   text_args = "col = \\"black\\"", ROCR_data = F,
-  legend_args = "x = 0.8 | y = 0.25", x_query = 0.25, x_all = 0.75)
+  legend_args = "x = 0.8 | y = 0.25", x_query = 0.25, x_all = 0.75,
+  measure1 = "tpr", measure2 = "fpr")
 
 mBenchmarkMotifsROC(res_list, data_type = "query", ...)
 }
@@ -23,6 +24,10 @@ mBenchmarkMotifsROC(res_list, data_type = "query", ...)
 
 \item{legend_args}{character 1L, arguments to \code{\link[base]{text}} and \code{\link[base]{legend}} that allow to manipulate the median AUC and legend on the plot}
 
+\item{measure1}{character, for example "tpr" or "prec", details: ?ROCR::performance}
+
+\item{measure2}{character, for example "fpr" or "rec", details: ?ROCR::performance}
+
 \item{res_list}{list of objects of class \code{benchmarkMotifsResult}, the output of \code{\link{mBenchmarkMotifs}}}
 
 \item{type}{benchmark (test if known motifs were observed) in query proteins or in all proteins the sequences of which were used in QSLIMFinder search}
@@ -33,9 +38,7 @@ benchmarkMotifsROC: list of ROCR objects (prediction, performance, auc.performan
 mBenchmarkMotifsROC: list of lists of ROCR objects (prediction, performance, auc.performance) used to plot ROC curve
 }
 \description{
-Read QSLIMFinder (SLIMFinder) occurence output to Genomic Ranges object
-
-Read QSLIMFinder (SLIMFinder) occurence output to Genomic Ranges object
+Plot ROC or precision-recall curves for motifs search benchmark
 }
 \seealso{
 \code{\link{benchmarkMotifs}}

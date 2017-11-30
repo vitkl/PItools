@@ -19,10 +19,12 @@ SLIMFinderOcc2GRanges = function(occurence_file = "../viral_project/SLIMFinder_V
       pattens[, order_in_cloud := order(Sig, decreasing = F), by = .(Dataset, Cloud)]
       pattens = unique(pattens[order_in_cloud == 1][, c("order_in_cloud") := NULL])
       pattens = pattens[, Sig_FDR := p.adjust(Sig, "fdr")]
-      occurence = occurence[pattens, on = c("Dataset", "Pattern"), nomatch = 0]
+      occurence = occurence[pattens, on = c("Dataset", "Pattern", "Rank", "Sig"), nomatch = 0]
     }
   }
 
+  occurence[, query := gsub("interactors_of\\.[[:alnum:]]{6,10}\\.", "", Dataset)]
+  occurence[, interacts_with := gsub("interactors_of\\.|\\.[[:alnum:]]{6,10}", "", Dataset)]
   seqinfo_temp = unique(occurence[,.(Seq, Prot_Len)])
   seqinfo_res = seqinfo_temp$Prot_Len
   names(seqinfo_res) = seqinfo_temp$Seq
@@ -36,6 +38,41 @@ SLIMFinderOcc2GRanges = function(occurence_file = "../viral_project/SLIMFinder_V
                            end.field="End_Pos",
                            strand.field="strand",
                            starts.in.df.are.0based=FALSE)
+}
+
+##' Merge data.table to GRanges metadata
+##' @rdname merge2GRangesmcols
+##' @name merge2GRangesmcols
+##' @author Vitalii Kleshchevnikov
+##' @param range a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) occurence output
+##' @param datatable a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) main output
+##' @param one_from_cloud pick only one motif per motif cloud by the lowest p-value (before multiple hypothesis testing correction)
+##' @return Genomic Ranges object containing QSLIMFinder (SLIMFinder) occurence output
+##' @import data.table
+##' @importFrom GenomicRanges makeGRangesFromDataFrame
+##' @importFrom GenomicRanges merge
+##' @export merge2GRangesmcols
+##' @seealso \code{\link{ELMdb2GRanges}}, \code{\link{SLIMFinderOcc2GRanges}}
+merge2GRangesmcols = function(range, datatable,
+                              by.x = c("query", "interacts_with"),
+                              by.y = c("IDs_interactor_viral", "IDs_interactor_human")){
+  occurence_query_with_domains = GenomicRanges::merge(x = range,
+                                       y = datatable,
+                                       by.x = by.x,
+                                       by.y = by.y,
+                                       all.x = T, all.y = F)
+  occurence_query_with_domains = unique(occurence_query_with_domains)
+
+  occurence_query_with_domains$width = NULL
+  occurence_query_with_domains$strand = NULL
+  occurence_query_with_domains = GenomicRanges::makeGRangesFromDataFrame(occurence_query_with_domains,
+                                                                         keep.extra.columns=T,
+                                                                         ignore.strand=T,
+                                                                         seqinfo=seqinfo(range),
+                                                                         seqnames.field="seqnames",
+                                                                         start.field="start",
+                                                                         end.field="end",
+                                                                         starts.in.df.are.0based=FALSE)
 }
 
 ##' Download and read ELM database motif occurrences

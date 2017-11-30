@@ -4,6 +4,7 @@ document()
 install()
 
 library(MItools)
+library(GenomicRanges)
 data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
 res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
                 associations2test = IDs_interactor_viral ~ IDs_domain_human,

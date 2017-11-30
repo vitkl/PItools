@@ -2,7 +2,7 @@
 % Please edit documentation in R/mInteractionSubsetFASTA.R
 \name{listInteractionSubsetFASTA}
 \alias{listInteractionSubsetFASTA}
-\title{FASTA sequences of interactors of specific proteins: for QSLIMFinder}
+\title{get FASTA sequences of interactors of specific proteins: for QSLIMFinder}
 \usage{
 listInteractionSubsetFASTA(interaction_set1, interaction_set2, seed_id_vect,
   fasta, single_interact_from_set2 = T, set1_only = T)
@@ -24,7 +24,7 @@ listInteractionSubsetFASTA(interaction_set1, interaction_set2, seed_id_vect,
 object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.
 }
 \description{
-FASTA sequences of interactors of specific proteins: for QSLIMFinder
+get FASTA sequences of interactors of specific proteins: for QSLIMFinder
 }
 \examples{
 forSLIMFinder = listInteractionSubsetFASTA(interaction_set1 = all_human_interaction,

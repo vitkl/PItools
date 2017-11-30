@@ -23,8 +23,8 @@ findOverlapsBench = function(occuring, benchmarking, predictor_col = "Sig", labe
   # normalise, just in case predictor doesn't span the full range 0 ... 1
   if(normalise) mcols(occuring_subset)[,predictor_col] = mcols(occuring_subset)[,predictor_col]/max(mcols(occuring_subset)[,predictor_col])
 
-  res_overlap = data.frame(predictions = 1 - mcols(occuring_subset)[,predictor_col], labels = mcols(occuring_subset)[,labels_col])
-  res_no_overlap = data.frame(predictions = 0, labels = mcols(no_overlap)[,labels_col])
+  res_overlap = data.frame(predictions = 1 - mcols(occuring_subset)[,predictor_col], labels = mcols(occuring_subset)[,labels_col], stringsAsFactors = F)
+  res_no_overlap = data.frame(predictions = 0, labels = mcols(no_overlap)[,labels_col], stringsAsFactors = F)
   res = rbind(res_overlap, res_no_overlap)
   list(overlapping_GRanges = occuring_subset, for_ROC = res)
 }

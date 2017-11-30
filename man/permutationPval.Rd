@@ -45,12 +45,12 @@ plot(res, nodeX ~ YmissingZ_perX)
 
 \item{formula}{argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object}
 
-\item{x}{argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration-PermutResult"}
+\item{x}{argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration_XZEmpiricalPval"}
 
 \item{...}{argument for \code{permutationPvalPlot}, base R plotting parameters}
 }
 \value{
-object of S3 class "XYZinteration-PermutResult" (list), containing \code{permutationPval} function call, standardised node names, and data.table containing the original data but appended with empirical p-value (p.value), observed_statistic, YmissingZ_perX, and higher_counts, not_missing used to calculate p-value
+object of S3 class "XYZinteration_XZEmpiricalPval" (list), containing \code{permutationPval} function call, standardised node names, and data.table containing the original data but appended with empirical p-value (p.value), observed_statistic, YmissingZ_perX, and higher_counts, not_missing used to calculate p-value
 }
 \description{
 calculate permutation pval for association between X and Z if both are connected to Y

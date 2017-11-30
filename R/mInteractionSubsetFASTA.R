@@ -1,4 +1,4 @@
-##' FASTA sequences of interactors of specific proteins: for QSLIMFinder
+##' get FASTA sequences of interactors of specific proteins: for QSLIMFinder
 ##' @name listInteractionSubsetFASTA
 ##' @author Vitalii Kleshchevnikov
 ##' @param interaction_set1 cleanMItab object containing molecular interactions

@@ -30,8 +30,13 @@ randomGRanges = function(GRanges, N = 1, replace = T, within1sequence = T){
               seqlengths = seq_lengths)
       temp_res$source = paste0("random_within1sequence_", within1sequence)
       temp_res$type = "sequence_feature"
-      temp_res$ID = NA
       temp_res$for_benchmarking = 0
+      colnames_ = colnames(mcols(GRanges))
+      colnames_ = colnames_[!colnames_ %in% c("source", "type", "for_benchmarking")]
+      for(colname in colnames_){
+        eval(parse(text = paste0("temp_res$",colname," = NA")))
+      }
+      mcols(temp_res) = mcols(temp_res)[,colnames(mcols(GRanges))]
       temp_res
     })
   } else {
@@ -47,8 +52,13 @@ randomGRanges = function(GRanges, N = 1, replace = T, within1sequence = T){
               seqlengths = seq_lengths)
       temp_res$source = paste0("random_within1sequence_", within1sequence)
       temp_res$type = "sequence_feature"
-      temp_res$ID = NA
       temp_res$for_benchmarking = 0
+      colnames_ = colnames(mcols(GRanges))
+      colnames_ = colnames_[!colnames_ %in% c("source", "type", "for_benchmarking")]
+      for(colname in colnames_){
+        eval(parse(text = paste0("temp_res$",colname," = NA")))
+      }
+      mcols(temp_res) = mcols(temp_res)[,colnames(mcols(GRanges))]
       temp_res
     })
   }

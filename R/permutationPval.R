@@ -11,9 +11,9 @@
 ##' @param seed seed for RNG for reproducible sampling
 ##' @param also_permuteYZ logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?
 ##' @param formula argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object
-##' @param x argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration-PermutResult"
+##' @param x argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration_XZEmpiricalPval"
 ##' @param ... argument for \code{permutationPvalPlot}, base R plotting parameters
-##' @return object of S3 class "XYZinteration-PermutResult" (list), containing \code{permutationPval} function call, standardised node names, and data.table containing the original data but appended with empirical p-value (p.value), observed_statistic, YmissingZ_perX, and higher_counts, not_missing used to calculate p-value
+##' @return object of S3 class "XYZinteration_XZEmpiricalPval" (list), containing \code{permutationPval} function call, standardised node names, and data.table containing the original data but appended with empirical p-value (p.value), observed_statistic, YmissingZ_perX, and higher_counts, not_missing used to calculate p-value
 ##' @import data.table
 ##' @import qvalue
 ##' @import BiocGenerics
