@@ -11,4 +11,4 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1.9000
 Depends: PSICQUIC, data.table, Biostrings
-Imports: BiocGenerics, GGally, GenomeInfoDb, GenomicRanges, ROCR, ontologyIndex, qvalue, rtracklayer, DT, R.utils, downloader, ggplot2, gsubfn, strapplyc, httr, jsonlite
+Imports: BiocGenerics, GGally, GenomeInfoDb, GenomicRanges, ROCR, ontologyIndex, qvalue, rtracklayer, DT, R.utils, downloader, ggplot2, gsubfn, httr, jsonlite
