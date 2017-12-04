@@ -22,10 +22,7 @@ listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_i
 
   if(!grepl("clean_MItab",class(interaction_set1))) stop("interaction_set1 is not of class clean_MItab27 or related clean_MItab class")
   if(!grepl("clean_MItab",class(interaction_set2))) stop("interaction_set2 is not of class clean_MItab27 or related clean_MItab class")
-  if(!(grepl("clean_MItab27",class(interaction_set1)) &
-     grepl("clean_MItab27",class(interaction_set2)))) stop("listInteractionSubsetFASTA: interaction_set1 and interaction_set2 are not of the same class")
-  if(!(grepl("clean_MItab25",class(interaction_set1)) &
-       grepl("clean_MItab25",class(interaction_set2)))) stop("listInteractionSubsetFASTA: interaction_set1 and interaction_set2 are not of the same class")
+
 
   seed_id_vect = seed_id_vect[seed_id_vect %in% names(fasta)]
   #fasta = recodeFASTA(fasta)
