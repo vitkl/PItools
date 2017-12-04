@@ -304,6 +304,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                      LSF_cluster_mode = T,
                                      LSF_project_path = LSF_project_path,
                                      LSF_cluster_par = "bsub -n 1 -q research-rh7 -M 100 -R \"rusage[mem=100]\"",
+                                     log_dir = paste0(LSF_project_path, dataset_name, "/log_dir/"),
                                      analysis_type = analysis_type,
                                      write_log = write_log)
 
