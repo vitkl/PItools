@@ -32,6 +32,9 @@ loadBioplex = function(dir = "./", url = "http://bioplex.hms.harvard.edu/data/Bi
                        Publication_Identifiers = paste("Bioplex", "GeneA", GeneA, "GeneB", GeneB, "SymbolA", SymbolA, "SymbolB", SymbolB, "p(Wrong)", `p(Wrong)`, "p(No Interaction)", `p(No Interaction)`, sep = "|"),
                        Confidence_values = `p(Interaction)`)]
 
+  # adding empty columns to fit the MItab27 format
+  bioplex[, c("Host_organisms", "bait_prey_status_A", "bait_prey_status_B", "Interaction_detection_methods", "Interaction_types", "Interaction_identifiers", "Expansion_methods", "Features_interactor_A", "Features_interactor_B", "Identification_method_participant_A", "Identification_method_participant_B", "binding_region_A_start", "binding_region_A_end", "binding_region_B_start", "binding_region_B_end", "binding_region_A_type", "binding_region_B_type") := .(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA)]
+
   # generating unique identifier for interacting pairs
   bioplex[, pair_id := apply(data.table(IDs_interactor_A,IDs_interactor_B,stringsAsFactors = F), 1,
                            function(a) { z = sort(a)
@@ -39,8 +42,9 @@ loadBioplex = function(dir = "./", url = "http://bioplex.hms.harvard.edu/data/Bi
 
   # reorder by all interactor attribute columns by pair_id (alphanumeric order)
   bioplex[, c("IDs_A_order", "IDs_B_order") := tstrsplit(pair_id, "\\|")]
-  bioplex = reorderMITAB25(bioplex)
+  bioplex = reorderMITAB27(bioplex)
+
   MITABdata = list(data = bioplex, metadata = paste0("Summary of protein interactions in the BioPlex network following reanalysis of all data from BioPlex 2.0 plus an additional ~1500 unpublished AP-MS experiments: ", url))
-  class(MITABdata) = "clean_MItab25"
+  class(MITABdata) = "clean_MItab27"
   MITABdata
 }
