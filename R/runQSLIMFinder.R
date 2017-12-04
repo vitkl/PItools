@@ -97,5 +97,5 @@ jobsCrashed = function(commands_list, rm_log = T, lsf_keyword = "TERM_MEMLIMIT")
     })
     reason_logic
   })
-  commands_crashed = commands_list$run[crashed_MEMLIMIT]
+  commands_crashed = commands_list$run[crashed]
 }
