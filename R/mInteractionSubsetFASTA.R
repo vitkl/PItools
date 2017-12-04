@@ -20,12 +20,12 @@
 ##'                  single_interact_from_set2 = T, set1_only = T)
 listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_id_vect, fasta, single_interact_from_set2 = T, set1_only = T) {
 
-  if(!grepl("clean_MItab",class(interaction_main_set))) stop("interaction_main_set is not of class clean_MItab27 or related clean_MItab class")
-  if(!grepl("clean_MItab",class(interaction_query_set))) stop("interaction_query_set is not of class clean_MItab27 or related clean_MItab class")
-  if(!(grepl("clean_MItab27",class(interaction_main_set)) &
-     grepl("clean_MItab27",class(interaction_query_set)))) stop("listInteractionSubsetFASTA: interaction_main_set and interaction_query_set are not of the same class")
-  if(!(grepl("clean_MItab25",class(interaction_main_set)) &
-       grepl("clean_MItab25",class(interaction_query_set)))) stop("listInteractionSubsetFASTA: interaction_main_set and interaction_query_set are not of the same class")
+  if(!grepl("clean_MItab",class(interaction_set1))) stop("interaction_set1 is not of class clean_MItab27 or related clean_MItab class")
+  if(!grepl("clean_MItab",class(interaction_set2))) stop("interaction_set2 is not of class clean_MItab27 or related clean_MItab class")
+  if(!(grepl("clean_MItab27",class(interaction_set1)) &
+     grepl("clean_MItab27",class(interaction_set2)))) stop("listInteractionSubsetFASTA: interaction_set1 and interaction_set2 are not of the same class")
+  if(!(grepl("clean_MItab25",class(interaction_set1)) &
+       grepl("clean_MItab25",class(interaction_set2)))) stop("listInteractionSubsetFASTA: interaction_set1 and interaction_set2 are not of the same class")
 
   seed_id_vect = seed_id_vect[seed_id_vect %in% names(fasta)]
   #fasta = recodeFASTA(fasta)
