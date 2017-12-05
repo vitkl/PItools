@@ -36,6 +36,6 @@ runCompariMotif3 = function(input_file = "./SLIMFinder/result/motifs.txt",
   } else stop("'with' is provided but is not 'self' or 'db'")
   out_file = paste0("resfile=", LSF_project_path, out_file)
   command = paste(comparimotif_call, input_res, input_database, parameters, out_file)
-  if(run) system(command, wait = F)
+  if(run) system(command, wait = F, ignore.stdout = T)
   return(command)
 }
