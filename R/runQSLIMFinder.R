@@ -12,7 +12,7 @@
 ##' @import data.table
 ##' @export runQSLIMFinder
 ##' @seealso \code{\link{QSLIMFinderCommand}}
-runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T, recursive = F, lsf_keyword = "TERM_MEMLIMIT", rm_log = T){
+runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T, recursive = F, lsf_keyword = "TERM_MEMLIMIT", rm_log = T, memory_step = 100, memory_start = 200){
   if(mean(c("set_env_var","run") %in% names(commands_list)) < 1) stop("`commands_list` doesn't contain `set_env_var` and/or `run`, check that `commands_list` is an output of mQSLIMFinderCommand")
   if(onLSF){
     # create dirs for stout and sterr
@@ -27,7 +27,7 @@ runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T
     # find which jobs have crashed
     commands_crashed = jobsCrashed(commands_list, rm_log = rm_log, lsf_keyword = lsf_keyword)
 
-    memory_vals = seq(200, max_memory, 100)
+    memory_vals = seq(memory_start, max_memory, memory_step)
     for(memory_val in memory_vals){
       if(length(commands_crashed) >= 1){
         commands_crashed = modifyMemoryInBsub(commands_crashed, memory = memory_val)

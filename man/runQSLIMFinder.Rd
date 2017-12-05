@@ -8,7 +8,8 @@
 \title{Run a list of QSLIMFinder jobs}
 \usage{
 runQSLIMFinder(commands_list, file_list, max_memory = 5000, onLSF = T,
-  recursive = F, lsf_keyword = "TERM_MEMLIMIT", rm_log = T)
+  recursive = F, lsf_keyword = "TERM_MEMLIMIT", rm_log = T,
+  memory_step = 100, memory_start = 200)
 
 modifyMemoryInBsub(commands, memory)
 

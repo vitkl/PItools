@@ -16,7 +16,8 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
   SLIMFinder_dir = paste0("./", dataset_name, "/"),
   LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
   software_path = "../software/cluster/", length_set1_min = 2,
-  length_set2_min = 1, write_log = T, N_seq = 200)
+  length_set2_min = 1, write_log = T, N_seq = 200, seed_list = NULL,
+  memory_start = 350, memory_step = 100)
 }
 \arguments{
 \item{dataset_name}{refer to \code{\link[MItools]{mBenchmarkMotifs}}}
@@ -54,6 +55,12 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
 \item{write_log}{FALSE will not allow runQSLIMFinder to detect crashed jobs}
 
 \item{N_seq}{number of sequences per batch}
+
+\item{seed_list}{character vector of UniprotKB accesions that should serve as a seed for QSLIMFinder. These proteins are supposed to recognise SLIMs. Overrides selection of seed protein by \code{domain_pvalue_cutoff}}
+
+\item{memory_start}{integer, how much memory each job should be given initially}
+
+\item{memory_step}{interger, increment by which to increase how much memory each job should be given if \code{memory_start} is not enough and the job has failed}
 }
 \value{
 path to RData containing all objects used by this pipeline
@@ -265,6 +272,24 @@ topranks=X : Will only output top X motifs meeting probcut [1000]
 minic=X : Minimum information content for returned motifs [2.1]
 
 allsig=T/F : Whether to also output all SLiMChance combinations (Sig/SigV/SigPrime/SigPrimeV) [False]
+
+Memory requirements for jobs:
+files = list.files("./qslimfinder.Full_IntAct.FALSE/log_dir/log/")
+times = sapply(files, function(file) system(paste0("cat ./qslimfinder.Full_IntAct.FALSE/log_dir/log/",file," | grep Requested"), intern = T))
+> table(times)
+times
+100.00 MB  200.00 MB  300.00 MB  400.00 MB  500.00 MB
+14         61         53         25          3
+> table(times) / sum(table(times))
+times
+100.00 MB  200.00 MB  300.00 MB  400.00 MB  500.00 MB
+0.08974359 0.39102564 0.33974359 0.16025641 0.01923077
+> cumsum(table(times) / sum(table(times)))
+100.00 MB  200.00 MB  300.00 MB  400.00 MB  500.00 MB
+0.08974359 0.48076923 0.82051282 0.98076923 1.00000000
+> 1 - cumsum(table(times) / sum(table(times)))
+100.00 MB  200.00 MB  300.00 MB  400.00 MB  500.00 MB
+0.91025641 0.51923077 0.17948718 0.01923077 0.00000000
 }
 \seealso{
 \code{\link{listInteractionSubsetFASTA}}, \code{\link{runQSLIMFinder}}, \code{\link{groupQSLIMFinderCommand}}, \code{\link{mQSLIMFinderCommand}}, \code{\link{runCompariMotif3}}, \code{\link{readQSLIMFinderMain}}, \code{\link{readQSLIMFinderOccurence}}, \code{\link{writeInteractionSubsetFASTA_list}}, \code{\link{domainProteinPairMatch}}, \code{\link{filterInteractionSubsetFASTA_list}}, \code{\link{removeInteractionNoFASTA}}, \code{\link{centerDomains}}

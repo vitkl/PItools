@@ -12,9 +12,9 @@ readQSLIMFinderMain = function(outputfile = "forSLIMFinder_file_list$outputfile"
   main_result = lapply(outputfile, function(file) {
     #fread("./SLIMFinder/output/interactors_of.O60506_P03496./main_result", stringsAsFactors = F)
     if(check_exist){
-        if(file.exists(file)) {
-          if(file.size(file) > 0) exist = TRUE else exist = FALSE
-          } else exist = FALSE
+      if(file.exists(file)) {
+        if(file.size(file) > 0) exist = TRUE else exist = FALSE
+      } else exist = FALSE
     } else if(file.exists(file)) if(file.size(file) > 0) fread(file, stringsAsFactors = F)
   })
   if(mean(sapply(main_result, is.null)) == 1) stop("no main_result files found (probably means mis-specified directory)")
@@ -42,13 +42,17 @@ readQSLIMFinderOccurence = function(outputdir = "forSLIMFinder_file_list$outputd
       } else if(length(occurence_file) == 1) if(file.size(file) > 0) fread(file, stringsAsFactors = F)
     }
   })
-  if(mean(sapply(Occurence_list, is.null)) == 1) stop("no occurence files (.occ.csv) found (probably means that no motifs were found or mis-specified directory)")
-  Occurence_list = Occurence_list[!sapply(Occurence_list, is.null)]
-  Occurence_list = Occurence_list[sapply(Occurence_list, ncol) == 14]
-  sapply(Occurence_list, function(occurence){
-    colnames(occurence) = colnames(Occurence_list[[1]])
-  })
-  Reduce(rbind, Occurence_list)
+  if(mean(sapply(Occurence_list, is.null)) == 1) {
+    message(paste0("no occurence files (.occ.csv) found in ",outputdir," (probably means that no motifs were found or mis-specified directory)"))
+    return(NULL)
+    } else {
+    Occurence_list = Occurence_list[!sapply(Occurence_list, is.null)]
+    Occurence_list = Occurence_list[sapply(Occurence_list, ncol) == 14]
+    sapply(Occurence_list, function(occurence){
+      colnames(occurence) = colnames(Occurence_list[[1]])
+    })
+    return(Reduce(rbind, Occurence_list))
+  }
 }
 
 ##' Read and write QSLIMFinder results

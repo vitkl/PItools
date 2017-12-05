@@ -20,6 +20,9 @@
 ##' @param length_set2_min mininal number of proteins in a QSLIMFinder dataset from \code{interaction_query_set}. Argument for \code{\link{filterInteractionSubsetFASTA_list}}
 ##' @param write_log FALSE will not allow runQSLIMFinder to detect crashed jobs
 ##' @param N_seq number of sequences per batch
+##' @param seed_list character vector of UniprotKB accesions that should serve as a seed for QSLIMFinder. These proteins are supposed to recognise SLIMs. Overrides selection of seed protein by \code{domain_pvalue_cutoff}
+##' @param memory_start integer, how much memory each job should be given initially
+##' @param memory_step interger, increment by which to increase how much memory each job should be given if \code{memory_start} is not enough and the job has failed
 ##' @details QSLIMFinder command line options (http://rest.slimsuite.unsw.edu.au/docs&page=module:qslimfinder)
 ##'
 ##'### Basic Input/Output Options ###
@@ -224,6 +227,23 @@
 ##'
 ##'allsig=T/F : Whether to also output all SLiMChance combinations (Sig/SigV/SigPrime/SigPrimeV) [False]
 ##'
+##'Memory requirements for jobs:
+##'files = list.files("./qslimfinder.Full_IntAct.FALSE/log_dir/log/")
+##'times = sapply(files, function(file) system(paste0("cat ./qslimfinder.Full_IntAct.FALSE/log_dir/log/",file," | grep Requested"), intern = T))
+##'> table(times)
+##'times
+##'100.00 MB  200.00 MB  300.00 MB  400.00 MB  500.00 MB
+##'14         61         53         25          3
+##'> table(times) / sum(table(times))
+##'times
+##'100.00 MB  200.00 MB  300.00 MB  400.00 MB  500.00 MB
+##'0.08974359 0.39102564 0.33974359 0.16025641 0.01923077
+##'> cumsum(table(times) / sum(table(times)))
+##'100.00 MB  200.00 MB  300.00 MB  400.00 MB  500.00 MB
+##'0.08974359 0.48076923 0.82051282 0.98076923 1.00000000
+##'> 1 - cumsum(table(times) / sum(table(times)))
+##'100.00 MB  200.00 MB  300.00 MB  400.00 MB  500.00 MB
+##'0.91025641 0.51923077 0.17948718 0.01923077 0.00000000
 ##'
 ##' @return path to RData containing all objects used by this pipeline
 ##' @import data.table
@@ -248,7 +268,10 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                  length_set1_min = 2,
                                  length_set2_min = 1,
                                  write_log = T,
-                                 N_seq = 200)
+                                 N_seq = 200,
+                                 seed_list = NULL,
+                                 memory_start = 350,
+                                 memory_step = 100)
 {
   # check class correctness
   if(!grepl("clean_MItab",class(interaction_main_set))) stop("interaction_main_set is not of class clean_MItab27 or related clean_MItab class")
@@ -263,7 +286,9 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   if(!grepl("XYZinteration_XZEmpiricalPval",class(domain_res))) stop("domain_enrich_object does not point to object of class XYZinteration_XZEmpiricalPval")
 
   # choose pvalue cutoff:
-  eval(parse(text = paste0("proteins_w_signif_domains = unique(domain_res$data_with_pval[p.value <= domain_pvalue_cutoff, ", domain_res$nodes$nodeY,"])")))
+  if(is.null(seed_list)){
+    eval(parse(text = paste0("proteins_w_signif_domains = unique(domain_res$data_with_pval[p.value <= domain_pvalue_cutoff, ", domain_res$nodes$nodeY,"])")))
+  } else proteins_w_signif_domains = seed_list
 
   # load FASTA
   all.fasta = readAAStringSet(filepath = fasta_path, format = "fasta")
@@ -287,7 +312,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
 
   # filter for only sets where seed protein - query protein pair matches significant domain - query protein pair
   domain_filt = domain_res
-  domain_filt$data_with_pval = domain_filt$data_with_pval[p.value <= domain_pvalue_cutoff,]
+  if(is.null(seed_list)) domain_filt$data_with_pval = domain_filt$data_with_pval[p.value <= domain_pvalue_cutoff,]
   forSLIMFinder_Ready = domainProteinPairMatch(forSLIMFinder_Ready, domain_filt, remove = T)
 
   # write datasets (fasta + query)
@@ -303,7 +328,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                      options = options,
                                      LSF_cluster_mode = T,
                                      LSF_project_path = LSF_project_path,
-                                     LSF_cluster_par = "bsub -n 1 -q research-rh7 -M 100 -R \"rusage[mem=100]\"",
+                                     LSF_cluster_par = paste0("bsub -n 1 -q research-rh7 -M ",memory_start," -R \"rusage[mem=",memory_start,"]\""),
                                      log_dir = paste0(dataset_name, "/log_dir/"),
                                      analysis_type = analysis_type,
                                      write_log = write_log)
@@ -315,16 +340,20 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                          LSF_project_path = LSF_project_path,
                                          dataset_name = dataset_name, N_seq = N_seq, write_log = write_log)
 
-  runQSLIMFinder(commands = all_commands, file_list = forSLIMFinder_file_list, onLSF = T)
+  runQSLIMFinder(commands = all_commands, file_list = forSLIMFinder_file_list, onLSF = T, memory_step = memory_step, memory_start = memory_start + memory_step)
 
   # read and bring together results
   resultdir = paste0(SLIMFinder_dir, "result/")
   if(!dir.exists(resultdir)) dir.create(resultdir)
-  QSLIMFinder_main_result = readQSLIMFinderMain(outputfile = forSLIMFinder_file_list$outputfile)
+
   QSLIMFinder_occurence = readQSLIMFinderOccurence(outputdir = forSLIMFinder_file_list$outputdir)
+  if(!is.null(QSLIMFinder_occurence)) fwrite(QSLIMFinder_occurence, paste0(resultdir, "occurence.txt"), sep = "\t")
+
+  QSLIMFinder_main_result = readQSLIMFinderMain(outputfile = forSLIMFinder_file_list$outputfile)
   fwrite(QSLIMFinder_main_result, paste0(resultdir, "main_result.txt"), sep = "\t")
 
-  fwrite(QSLIMFinder_occurence, paste0(resultdir, "occurence.txt"), sep = "\t")
+  # compare motif only if any were found
+  if(sum(!is.na(QSLIMFinder_main_result$IC)) > 0){
   writePatternList(QSLIMFinder_main_result, filename = paste0(resultdir, "motifs.txt"))
 
   # compare motifs to ELM and to each other
@@ -338,14 +367,15 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                    out_file = paste0(resultdir, "comparimotif_with_self.tdt"))
   R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.tdt"), paste0(resultdir, "comparimotif_with_self.compare.tdt.gz"))
   R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.xgmml"), paste0(resultdir, "comparimotif_with_self.compare.xgmml.gz"))
+  }
 
   # compress input, remove input, log and output
   tar(paste0(SLIMFinder_dir, "input.gz"),paste0(SLIMFinder_dir, "input/"), compression='gzip')
   #tar(paste0(SLIMFinder_dir, "log_dir.gz"),paste0(SLIMFinder_dir, "log_dir/"), compression='gzip')
   #tar(paste0(SLIMFinder_dir, "output.gz"),paste0(SLIMFinder_dir, "output"), compression='gzip')
   unlink(paste0(SLIMFinder_dir, "input/"), recursive = T)
-  unlink(paste0(SLIMFinder_dir, "log_dir/"))
-  unlink(paste0(SLIMFinder_dir, "output/"))
+  unlink(paste0(SLIMFinder_dir, "log_dir/"), recursive = T)
+  unlink(paste0(SLIMFinder_dir, "output/"), recursive = T)
 
   # save R session to RData
   AnalysisDate = Sys.Date()
