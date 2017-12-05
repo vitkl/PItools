@@ -280,7 +280,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   # load the domain analysis results
   load(path2domain_enrich, envir = environment())
   eval(parse(text = paste0("domain_res = ",domain_enrich_object)))
-  rm(list = ls()[!ls() %in% c("domain_res", "dataset_name", "interaction_main_set",  "interaction_query_set", "analysis_type", "options", "path2domain_enrich", "domain_enrich_object", "fasta_path", "main_set_only", "domain_pvalue_cutoff", "SLIMFinder_dir", "LSF_project_path", "software_path", "length_set1_min", "length_set2_min", "write_log", "N_seq", "center_domains")], envir = environment())
+  rm(list = ls()[!ls() %in% c("domain_res", "dataset_name", "interaction_main_set",  "interaction_query_set", "analysis_type", "options", "path2domain_enrich", "domain_enrich_object", "fasta_path", "main_set_only", "domain_pvalue_cutoff", "SLIMFinder_dir", "LSF_project_path", "software_path", "length_set1_min", "length_set2_min", "write_log", "N_seq", "center_domains", "seed_list", "memory_start", "memory_step")], envir = environment())
 
   # check class correctness
   if(!grepl("XYZinteration_XZEmpiricalPval",class(domain_res))) stop("domain_enrich_object does not point to object of class XYZinteration_XZEmpiricalPval")
