@@ -45,9 +45,10 @@ centerDomains = function(interactionFASTA_list, domain_res,
   domainInteractionFASTA_list = list(fasta_subset_list = NULL, interaction_subset = NULL, length = integer())
   for(j in 1:length(domain_datasets_list)) {
     domain_dataset = domain_datasets_list[[j]]
+    name = paste0(unique(domain_dataset$domain), ":", unique(domain_dataset$query))
     indx = datasets[, which(seed %in% domain_dataset$seed & query == unique(domain_dataset$query))]
 
-    domainInteractionFASTA_list$fasta_subset_list = c(domainInteractionFASTA_list$fasta_subset_list, Reduce(c, interactionFASTA_list$fasta_subset_list[indx]))
+    eval(parse(text = paste0("domainInteractionFASTA_list$fasta_subset_list$`",name,"` = Reduce(c, interactionFASTA_list$fasta_subset_list[indx])")))
 
     interaction_subset_list = interactionFASTA_list$interaction_subset[indx]
     interaction_subset = interaction_subset_list[[1]]
@@ -63,7 +64,7 @@ centerDomains = function(interactionFASTA_list, domain_res,
       }
     }
     # modify metadata
-    interaction_subset$name = paste0(unique(domain_dataset$domain), ":", unique(domain_dataset$query))
+    interaction_subset$name = name
     interaction_subset$length_set1 = length(interaction_subset$ids_set1)
     interaction_subset$length_set2 = 1
     interaction_subset$description = paste0("Interacting partners of seed_id (",unique(domain_dataset$domain),":", paste0(domain_dataset$seed, collapse = ", "),") from interaction_set1 () and interaction_set2 (", unique(domain_dataset$query),").")
@@ -71,10 +72,8 @@ centerDomains = function(interactionFASTA_list, domain_res,
     interaction_subset$domain_in = domain_dataset
     class(interaction_subset) = "interaction_subset_from_2_sets"
 
-    domainInteractionFASTA_list$interaction_subset = c(domainInteractionFASTA_list$interaction_subset, interaction_subset)
+    eval(parse(text = paste0("domainInteractionFASTA_list$interaction_subset$`",name,"` = interaction_subset")))
   }
-  names(domainInteractionFASTA_list$interaction_subset) = names(domain_datasets_list)
-  names(domainInteractionFASTA_list$fasta_subset_list) = names(domain_datasets_list)
   domainInteractionFASTA_list$length = length(domainInteractionFASTA_list$fasta_subset_list)
   domainInteractionFASTA_list
 }
