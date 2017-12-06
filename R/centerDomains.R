@@ -75,5 +75,6 @@ centerDomains = function(interactionFASTA_list, domain_res,
     eval(parse(text = paste0("domainInteractionFASTA_list$interaction_subset$`",name,"` = interaction_subset")))
   }
   domainInteractionFASTA_list$length = length(domainInteractionFASTA_list$fasta_subset_list)
+  class(domainInteractionFASTA_list) = "InteractionSubsetFASTA_list"
   domainInteractionFASTA_list
 }
