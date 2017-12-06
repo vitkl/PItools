@@ -69,6 +69,7 @@ centerDomains = function(interactionFASTA_list, domain_res,
     interaction_subset$description = paste0("Interacting partners of seed_id (",unique(domain_dataset$domain),":", paste0(domain_dataset$seed, collapse = ", "),") from interaction_set1 () and interaction_set2 (", unique(domain_dataset$query),").")
     # add domain annotations
     interaction_subset$domain_in = domain_dataset
+    class(interaction_subset) = "interaction_subset_from_2_sets"
 
     domainInteractionFASTA_list$interaction_subset = c(domainInteractionFASTA_list$interaction_subset, interaction_subset)
   }
