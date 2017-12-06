@@ -43,7 +43,7 @@ centerDomains = function(interactionFASTA_list, domain_res,
 
   # construct domain-centered datasets
   domainInteractionFASTA_list = list(fasta_subset_list = NULL, interaction_subset = NULL, length = integer())
-  lapply(1:length(domain_datasets_list), function(j, interactionFASTA_list, datasets){
+  for(j in 1:length(domain_datasets_list)) {
     domain_dataset = domain_datasets_list[[j]]
     indx = datasets[, which(seed %in% domain_dataset$seed & query == unique(domain_dataset$query))]
 
@@ -70,9 +70,8 @@ centerDomains = function(interactionFASTA_list, domain_res,
     # add domain annotations
     interaction_subset$domain_in = domain_dataset
 
-    domainInteractionFASTA_list$interaction_subset = interaction_subset
-    domainInteractionFASTA_list
-  }, interactionFASTA_list, datasets)
+    domainInteractionFASTA_list$interaction_subset = c(domainInteractionFASTA_list$interaction_subset, interaction_subset)
+  }
   names(domainInteractionFASTA_list$interaction_subset) = names(domain_datasets_list)
   names(domainInteractionFASTA_list$fasta_subset_list) = names(domain_datasets_list)
   domainInteractionFASTA_list$length = length(domainInteractionFASTA_list$fasta_subset_list)
