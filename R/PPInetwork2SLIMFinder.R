@@ -383,5 +383,6 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
 
   filename = paste0("./processed_data_files/QSLIMFinder_instances_h2v_",dataset_name,"_clust",format(Sys.Date(), "%Y%m"),".RData")
   save(list = ls(envir = environment()), file=filename, envir = environment())
+  rm(list = ls(envir = environment())[!ls(envir = environment()) %in% "filename"])
   return(filename)
 }
