@@ -365,8 +365,8 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                    slimpath = paste0(software_path, "slimsuite/tools/"),
                    run = T, with = "self",
                    out_file = paste0(resultdir, "comparimotif_with_self.tdt"))
-  R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.tdt"), paste0(resultdir, "comparimotif_with_self.compare.tdt.gz"))
-  R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.xgmml"), paste0(resultdir, "comparimotif_with_self.compare.xgmml.gz"))
+  #R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.tdt"), paste0(resultdir, "comparimotif_with_self.compare.tdt.gz"))
+  #R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.xgmml"), paste0(resultdir, "comparimotif_with_self.compare.xgmml.gz"))
   }
 
   # compress input, remove input, log and output
