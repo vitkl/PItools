@@ -313,7 +313,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   # filter for only sets where seed protein - query protein pair matches significant domain - query protein pair
   domain_filt = domain_res
   if(is.null(seed_list)) domain_filt$data_with_pval = domain_filt$data_with_pval[p.value <= domain_pvalue_cutoff,]
-  forSLIMFinder_Ready = domainProteinPairMatch(forSLIMFinder_Ready, domain_filt, remove = T)
+  if(!center_domains) forSLIMFinder_Ready = domainProteinPairMatch(forSLIMFinder_Ready, domain_filt, remove = T)
 
   # write datasets (fasta + query)
   if(!dir.exists(SLIMFinder_dir)) dir.create(SLIMFinder_dir)
