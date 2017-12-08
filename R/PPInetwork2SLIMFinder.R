@@ -23,6 +23,7 @@
 ##' @param seed_list character vector of UniprotKB accesions that should serve as a seed for QSLIMFinder. These proteins are supposed to recognise SLIMs. Overrides selection of seed protein by \code{domain_pvalue_cutoff}
 ##' @param memory_start integer, how much memory each job should be given initially
 ##' @param memory_step interger, increment by which to increase how much memory each job should be given if \code{memory_start} is not enough and the job has failed
+##' @param compare_motifs logical, compare motifs using CompariMotif3? The procedure is relatively fast but memory consuming.
 ##' @details QSLIMFinder command line options (http://rest.slimsuite.unsw.edu.au/docs&page=module:qslimfinder)
 ##'
 ##'### Basic Input/Output Options ###
@@ -271,7 +272,8 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                  N_seq = 200,
                                  seed_list = NULL,
                                  memory_start = 350,
-                                 memory_step = 100)
+                                 memory_step = 100,
+                                 compare_motifs = T)
 {
   # check class correctness
   if(!grepl("clean_MItab",class(interaction_main_set))) stop("interaction_main_set is not of class clean_MItab27 or related clean_MItab class")
@@ -280,7 +282,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   # load the domain analysis results
   load(path2domain_enrich, envir = environment())
   eval(parse(text = paste0("domain_res = ",domain_enrich_object)))
-  rm(list = ls()[!ls() %in% c("domain_res", "dataset_name", "interaction_main_set",  "interaction_query_set", "analysis_type", "options", "path2domain_enrich", "domain_enrich_object", "fasta_path", "main_set_only", "domain_pvalue_cutoff", "SLIMFinder_dir", "LSF_project_path", "software_path", "length_set1_min", "length_set2_min", "write_log", "N_seq", "center_domains", "seed_list", "memory_start", "memory_step")], envir = environment())
+  rm(list = ls()[!ls() %in% c("domain_res", "dataset_name", "interaction_main_set",  "interaction_query_set", "analysis_type", "options", "path2domain_enrich", "domain_enrich_object", "fasta_path", "main_set_only", "domain_pvalue_cutoff", "SLIMFinder_dir", "LSF_project_path", "software_path", "length_set1_min", "length_set2_min", "write_log", "N_seq", "center_domains", "seed_list", "memory_start", "memory_step", "compare_motifs")], envir = environment())
 
   # check class correctness
   if(!grepl("XYZinteration_XZEmpiricalPval",class(domain_res))) stop("domain_enrich_object does not point to object of class XYZinteration_XZEmpiricalPval")
@@ -352,8 +354,8 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   QSLIMFinder_main_result = readQSLIMFinderMain(outputfile = forSLIMFinder_file_list$outputfile)
   fwrite(QSLIMFinder_main_result, paste0(resultdir, "main_result.txt"), sep = "\t")
 
-  # compare motif only if any were found
-  if(sum(!is.na(QSLIMFinder_main_result$IC)) > 0){
+  # compare motif only if any were found and if asked (compare_motifs = T)
+  if(sum(!is.na(QSLIMFinder_main_result$IC)) > 0 & compare_motifs){
   writePatternList(QSLIMFinder_main_result, filename = paste0(resultdir, "motifs.txt"))
 
   # compare motifs to ELM and to each other
