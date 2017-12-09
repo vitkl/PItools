@@ -39,7 +39,7 @@ readQSLIMFinderOccurence = function(outputdir = "forSLIMFinder_file_list$outputd
         if(file.exists(file)) {
           if(file.size(file) > 0) exist = TRUE else exist = FALSE
         } else exist = FALSE
-      } else if(length(occurence_file) == 1) if(file.size(file) > 0) fread(file, stringsAsFactors = F)
+      } else if(length(occurence_file) == 1) if(file.size(file) > 0) fread(file, header = T, stringsAsFactors = F)
     }
   })
   if(mean(sapply(Occurence_list, is.null)) == 1) {
@@ -48,9 +48,11 @@ readQSLIMFinderOccurence = function(outputdir = "forSLIMFinder_file_list$outputd
     } else {
     Occurence_list = Occurence_list[!sapply(Occurence_list, is.null)]
     Occurence_list = Occurence_list[sapply(Occurence_list, ncol) == 14]
-    sapply(Occurence_list, function(occurence){
-      colnames(occurence) = colnames(Occurence_list[[1]])
-    })
+    # correcting colnames in Occurence_list in case some files have columns with no names or named differently
+    Occurence_list = lapply(Occurence_list, function(occurence, Occurence_list_1){
+      colnames(occurence) = colnames(Occurence_list_1)
+      occurence
+    }, Occurence_list[[1]])
     return(Reduce(rbind, Occurence_list))
   }
 }
