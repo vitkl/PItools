@@ -378,6 +378,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   unlink(paste0(SLIMFinder_dir, "input/"), recursive = T)
   unlink(paste0(SLIMFinder_dir, "log_dir/"), recursive = T)
   unlink(paste0(SLIMFinder_dir, "output/"), recursive = T)
+  unlink(paste0(SLIMFinder_dir, "sh_dir/"), recursive = T)
 
   # save R session to RData
   AnalysisDate = Sys.Date()
