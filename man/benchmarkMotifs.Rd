@@ -28,7 +28,8 @@
   "IDs_interactor_human"), count_ranges_by = list(by = "IDs_domain_human",
   name = "motif_occ_per_domain", normalise_by = "domain_count", normalised_name
   = "normalised_motif_occ_per_domain"),
-  filter_by_domain_data = "p.value < 0.05", ...)
+  filter_by_domain_data = "p.value < 0.05",
+  select_predictor_per_range = min, ...)
 
 queryOCCByMCOL(res, keytype = "IDs_domain_human", key = "IPR032440")
 
@@ -52,7 +53,8 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
   "IDs_interactor_human"), count_ranges_by = list(by = "IDs_domain_human",
   name = "motif_occ_per_domain", normalise_by = "domain_count", normalised_name
   = "normalised_motif_occ_per_domain"),
-  filter_by_domain_data = "p.value < 0.05")
+  filter_by_domain_data = "p.value < 0.05",
+  select_predictor_per_range = min)
 }
 \arguments{
 \item{occurence_file}{a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) occurence output}
@@ -80,6 +82,8 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
 \item{minoverlap_redundant}{for removing motif classes that match the same occurence}
 
 \item{filter_by_domain_data}{criteria to filter domain data and restrict motif search datasets (for example, "p.value < 0.05" or "fdr_pval < 0.05 & domain_count_per_IDs_interactor_viral > 1")}
+
+\item{select_predictor_per_range}{function (such as min) that select predictor value if multiple values (such as returned by multiple datasets or multiple domains integrated) describe the same range}
 
 \item{...}{other arguments passed to passed to \code{\link[GenomicRanges]{findOverlaps}}}
 

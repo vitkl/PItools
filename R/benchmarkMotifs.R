@@ -29,6 +29,7 @@
 ##' @param maxgap integer, passed to \code{\link[GenomicRanges]{findOverlaps}}
 ##' @param minoverlap_redundant for removing motif classes that match the same occurence
 ##' @param filter_by_domain_data criteria to filter domain data and restrict motif search datasets (for example, "p.value < 0.05" or "fdr_pval < 0.05 & domain_count_per_IDs_interactor_viral > 1")
+##' @param select_predictor_per_range function (such as min) that select predictor value if multiple values (such as returned by multiple datasets or multiple domains integrated) describe the same range
 ##' @param ... other arguments passed to passed to \code{\link[GenomicRanges]{findOverlaps}}
 ##' @return object class \code{benchmarkMotifsResult) containing occurence (GRanges), instances_all (GRanges, known instances in all proteins or all excluding the query proteins), instances_query (GRanges, known instances in query proteins), predictions_all (for ROCR), labels_all (for ROCR), predictions_query (for ROCR), labels_query (for ROCR), overlapping_GRanges_all (GRanges, known instances that we also found), overlapping_GRanges_query(GRanges, known instances that we also found), N_query_prot_with_known_instances, N_query_known_instances, N_all_prot_with_known_instances, N_all_known_instances
 ##' @import GenomicRanges
@@ -58,16 +59,17 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
                            merge_by_domain_res_cols = c("IDs_interactor_viral", "IDs_interactor_human"),
                            count_ranges_by = list(by = "IDs_domain_human", name = "motif_occ_per_domain",
                                                   normalise_by = "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
-                           filter_by_domain_data = "p.value < 0.05", ...) {
+                           filter_by_domain_data = "p.value < 0.05",
+                           select_predictor_per_range = min, ...) {
   envir = environment()
 
   ### Load domain enrichment results, PPI data, and data used for QSLIMfinder
   load(domain_res_file, envir = envir)
   eval(parse(text = paste0("domain_res = ", domain_results_obj)))
-  rm(list = ls()[!ls() %in% c("envir", "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "merge_motif_variants", "seed", "N", "replace", "within1sequence", "query_predictor_col", "all_predictor_col", "normalise", "minoverlap", "maxgap", "minoverlap_redundant", "merge_domain_data", "merge_by_occurence_mcols", "merge_by_domain_res_cols", "count_ranges_by", "filter_by_domain_data")], envir = envir)
+  rm(list = ls()[!ls() %in% c("envir", "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "merge_motif_variants", "seed", "N", "replace", "within1sequence", "query_predictor_col", "all_predictor_col", "normalise", "minoverlap", "maxgap", "minoverlap_redundant", "merge_domain_data", "merge_by_occurence_mcols", "merge_by_domain_res_cols", "count_ranges_by", "filter_by_domain_data", "center_domains", "analysis_type", "select_predictor_per_range")], envir = envir)
 
   load(motif_setup, envir = envir)
-  rm(list = ls()[!ls() %in% c("envir", "all_human_interaction", "all_viral_interaction", motif_input_obj, "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "merge_motif_variants", "seed", "N", "replace", "within1sequence", "query_predictor_col", "all_predictor_col", "normalise", "minoverlap", "maxgap", "minoverlap_redundant", "merge_domain_data", "merge_by_occurence_mcols", "merge_by_domain_res_cols", "count_ranges_by", "filter_by_domain_data")], envir = envir)
+  rm(list = ls()[!ls() %in% c("envir", "all_human_interaction", "all_viral_interaction", motif_input_obj, "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "merge_motif_variants", "seed", "N", "replace", "within1sequence", "query_predictor_col", "all_predictor_col", "normalise", "minoverlap", "maxgap", "minoverlap_redundant", "merge_domain_data", "merge_by_occurence_mcols", "merge_by_domain_res_cols", "count_ranges_by", "filter_by_domain_data", "center_domains", "analysis_type", "select_predictor_per_range")], envir = envir)
 
   # keep only SLIMFinder datasets where seed protein - query protein pair matches filtering criteria
   domain_res = XYZ.p.adjust(domain_res, adj_by = "p.value")
@@ -176,12 +178,14 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
       predictions_all = lapply(combined_instances_all, function(inst){
         findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = all_predictor_col,
                           labels_col = "for_benchmarking", normalise = normalise,
-                          maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
+                          maxgap = maxgap, minoverlap = minoverlap,
+                          select_predictor_per_range = select_predictor_per_range, ...)$for_ROC$predictions
       })
       labels_all = lapply(combined_instances_all, function(inst){
         labels = findOverlapsBench(occuring = occurence, benchmarking = inst, predictor_col = all_predictor_col,
                           labels_col = "for_benchmarking", normalise = normalise,
-                          maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
+                          maxgap = maxgap, minoverlap = minoverlap,
+                          select_predictor_per_range = select_predictor_per_range, ...)$for_ROC$labels
         labels[grepl("1",labels)] = 1
         labels
       })
@@ -191,12 +195,14 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
       predictions_query = lapply(combined_instances_query, function(inst){
         findOverlapsBench(occuring = occurence_query, benchmarking = inst, predictor_col = query_predictor_col,
                           labels_col = "for_benchmarking", normalise = normalise,
-                          maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$predictions
+                          maxgap = maxgap, minoverlap = minoverlap,
+                          select_predictor_per_range = select_predictor_per_range, ...)$for_ROC$predictions
       })
       labels_query = lapply(combined_instances_query, function(inst){
         labels = findOverlapsBench(occuring = occurence_query, benchmarking = inst, predictor_col = query_predictor_col,
                           labels_col = "for_benchmarking", normalise = normalise,
-                          maxgap = maxgap, minoverlap = minoverlap, ...)$for_ROC$labels
+                          maxgap = maxgap, minoverlap = minoverlap,
+                          select_predictor_per_range = select_predictor_per_range, ...)$for_ROC$labels
         labels[grepl("1",labels)] = 1
         labels
       })
@@ -215,7 +221,8 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
                               labels_col = "for_benchmarking",
                               normalise = normalise,
                               maxgap = maxgap,
-                              minoverlap = minoverlap)
+                              minoverlap = minoverlap,
+                              select_predictor_per_range = select_predictor_per_range)
     TP_FN$for_ROC$labels = 1
 
     FP = subsetByOverlaps(occurence_query, TP_FN$overlapping_GRanges, type = "equal", invert = T)
@@ -236,7 +243,8 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
                               labels_col = "for_benchmarking",
                               normalise = normalise,
                               maxgap = maxgap,
-                              minoverlap = minoverlap)
+                              minoverlap = minoverlap,
+                              select_predictor_per_range = select_predictor_per_range)
     TP_FN_all$for_ROC$labels = 1
 
     FP_all = subsetByOverlaps(occurence, TP_FN_all$overlapping_GRanges, type = "equal", invert = T)
@@ -260,7 +268,8 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
                               labels_col = "for_benchmarking",
                               normalise = normalise,
                               maxgap = maxgap,
-                              minoverlap = minoverlap)
+                              minoverlap = minoverlap,
+                              select_predictor_per_range = select_predictor_per_range)
     TP_FN$for_ROC$labels = 1
 
     FP = subsetByOverlaps(occurence_query, TP_FN$overlapping_GRanges, type = "equal", invert = T)
@@ -281,7 +290,8 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
                                   labels_col = "for_benchmarking",
                                   normalise = normalise,
                                   maxgap = maxgap,
-                                  minoverlap = minoverlap)
+                                  minoverlap = minoverlap,
+                                  select_predictor_per_range = select_predictor_per_range)
     TP_FN_all$for_ROC$labels = 1
 
     FP_all = subsetByOverlaps(occurence, TP_FN_all$overlapping_GRanges, type = "equal", invert = T)
@@ -416,7 +426,8 @@ mBenchmarkMotifs = function(datasets = c("", "Vidal"),
                             merge_by_domain_res_cols = c("IDs_interactor_viral", "IDs_interactor_human"),
                             count_ranges_by = list(by = "IDs_domain_human", name = "motif_occ_per_domain",
                                                    normalise_by = "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
-                            filter_by_domain_data = "p.value < 0.05"){
+                            filter_by_domain_data = "p.value < 0.05",
+                            select_predictor_per_range = min){
 
   results = lapply(datasets, function(dataset) {
 
@@ -446,7 +457,8 @@ mBenchmarkMotifs = function(datasets = c("", "Vidal"),
                              merge_by_domain_res_cols = merge_by_domain_res_cols,
                              minoverlap_redundant = minoverlap_redundant,
                              merge_motif_variants = merge_motif_variants,
-                             filter_by_domain_data = filter_by_domain_data)
+                             filter_by_domain_data = filter_by_domain_data,
+                             select_predictor_per_range = select_predictor_per_range)
 
     result$description = description
     result

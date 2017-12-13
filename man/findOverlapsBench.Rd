@@ -5,7 +5,8 @@
 \title{Find occuring GRanges overlapping with the benchmarking set (positive + negative examples)}
 \usage{
 findOverlapsBench(occuring, benchmarking, predictor_col = "Sig",
-  labels_col = "for_benchmarking", normalise = T, ...)
+  labels_col = "for_benchmarking", normalise = T,
+  select_predictor_per_range = min, ...)
 }
 \arguments{
 \item{occuring}{GRanges object, occuring feature instances}
