@@ -40,7 +40,7 @@ NuniqueInteractions = function(cleanMITAB){
 ##' @name NuniqueInteractors
 ##' @import data.table
 ##' @export NuniqueInteractors
-NuniqueInteractors = function(cleanMITAB, taxid = NULL, inverse_filter = NULL){
+NuniqueInteractors = function(cleanMITAB, taxid = NULL, inverse_filter = F){
   if(!grepl("clean_MItab",class(cleanMITAB))) stop("cleanMITAB is not of class clean_MItab27 or related clean_MItab class")
 
   if(is.null(taxid)){

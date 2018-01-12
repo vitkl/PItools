@@ -10,7 +10,7 @@ extractInteractors(cleanMITAB, taxid = NULL, inverse_filter = F)
 
 NuniqueInteractions(cleanMITAB)
 
-NuniqueInteractors(cleanMITAB, taxid = NULL, inverse_filter = NULL)
+NuniqueInteractors(cleanMITAB, taxid = NULL, inverse_filter = F)
 }
 \arguments{
 \item{cleanMITAB}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[MItools]{cleanMITAB}})}
