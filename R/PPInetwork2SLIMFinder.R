@@ -284,7 +284,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   eval(parse(text = paste0("domain_res = ",domain_enrich_object)))
   rm(list = ls()[!ls() %in% c("domain_res", "dataset_name", "interaction_main_set",  "interaction_query_set", "analysis_type", "options", "path2domain_enrich", "domain_enrich_object", "fasta_path", "main_set_only", "domain_pvalue_cutoff", "SLIMFinder_dir", "LSF_project_path", "software_path", "length_set1_min", "length_set2_min", "write_log", "N_seq", "center_domains", "seed_list", "memory_start", "memory_step", "compare_motifs")], envir = environment())
 
-  # check class correctness
+  # check class of the domain analysis results
   if(!grepl("XYZinteration_XZEmpiricalPval",class(domain_res))) stop("domain_enrich_object does not point to object of class XYZinteration_XZEmpiricalPval")
 
   # choose pvalue cutoff:
@@ -358,11 +358,12 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   if(sum(!is.na(QSLIMFinder_main_result$IC)) > 0 & compare_motifs){
   writePatternList(QSLIMFinder_main_result, filename = paste0(resultdir, "motifs.txt"))
 
-  # compare motifs to ELM and to each other
+  # compare discovered motifs to ELM
   runCompariMotif3(input_file = paste0(resultdir, "motifs.txt"),
                    slimpath = paste0(software_path, "slimsuite/tools/"),
                    run = T, with = "db",
                    out_file = paste0(resultdir, "comparimotif.tdt"))
+  # compare discovered motifs to each other
   runCompariMotif3(input_file = paste0(resultdir, "motifs.txt"),
                    slimpath = paste0(software_path, "slimsuite/tools/"),
                    run = T, with = "self",

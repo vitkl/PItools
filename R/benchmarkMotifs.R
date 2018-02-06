@@ -68,7 +68,12 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
   eval(parse(text = paste0("domain_res = ", domain_results_obj)))
   rm(list = ls()[!ls() %in% c("envir", "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "merge_motif_variants", "seed", "N", "replace", "within1sequence", "query_predictor_col", "all_predictor_col", "normalise", "minoverlap", "maxgap", "minoverlap_redundant", "merge_domain_data", "merge_by_occurence_mcols", "merge_by_domain_res_cols", "count_ranges_by", "filter_by_domain_data", "center_domains", "analysis_type", "select_predictor_per_range")], envir = envir)
 
-  load(motif_setup, envir = envir)
+  if(file.exists(paste0(motif_setup, ".zip"))) {
+    unzip(zipfile = paste0(motif_setup, ".zip"), exdir = ".") # dirname(paste0(motif_setup, ".zip"))
+    load(motif_setup, envir = envir)
+    unlink(motif_setup)
+  } else load(motif_setup, envir = envir)
+
   rm(list = ls()[!ls() %in% c("envir", "all_human_interaction", "all_viral_interaction", motif_input_obj, "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "merge_motif_variants", "seed", "N", "replace", "within1sequence", "query_predictor_col", "all_predictor_col", "normalise", "minoverlap", "maxgap", "minoverlap_redundant", "merge_domain_data", "merge_by_occurence_mcols", "merge_by_domain_res_cols", "count_ranges_by", "filter_by_domain_data", "center_domains", "analysis_type", "select_predictor_per_range")], envir = envir)
 
   # keep only SLIMFinder datasets where seed protein - query protein pair matches filtering criteria
@@ -399,6 +404,7 @@ queryOCCByMCOL = function(res, keytype = "IDs_domain_human", key = "IPR032440"){
 ##' @param datasets character vector, names of the datasets ("Vidal" in "./SLIMFinder_Vidal/result/occurence.txt" or "" in "./SLIMFinder/result/occurence.txt")
 ##' @param descriptions character vector, description of the datasets (title of the ROC plot)
 ##' @param dir character, base directory. For example, "./" in "./SLIMFinder_Vidal/result/occurence.txt"
+##' @param dir_suff character, SLIMFinder results folder prefix. For example, "SLIMFinder" in "./SLIMFinder_Vidal/result/occurence.txt"
 ##' @return list of objects of class \code{benchmarkMotifsResult)
 ##' @import GenomicRanges
 ##' @import data.table
@@ -420,22 +426,27 @@ mBenchmarkMotifs = function(datasets = c("", "Vidal"),
                             query_predictor_col = "Sig", all_predictor_col = "Sig",normalise = T,
                             minoverlap = 2, maxgap = 0,
                             minoverlap_redundant = 5, merge_motif_variants = F,
-                            motif_setup_month = "201710",
+                            motif_setup_months = "201710",
                             merge_domain_data = T,
                             merge_by_occurence_mcols = c("query", "interacts_with"),
                             merge_by_domain_res_cols = c("IDs_interactor_viral", "IDs_interactor_human"),
                             count_ranges_by = list(by = "IDs_domain_human", name = "motif_occ_per_domain",
                                                    normalise_by = "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
                             filter_by_domain_data = "p.value < 0.05",
-                            select_predictor_per_range = min){
+                            select_predictor_per_range = min,
+                            dir_suff = ""){
 
   results = lapply(datasets, function(dataset) {
 
     description = descriptions[datasets == dataset]
-    if(dataset != "") dataset = paste0("_", dataset)
-    occurence_file = paste0(dir,"SLIMFinder", dataset, "/result/occurence.txt")
-    main_file = paste0(dir,"SLIMFinder", dataset, "/result/main_result.txt")
-    motif_setup = paste0(dir,"processed_data_files/QSLIMFinder_instances_h2v", dataset, "_clust",motif_setup_month,".RData")
+    if(length(motif_setup_months) > 1){
+      motif_setup_month = motif_setup_months[datasets == dataset]
+    } else motif_setup_month = motif_setup_months
+
+
+    occurence_file = paste0(dir, dir_suff, dataset, "/result/occurence.txt")
+    main_file = paste0(dir, dir_suff, dataset, "/result/main_result.txt")
+    motif_setup = paste0(dir,"processed_data_files/QSLIMFinder_instances_h2v_", dataset, "_clust",motif_setup_month,".RData")
 
     result = benchmarkMotifs(occurence_file = occurence_file,
                              main_file = main_file,
