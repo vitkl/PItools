@@ -66,7 +66,7 @@ writeInteractionSubsetFASTA_list = function(interactionFASTA_list, dir = "./SLIM
     outputfile = paste0(outputdir, "main_result")
 
     seqnames_ = names(interactionFASTA_list$fasta_subset_list[[i]])
-    seqnames_ = order(seqnames_)
+    seqnames_ = seqnames_[order(seqnames_)]
 
     temp_list = data.table(fastafile = fastafile, queryfile = queryfile,
                            outputdir = outputdir, outputfile = outputfile,
