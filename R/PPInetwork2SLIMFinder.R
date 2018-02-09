@@ -7,8 +7,8 @@
 ##' @param interaction_query_set  clean_MItab class, use this set of protein interactions as a query (+ add to the QSLIMFinder datasets). SLIMFinder \code{analysis_type} also requires this option because it add proteins from these interactions to the SLIMFinder datasets
 ##' @param analysis_type "qslimfinder" or "slimfinder"
 ##' @param options any options from QSLIMFinder or SLIMFinder. Detail http://rest.slimsuite.unsw.edu.au/docs&page=module:qslimfinder or http://rest.slimsuite.unsw.edu.au/docs&page=module:slimfinder => Commandline
-##' @param path2domain_enrich relative path to domain enrichment results RData
-##' @param domain_enrich_object which object contains domain enrichment results in \code{path2domain_enrich}, XYZinteration_XZEmpiricalPval?
+##' @param domain_res_file relative path to domain enrichment results RData
+##' @param domain_results_obj which object contains domain enrichment results in \code{domain_res_file}, XYZinteration_XZEmpiricalPval?
 ##' @param center_domains logical, center QSLIMFinder datasets at domains?
 ##' @param fasta_path relative path (from the project folder) to the FASTA file containing sequences for all proteins in \code{interaction_main_set} and \code{interaction_query_set}
 ##' @param main_set_only logical, sequence set for motif search should contain only proteins from \code{interaction_main_set}. If FALSE, non-query proteins from \code{interaction_query_set} are also included. Argument for \code{\link{listInteractionSubsetFASTA}}
@@ -257,8 +257,8 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                  interaction_query_set = all_viral_interaction,
                                  analysis_type = "qslimfinder",
                                  options = "dismask=T consmask=F cloudfix=T probcut=0.3 minwild=0 maxwild=2 slimlen=5 alphahelix=F maxseq=1500 savespace=1 iuchdir=T",
-                                 path2domain_enrich = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
-                                 domain_enrich_object = "res_count",
+                                 domain_res_file = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
+                                 domain_results_obj = "res_count",
                                  center_domains = F,
                                  fasta_path = "./data_files/all_human_viral_proteins.fasta",
                                  main_set_only = F,
@@ -280,12 +280,12 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   if(!grepl("clean_MItab",class(interaction_query_set))) stop("interaction_query_set is not of class clean_MItab27 or related clean_MItab class")
 
   # load the domain analysis results
-  load(path2domain_enrich, envir = environment())
-  eval(parse(text = paste0("domain_res = ",domain_enrich_object)))
-  rm(list = ls()[!ls() %in% c("domain_res", "dataset_name", "interaction_main_set",  "interaction_query_set", "analysis_type", "options", "path2domain_enrich", "domain_enrich_object", "fasta_path", "main_set_only", "domain_pvalue_cutoff", "SLIMFinder_dir", "LSF_project_path", "software_path", "length_set1_min", "length_set2_min", "write_log", "N_seq", "center_domains", "seed_list", "memory_start", "memory_step", "compare_motifs")], envir = environment())
+  domain_res_env = R.utils::env(load(domain_res_file))
+  domain_res = domain_res_env[[domain_results_obj]]
+  rm(domain_res_env)
 
   # check class of the domain analysis results
-  if(!grepl("XYZinteration_XZEmpiricalPval",class(domain_res))) stop("domain_enrich_object does not point to object of class XYZinteration_XZEmpiricalPval")
+  if(!grepl("XYZinteration_XZEmpiricalPval",class(domain_res))) stop("domain_results_obj does not point to object of class XYZinteration_XZEmpiricalPval")
 
   # choose pvalue cutoff:
   if(is.null(seed_list)){
@@ -342,7 +342,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                          LSF_project_path = LSF_project_path,
                                          dataset_name = dataset_name, N_seq = N_seq, write_log = write_log)
 
-  runQSLIMFinder(commands = all_commands, file_list = forSLIMFinder_file_list, onLSF = T, memory_step = memory_step, memory_start = memory_start + memory_step)
+  runQSLIMFinder(commands_list = all_commands, file_list = forSLIMFinder_file_list, onLSF = T, memory_step = memory_step, memory_start = memory_start + memory_step)
 
   # read and bring together results
   resultdir = paste0(SLIMFinder_dir, "result/")

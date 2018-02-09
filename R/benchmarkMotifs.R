@@ -61,20 +61,22 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
                                                   normalise_by = "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
                            filter_by_domain_data = "p.value < 0.05",
                            select_predictor_per_range = min, ...) {
-  envir = environment()
 
   ### Load domain enrichment results, PPI data, and data used for QSLIMfinder
-  load(domain_res_file, envir = envir)
-  eval(parse(text = paste0("domain_res = ", domain_results_obj)))
-  rm(list = ls()[!ls() %in% c("envir", "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "merge_motif_variants", "seed", "N", "replace", "within1sequence", "query_predictor_col", "all_predictor_col", "normalise", "minoverlap", "maxgap", "minoverlap_redundant", "merge_domain_data", "merge_by_occurence_mcols", "merge_by_domain_res_cols", "count_ranges_by", "filter_by_domain_data", "center_domains", "analysis_type", "select_predictor_per_range")], envir = envir)
+  domain_res_env = R.utils::env(load(domain_res_file))
+  domain_res = domain_res_env[[domain_results_obj]]
+  rm(domain_res_env)
 
   if(file.exists(paste0(motif_setup, ".zip"))) {
     unzip(zipfile = paste0(motif_setup, ".zip"), exdir = ".") # dirname(paste0(motif_setup, ".zip"))
-    load(motif_setup, envir = envir)
+    motif_setup_env = R.utils::env(load(motif_setup))
     unlink(motif_setup)
-  } else load(motif_setup, envir = envir)
+  } else {
+    motif_setup_env = R.utils::env(load(motif_setup))
+    }
 
-  rm(list = ls()[!ls() %in% c("envir", "all_human_interaction", "all_viral_interaction", motif_input_obj, "occurence_file", "main_file", "domain_res", "motif_setup", "neg_set", "domain_results_obj", "motif_input_obj", "one_from_cloud", "type", "dbfile_main", "dburl_main", "dbfile_query", "dburl_query", "query_res_query_only", "motif_types", "all_res_excl_query", "merge_motif_variants", "seed", "N", "replace", "within1sequence", "query_predictor_col", "all_predictor_col", "normalise", "minoverlap", "maxgap", "minoverlap_redundant", "merge_domain_data", "merge_by_occurence_mcols", "merge_by_domain_res_cols", "count_ranges_by", "filter_by_domain_data", "center_domains", "analysis_type", "select_predictor_per_range")], envir = envir)
+  forSLIMFinder_Ready = motif_setup_env[[motif_input_obj]]
+  rm(motif_setup_env)
 
   # keep only SLIMFinder datasets where seed protein - query protein pair matches filtering criteria
   domain_res = XYZ.p.adjust(domain_res, adj_by = "p.value")
