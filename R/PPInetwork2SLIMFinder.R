@@ -301,23 +301,27 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   interaction_main_set = removeInteractionNoFASTA(interaction_main_set, all.fasta)
   interaction_query_set = removeInteractionNoFASTA(interaction_query_set, all.fasta)
 
+  # generates datasets (interactions for a single protein + FASTA of it's interactors from boths sets
+  # removes seed proteins with no FASTA and with no interactions in both main and query sets
   forSLIMFinder = listInteractionSubsetFASTA(interaction_set1 = interaction_main_set,
                                              interaction_set2 = interaction_query_set,
                                              seed_id_vect = proteins_w_signif_domains,
                                              fasta = all.fasta,
                                              single_interact_from_set2 = T, set1_only = main_set_only)
 
+  # filter for only significant domain - query protein pair
+  domain_filt = copy(domain_res)
+  if(is.null(seed_list)) domain_filt$data_with_pval = domain_filt$data_with_pval[p.value <= domain_pvalue_cutoff,]
+
   # center at domains (combine seed protein networks if those have the same domain)
-  if(center_domains) forSLIMFinder = centerDomains(forSLIMFinder, domain_res)
+  if(center_domains) forSLIMFinder = centerDomains(forSLIMFinder, domain_filt)
+
+  # filter for only sets where seed protein - query protein pair matches significant domain - query protein pair
+  if(!center_domains) forSLIMFinder = domainProteinPairMatch(forSLIMFinder, domain_filt, remove = T)
 
   # filter datasets by size
   forSLIMFinder_Ready = filterInteractionSubsetFASTA_list(forSLIMFinder,
-                                  length_set1_min = length_set1_min, length_set2_min = length_set2_min)
-
-  # filter for only sets where seed protein - query protein pair matches significant domain - query protein pair
-  domain_filt = copy(domain_res)
-  if(is.null(seed_list)) domain_filt$data_with_pval = domain_filt$data_with_pval[p.value <= domain_pvalue_cutoff,]
-  if(!center_domains) forSLIMFinder_Ready = domainProteinPairMatch(forSLIMFinder_Ready, domain_filt, remove = T)
+                           length_set1_min = length_set1_min, length_set2_min = length_set2_min)
 
   # write datasets (fasta + query)
   if(!dir.exists(SLIMFinder_dir)) dir.create(SLIMFinder_dir)

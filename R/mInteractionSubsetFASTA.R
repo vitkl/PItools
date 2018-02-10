@@ -23,9 +23,11 @@ listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_i
   if(!grepl("clean_MItab",class(interaction_set1))) stop("interaction_set1 is not of class clean_MItab27 or related clean_MItab class")
   if(!grepl("clean_MItab",class(interaction_set2))) stop("interaction_set2 is not of class clean_MItab27 or related clean_MItab class")
 
-
+  # remove seed proteins with no FASTA
   seed_id_vect = seed_id_vect[seed_id_vect %in% names(fasta)]
-  #fasta = recodeFASTA(fasta)
+  # remove seed proteins with no interactions in both sets
+  interactors = c(extractInteractors(interaction_set1), extractInteractors(interaction_set2))
+  seed_id_vect = seed_id_vect[seed_id_vect %in% interactors]
 
   subset1 = subset2setsBy1ID(interaction_set1 = interaction_set1,
                              interaction_set2 = interaction_set2,
