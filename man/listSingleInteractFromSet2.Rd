@@ -25,7 +25,7 @@ Split interaction subset from 2 sets so that each elements contains only one of 
 subset1_fasta = listSingleInteractFromSet2(subset1, single_interact_from_set2, set1_only, fasta)
 }
 \seealso{
-\code{\link{subset2setsBy1ID}}, \code{\link{recodeFASTA}}, \code{\link{listInteractionSubsetFASTA}}
+\code{\link{subset2setsBy1ID}}, \code{\link{listInteractionSubsetFASTA}}
 }
 \author{
 Vitalii Kleshchevnikov

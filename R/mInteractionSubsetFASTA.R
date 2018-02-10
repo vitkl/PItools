@@ -32,13 +32,15 @@ listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_i
                              seed_id = seed_id_vect[1])
   subset1_fasta = listSingleInteractFromSet2(subset1, single_interact_from_set2, set1_only, fasta)
 
-  for (seed_id in seed_id_vect[2:length(seed_id_vect)]) {
-    subset = subset2setsBy1ID(interaction_set1 = interaction_set1,
-                              interaction_set2 = interaction_set2,
-                              seed_id = seed_id)
-    subset_fasta = listSingleInteractFromSet2(subset1 = subset, single_interact_from_set2, set1_only, fasta)
-    subset1_fasta$fasta_subset_list = c(subset1_fasta$fasta_subset_list, unique(subset_fasta$fasta_subset_list))
-    subset1_fasta$interaction_subset = c(subset1_fasta$interaction_subset, subset_fasta$interaction_subset)
+  if(length(seed_id_vect) >= 2){
+    for (seed_id in seed_id_vect[2:length(seed_id_vect)]) {
+      subset = subset2setsBy1ID(interaction_set1 = interaction_set1,
+                                interaction_set2 = interaction_set2,
+                                seed_id = seed_id)
+      subset_fasta = listSingleInteractFromSet2(subset1 = subset, single_interact_from_set2, set1_only, fasta)
+      subset1_fasta$fasta_subset_list = c(subset1_fasta$fasta_subset_list, unique(subset_fasta$fasta_subset_list))
+      subset1_fasta$interaction_subset = c(subset1_fasta$interaction_subset, subset_fasta$interaction_subset)
+    }
   }
   subset1_fasta$length = length(subset1_fasta$fasta_subset_list)
   class(subset1_fasta) = "InteractionSubsetFASTA_list"
@@ -137,18 +139,18 @@ singleInteractFromSet2 = function(subset1, set1_only, i){
 ##' @import data.table
 ##' @import Biostrings
 ##' @export listSingleInteractFromSet2
-##' @seealso \code{\link{subset2setsBy1ID}}, \code{\link{recodeFASTA}}, \code{\link{listInteractionSubsetFASTA}}
+##' @seealso \code{\link{subset2setsBy1ID}}, \code{\link{listInteractionSubsetFASTA}}
 ##' @examples
 ##' subset1_fasta = listSingleInteractFromSet2(subset1, single_interact_from_set2, set1_only, fasta)
 listSingleInteractFromSet2 = function(subset1, single_interact_from_set2, set1_only, fasta){
   if(single_interact_from_set2){
     if(subset1$length_set2 >= 1){
       subset1_1 = singleInteractFromSet2(subset1, set1_only = set1_only, i = 1)
-      subset1_1_fasta = recodeANDinteractionSubsetFASTA(subset1_1, fasta)
+      subset1_1_fasta = interactionSubsetFASTA(int_subset = subset1_1, fasta = fasta)
       if(subset1$length_set2 >= 2){
         for (ind in 2:subset1$length_set2) {
           subset1_temp = singleInteractFromSet2(subset1, set1_only = set1_only, i = ind)
-          subset1_temp_fasta = recodeANDinteractionSubsetFASTA(subset1_temp, fasta)
+          subset1_temp_fasta = interactionSubsetFASTA(int_subset = subset1_temp, fasta = fasta)
           subset1_1_fasta$fasta_subset_list = c(subset1_1_fasta$fasta_subset_list, subset1_temp_fasta$fasta_subset_list)
           subset1_1_fasta$interaction_subset = c(subset1_1_fasta$interaction_subset, subset1_temp_fasta$interaction_subset)
         }
@@ -156,10 +158,10 @@ listSingleInteractFromSet2 = function(subset1, single_interact_from_set2, set1_o
       subset1_fasta = subset1_1_fasta
     } else {
       warning(paste0("set 2 is empty, name:", subset1$name))
-      subset1_fasta = recodeANDinteractionSubsetFASTA(subset1, fasta)
+      subset1_fasta = interactionSubsetFASTA(int_subset = subset1, fasta = fasta)
     }
   } else {
-    subset1_fasta = recodeANDinteractionSubsetFASTA(subset1, fasta)
+    subset1_fasta = interactionSubsetFASTA(int_subset = subset1, fasta = fasta)
   }
   return(subset1_fasta)
 }
