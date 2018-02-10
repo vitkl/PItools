@@ -9,8 +9,8 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
   interaction_query_set = all_viral_interaction,
   analysis_type = "qslimfinder",
   options = "dismask=T consmask=F cloudfix=T probcut=0.3 minwild=0 maxwild=2 slimlen=5 alphahelix=F maxseq=1500 savespace=1 iuchdir=T",
-  path2domain_enrich = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
-  domain_enrich_object = "res_count", center_domains = F,
+  domain_res_file = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
+  domain_results_obj = "res_count", center_domains = F,
   fasta_path = "./data_files/all_human_viral_proteins.fasta",
   main_set_only = F, domain_pvalue_cutoff = 1,
   SLIMFinder_dir = paste0("./", dataset_name, "/"),
@@ -30,9 +30,9 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
 
 \item{options}{any options from QSLIMFinder or SLIMFinder. Detail http://rest.slimsuite.unsw.edu.au/docs&page=module:qslimfinder or http://rest.slimsuite.unsw.edu.au/docs&page=module:slimfinder => Commandline}
 
-\item{path2domain_enrich}{relative path to domain enrichment results RData}
+\item{domain_res_file}{relative path to domain enrichment results RData}
 
-\item{domain_enrich_object}{which object contains domain enrichment results in \code{path2domain_enrich}, XYZinteration_XZEmpiricalPval?}
+\item{domain_results_obj}{which object contains domain enrichment results in \code{domain_res_file}, XYZinteration_XZEmpiricalPval?}
 
 \item{center_domains}{logical, center QSLIMFinder datasets at domains?}
 

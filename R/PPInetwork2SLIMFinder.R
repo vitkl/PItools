@@ -294,6 +294,8 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
 
   # load FASTA
   all.fasta = readAAStringSet(filepath = fasta_path, format = "fasta")
+  # remove seed proteins with no FASTA
+  proteins_w_signif_domains = proteins_w_signif_domains[proteins_w_signif_domains %in% names(all.fasta)]
 
   # remove interactions if one of the interactors does not have a FASTA sequence
   interaction_main_set = removeInteractionNoFASTA(interaction_main_set, all.fasta)
@@ -313,7 +315,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                   length_set1_min = length_set1_min, length_set2_min = length_set2_min)
 
   # filter for only sets where seed protein - query protein pair matches significant domain - query protein pair
-  domain_filt = domain_res
+  domain_filt = copy(domain_res)
   if(is.null(seed_list)) domain_filt$data_with_pval = domain_filt$data_with_pval[p.value <= domain_pvalue_cutoff,]
   if(!center_domains) forSLIMFinder_Ready = domainProteinPairMatch(forSLIMFinder_Ready, domain_filt, remove = T)
 
