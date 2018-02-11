@@ -76,8 +76,8 @@ writeInteractionSubsetFASTA_list = function(interactionFASTA_list, dir = "./SLIM
     file_list = rbind(file_list, temp_list)
 
     fasta_seq = interactionFASTA_list$fasta_subset_list[[i]]
-    if(length(unique(fasta_seq)) < length(fasta_seq)) {
-      fasta_seq = unique(fasta_seq)
+    if(length(fasta_seq[unique(names(fasta_seq))]) < length(fasta_seq)) {
+      fasta_seq = fasta_seq[unique(names(fasta_seq))]
       warning(paste0(temp_list$interactors_of,": duplicated sequences detected and removed (likely reason: set1 and set2 have 1 or more of the same interacting proteins)"))
     }
 
