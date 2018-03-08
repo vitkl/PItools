@@ -5,10 +5,13 @@
 \title{load Bioplex data}
 \usage{
 loadBioplex(dir = "./",
-  url = "http://bioplex.hms.harvard.edu/data/BioPlex_2.3_interactionList.tsv")
+  url = "http://bioplex.hms.harvard.edu/data/BioPlex_2.3_interactionList.tsv",
+  uniprot_id = T)
 }
 \arguments{
 \item{dir}{directory where to save/look for the local copy}
+
+\item{uniprot_id}{If TRUE uses UniprotKB accessions to identify interacting partners. If FALSE uses gene id (ENTREZ gene id) to identify interacting partners.}
 }
 \value{
 \code{loadBioplex} saves loadBioplex data to a file, returns the object of class clean_MItab25

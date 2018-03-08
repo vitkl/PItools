@@ -2,7 +2,6 @@
 % Please edit documentation in R/downloadFasta.R
 \name{downloadFasta}
 \alias{downloadFasta}
-\alias{downloadFasta}
 \alias{loadAllFASTA}
 \title{Download FASTA for a list of canonical (P04637) and isoform (P04637-2) UniprotAC}
 \usage{
