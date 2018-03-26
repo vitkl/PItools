@@ -5,10 +5,21 @@
 \title{Check if proteins in GRanges were used for motif search using QSLIMFinder (SLIMFinder)}
 \usage{
 GRangesINinteractionSubsetFASTA(grange, interactionSubsetFASTA,
-  query_only = F)
+  query_only = F, clustermq = F, clustermq_seed = 128965,
+  clustermq_memory = 2000, clustermq_job_size = 100)
 }
 \arguments{
 \item{interactionSubsetFASTA}{object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.}
+
+\item{query_only}{return only GRanges for query proteins}
+
+\item{clustermq}{Use clustermq LSF job scheduler (TRUE) as an alternative to parLapply (FALSE). Details: \link[clustermq]{Q}}
+
+\item{clustermq_seed}{When using clustermq: Seed for random number generation.}
+
+\item{clustermq_memory}{When using clustermq: memory requested for each job}
+
+\item{clustermq_job_size}{When using clustermq: The number of function calls per job}
 
 \item{GRanges}{object containing instances of linear motifs or domains in proteins (identified by UniProtKB accession)}
 }

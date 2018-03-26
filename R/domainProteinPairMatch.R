@@ -12,16 +12,31 @@
 ##' @examples
 ##' forSLIMFinder_Ready = domainProteinPairMatch(forSLIMFinder_Ready, domain_res, remove = T)
 domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, remove = T) {
-  which_to_keep = sapply(1:InteractionSubsetFASTA_list$length, function(i, InteractionSubsetFASTA_list, domain_res){
-    name = InteractionSubsetFASTA_list$interaction_subset[[i]]$name
+
+  # for testing
+  envir = new.env()
+  load("../viral_project/processed_data_files/QSLIMFinder_instances_h2v_qslimfinder.Full_IntAct3.FALSE_clust201802.RData", envir = envir)
+  domain_res_env = R.utils::env(load("../viral_project/processed_data_files/what_we_find_VS_ELM_clust20171019.RData"))
+  domain_res = domain_res_env$res_count
+  dbfile_main = "../viral_project/data_files/instances_all.gff"
+  dburl_main = "http://elm.eu.org/instances.gff?q=None&taxon=Homo%20sapiens&instance_logic="
+  instances_all = ELMdb2GRanges(dbfile = dbfile_main,
+                                dburl = dburl_main,
+                                tsvurl = gsub("gff", "tsv", dburl_main),
+                                tsvfile = gsub("gff", "tsv", dbfile_main))
+  grange = instances_all
+  interactionSubsetFASTA = envir$forSLIMFinder_Ready
+  # end for testing
+
+  interaction_subset = InteractionSubsetFASTA_list$interaction_subset
+  nodeX = formula(paste0("~",domain_res$nodes$nodeX))[[2]]
+  nodeY = formula(paste0("~",domain_res$nodes$nodeY))[[2]]
+  which_to_keep = sapply(interaction_subset, function(interaction_subset_x, domain_res, nodeX, nodeY){
+    name = interaction_subset_x$name
     name = unlist(strsplit(name, ":"))
-    nodeX = formula(paste0("~",domain_res$nodes$nodeX))[[2]]
-    nodeY = formula(paste0("~",domain_res$nodes$nodeY))[[2]]
-    nodeZ = formula(paste0("~",domain_res$nodes$nodeZ))[[2]]
     which_nodeY = domain_res$data_with_pval[, eval(nodeY)] %in% name[1]
     return(domain_res$data_with_pval[which_nodeY, name[2] %in% eval(nodeX)])
-  }, InteractionSubsetFASTA_list, domain_res)
-
+  }, domain_res, nodeX, nodeY)
   if(remove){
     InteractionSubsetFASTA_list$fasta_subset_list = InteractionSubsetFASTA_list$fasta_subset_list[which_to_keep]
     InteractionSubsetFASTA_list$interaction_subset = InteractionSubsetFASTA_list$interaction_subset[which_to_keep]
