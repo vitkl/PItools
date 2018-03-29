@@ -7,9 +7,13 @@
 ##' @param fasta AAStringSet containing sequences for all proteins in interaction_set1 and interaction_set2
 ##' @param single_interact_from_set2 logical, split sequence sets to contain only one protein from interaction_set2 (only one query protein for QSLIMFinder). If FALSE, set2 will contain all proteins that interact with an element of \code{seed_id_vect} (which means multiple query proteins for QSLIMFinder).
 ##' @param set1_only logical, only relevant if \code{single_interact_from_set2 = TRUE}, sequence set1 should contain only proteins that interact with an element of seed_id_vect in interaction_set1. If FALSE, proteins that interact with an element of seed_id_vect in interaction_set2 but are not a single query protein are also included. Argument for \code{\link{singleInteractFromSet2}}
+##' @param clustermq Use clustermq LSF job scheduler (TRUE) as an alternative to parLapply (FALSE). Details: \link[clustermq]{Q}
+##' @param clustermq_memory When using clustermq: memory requested for each job
+##' @param clustermq_job_size When using clustermq: The number of function calls per job
 ##' @return object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.
 ##' @import data.table
 ##' @import Biostrings
+##' @import clustermq
 ##' @export listInteractionSubsetFASTA
 ##' @seealso \code{\link{subset2setsBy1ID}}, \code{\link{recodeFASTA}}, \code{\link{interactionSubsetMapID}}, \code{\link{recodeANDinteractionSubsetFASTA}}, \code{\link{singleInteractFromSet2}}, \code{\link{listSingleInteractFromSet2}}, \code{\link{filterInteractionSubsetFASTA_list}}
 ##' @examples
@@ -18,7 +22,9 @@
 ##'                  seed_id_vect = proteins_w_signif_domains,
 ##'                  fasta = all.fasta,
 ##'                  single_interact_from_set2 = T, set1_only = T)
-listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_id_vect, fasta, single_interact_from_set2 = T, set1_only = T) {
+listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_id_vect, fasta, single_interact_from_set2 = T, set1_only = T,
+                                      clustermq = T, clustermq_job_size = 100,
+                                      clustermq_memory = 2000) {
 
   if(!grepl("clean_MItab",class(interaction_set1))) stop("interaction_set1 is not of class clean_MItab27 or related clean_MItab class")
   if(!grepl("clean_MItab",class(interaction_set2))) stop("interaction_set2 is not of class clean_MItab27 or related clean_MItab class")
@@ -26,8 +32,8 @@ listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_i
   # remove seed proteins with no FASTA
   seed_id_vect = seed_id_vect[seed_id_vect %in% names(fasta)]
   # remove seed proteins with no interactions in both sets
-  interactors = c(extractInteractors(interaction_set1), extractInteractors(interaction_set2))
-  seed_id_vect = seed_id_vect[seed_id_vect %in% interactors]
+  seed_id_vect = seed_id_vect[seed_id_vect %in% extractInteractors(interaction_set1) &
+                                seed_id_vect %in% extractInteractors(interaction_set2)]
 
   subset1 = subset2setsBy1ID(interaction_set1 = interaction_set1,
                              interaction_set2 = interaction_set2,
@@ -35,15 +41,33 @@ listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_i
   subset1_fasta = listSingleInteractFromSet2(subset1, single_interact_from_set2, set1_only, fasta)
 
   if(length(seed_id_vect) >= 2){
-    for (seed_id in seed_id_vect[2:length(seed_id_vect)]) {
-      subset = subset2setsBy1ID(interaction_set1 = interaction_set1,
-                                interaction_set2 = interaction_set2,
-                                seed_id = seed_id)
-      subset_fasta = listSingleInteractFromSet2(subset1 = subset, single_interact_from_set2, set1_only, fasta)
-      subset1_fasta$fasta_subset_list = c(subset1_fasta$fasta_subset_list, subset_fasta$fasta_subset_list)
-      subset1_fasta$interaction_subset = c(subset1_fasta$interaction_subset, subset_fasta$interaction_subset)
+    if(!clustermq){
+      for (seed_id in seed_id_vect[2:length(seed_id_vect)]) {
+        subset = subset2setsBy1ID(interaction_set1 = interaction_set1,
+                                  interaction_set2 = interaction_set2,
+                                  seed_id = seed_id)
+        subset_fasta = listSingleInteractFromSet2(subset1 = subset, single_interact_from_set2, set1_only, fasta)
+        subset1_fasta$fasta_subset_list = c(subset1_fasta$fasta_subset_list, subset_fasta$fasta_subset_list)
+        subset1_fasta$interaction_subset = c(subset1_fasta$interaction_subset, subset_fasta$interaction_subset)
+      }
+    } else {
+      subset_fasta = Q(fun = function(seed_id){
+        library(MItools)
+        subset = subset2setsBy1ID(interaction_set1 = interaction_set1,
+                                  interaction_set2 = interaction_set2,
+                                  seed_id = seed_id)
+        subset_fasta = listSingleInteractFromSet2(subset1 = subset, single_interact_from_set2, set1_only, fasta)
+      }, seed_id_vect[2:length(seed_id_vect)],
+      export = list(interaction_set1 = interaction_set1, interaction_set2 = interaction_set2,
+                    single_interact_from_set2 = single_interact_from_set2,
+                    set1_only = set1_only, fasta = fasta),
+      job_size = clustermq_job_size,
+      memory = clustermq_memory)
+      subset1_fasta$fasta_subset_list = c(subset1_fasta$fasta_subset_list, Reduce(c, subset_fasta$fasta_subset_list))
+      subset1_fasta$interaction_subset = c(subset1_fasta$interaction_subset, Reduce(c, subset_fasta$interaction_subset))
     }
   }
+
   subset1_fasta$length = length(subset1_fasta$fasta_subset_list)
   class(subset1_fasta) = "InteractionSubsetFASTA_list"
   return(subset1_fasta)

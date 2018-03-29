@@ -168,4 +168,3 @@ legend(x = 80, y = 50, c("statictic used in permutation test:","domain frequency
 plot(colnames(enrichment), enrichment[1,], ylab = "Fisher test pvalue", xlab = "top N viral protein - domain pairs selected", col = "red", type = "l", ylim = c(0,0.004))
 lines(x = colnames(enrichment), y = enrichmentFISHER[1,], col = "blue", type = "l")
 legend(x = 80, y = 0.0041, c("statictic used in permutation test:","domain frequency among interactors of a viral protein", "Fisher test pval: domain overrepresentation over the background"), col = c("white","red", "blue"), lty = 1 ,merge = TRUE)
-
