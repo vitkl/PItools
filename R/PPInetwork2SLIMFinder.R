@@ -24,6 +24,7 @@
 ##' @param memory_start integer, how much memory each job should be given initially
 ##' @param memory_step interger, increment by which to increase how much memory each job should be given if \code{memory_start} is not enough and the job has failed
 ##' @param compare_motifs logical, compare motifs using CompariMotif3? The procedure is relatively fast but memory consuming.
+##' @param Njobs_limit integer, the number of LSF jobs allowed to run simultaneously
 ##' @details QSLIMFinder command line options (http://rest.slimsuite.unsw.edu.au/docs&page=module:qslimfinder)
 ##'
 ##'### Basic Input/Output Options ###
@@ -273,7 +274,8 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                  seed_list = NULL,
                                  memory_start = 350,
                                  memory_step = 100,
-                                 compare_motifs = T)
+                                 compare_motifs = T,
+                                 Njobs_limit = 490)
 {
   # check class correctness
   if(!grepl("clean_MItab",class(interaction_main_set))) stop("interaction_main_set is not of class clean_MItab27 or related clean_MItab class")
@@ -348,7 +350,10 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                          LSF_project_path = LSF_project_path,
                                          dataset_name = dataset_name, N_seq = N_seq, write_log = write_log)
 
-  runQSLIMFinder(commands_list = all_commands, file_list = forSLIMFinder_file_list, onLSF = T, memory_step = memory_step, memory_start = memory_start + memory_step)
+  runQSLIMFinder(commands_list = all_commands, file_list = forSLIMFinder_file_list,
+                 onLSF = T, memory_step = memory_step,
+                 memory_start = memory_start + memory_step,
+                 Njobs_limit = Njobs_limit)
 
   # read and bring together results
   resultdir = paste0(SLIMFinder_dir, "result/")

@@ -14,18 +14,18 @@
 domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, remove = T) {
 
   # for testing
-  envir = new.env()
-  load("../viral_project/processed_data_files/QSLIMFinder_instances_h2v_qslimfinder.Full_IntAct3.FALSE_clust201802.RData", envir = envir)
-  domain_res_env = R.utils::env(load("../viral_project/processed_data_files/what_we_find_VS_ELM_clust20171019.RData"))
-  domain_res = domain_res_env$res_count
-  dbfile_main = "../viral_project/data_files/instances_all.gff"
-  dburl_main = "http://elm.eu.org/instances.gff?q=None&taxon=Homo%20sapiens&instance_logic="
-  instances_all = ELMdb2GRanges(dbfile = dbfile_main,
-                                dburl = dburl_main,
-                                tsvurl = gsub("gff", "tsv", dburl_main),
-                                tsvfile = gsub("gff", "tsv", dbfile_main))
-  grange = instances_all
-  interactionSubsetFASTA = envir$forSLIMFinder_Ready
+  #envir = new.env()
+  #load("../viral_project/processed_data_files/QSLIMFinder_instances_h2v_qslimfinder.Full_IntAct3.FALSE_clust201802.RData", envir = envir)
+  #domain_res_env = R.utils::env(load("../viral_project/processed_data_files/what_we_find_VS_ELM_clust20171019.RData"))
+  #domain_res = domain_res_env$res_count
+  #dbfile_main = "../viral_project/data_files/instances_all.gff"
+  #dburl_main = "http://elm.eu.org/instances.gff?q=None&taxon=Homo%20sapiens&instance_logic="
+  #instances_all = ELMdb2GRanges(dbfile = dbfile_main,
+  #                              dburl = dburl_main,
+  #                              tsvurl = gsub("gff", "tsv", dburl_main),
+  #                              tsvfile = gsub("gff", "tsv", dbfile_main))
+  #grange = instances_all
+  #interactionSubsetFASTA = envir$forSLIMFinder_Ready
   # end for testing
 
   interaction_subset = InteractionSubsetFASTA_list$interaction_subset

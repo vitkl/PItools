@@ -17,7 +17,8 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
   LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
   software_path = "../software/cluster/", length_set1_min = 2,
   length_set2_min = 1, write_log = T, N_seq = 200, seed_list = NULL,
-  memory_start = 350, memory_step = 100, compare_motifs = T)
+  memory_start = 350, memory_step = 100, compare_motifs = T,
+  Njobs_limit = 490)
 }
 \arguments{
 \item{dataset_name}{refer to \code{\link[MItools]{mBenchmarkMotifs}}}
@@ -63,6 +64,8 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
 \item{memory_step}{interger, increment by which to increase how much memory each job should be given if \code{memory_start} is not enough and the job has failed}
 
 \item{compare_motifs}{logical, compare motifs using CompariMotif3? The procedure is relatively fast but memory consuming.}
+
+\item{Njobs_limit}{integer, the number of LSF jobs allowed to run simultaneously}
 }
 \value{
 path to RData containing all objects used by this pipeline

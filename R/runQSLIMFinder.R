@@ -8,11 +8,12 @@
 ##' @param max_memory max memory to use for a job
 ##' @param onLSF use LSF cluster to run QSLIMFinder jobs
 ##' @param recursive how to create directories
+##' @param Njobs_limit integer, the number of LSF jobs allowed to run simultaneously
 ##' @return list: character vector, commands that have crashed even at \code{max_memory}; data.table, corresponding rows of \code{file_list}
 ##' @import data.table
 ##' @export runQSLIMFinder
 ##' @seealso \code{\link{QSLIMFinderCommand}}
-runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T, recursive = F, lsf_keyword = "TERM_MEMLIMIT", rm_log = T, memory_step = 100, memory_start = 200){
+runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T, recursive = F, lsf_keyword = "TERM_MEMLIMIT", rm_log = T, memory_step = 100, memory_start = 200, Njobs_limit = 490){
   if(mean(c("set_env_var","run") %in% names(commands_list)) < 1) stop("`commands_list` doesn't contain `set_env_var` and/or `run`, check that `commands_list` is an output of mQSLIMFinderCommand")
   if(onLSF){
     # create dirs for stout and sterr
@@ -23,7 +24,7 @@ runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T
     # set up enviromental variable IUPred_PATH
     system(commands_list$set_env_var)
     # run runQSLIMFinder and wait until all jobs finish
-    LSFrunQSLIMFinder(commands_list$run)
+    LSFrunQSLIMFinder(commands_list$run, Njobs_limit = Njobs_limit)
     # find which jobs have crashed
     commands_crashed = jobsCrashed(commands_list, rm_log = rm_log, lsf_keyword = lsf_keyword)
 
@@ -31,7 +32,7 @@ runQSLIMFinder = function(commands_list, file_list, max_memory = 5000, onLSF = T
     for(memory_val in memory_vals){
       if(length(commands_crashed) >= 1){
         commands_crashed = modifyMemoryInBsub(commands_crashed, memory = memory_val)
-        LSFrunQSLIMFinder(commands_crashed)
+        LSFrunQSLIMFinder(commands_crashed, Njobs_limit = Njobs_limit)
         commands_crashed = jobsCrashed(commands_list, rm_log = rm_log, lsf_keyword = lsf_keyword)
       }
     }
@@ -56,13 +57,13 @@ modifyMemoryInBsub = function(commands, memory){
 ##' @param job_name_sig string common to all job names
 ##' @import data.table
 ##' @export LSFrunQSLIMFinder
-LSFrunQSLIMFinder = function(commands, job_name_sig = "batch_") {
+LSFrunQSLIMFinder = function(commands, job_name_sig = "batch_", Njobs_limit = 490) {
   for (command in commands) {
     Nbjobs = length(system("bjobs", intern =T)) - 1
     done = FALSE
     n = 1
     while(!done){
-      if(Nbjobs < 490){
+      if(Nbjobs < Njobs_limit){
         system(command, wait = F)
         done = TRUE
       } else {
