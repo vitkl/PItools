@@ -11,7 +11,7 @@
 ##' @export SLIMFinderOcc2GRanges
 ##' @seealso \code{\link{ELMdb2GRanges}}, \code{\link{GRangesINinteractionSubsetFASTA}}
 SLIMFinderOcc2GRanges = function(occurence_file = "../viral_project/SLIMFinder_Vidal/result/occurence.txt", main_file = "../viral_project/SLIMFinder_Vidal/result/main_result.txt", one_from_cloud = T) {
-  occurence = fread(occurence_file, stringsAsFactors = F)
+  occurence = unique(fread(occurence_file, stringsAsFactors = F))
   occurence[, Seq := gsub("_UNK__.+$","",Seq)]
   if(!is.null(main_file)) {
     pattens = unique(fread(main_file, stringsAsFactors = F)[, c("RunID", "RunTime") := NULL])
