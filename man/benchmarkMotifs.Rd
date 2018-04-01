@@ -22,14 +22,14 @@
   "CLV", "TRG"), all_res_excl_query = T, merge_motif_variants = F,
   seed = 21, N = 100, replace = T, within1sequence = T,
   query_predictor_col = "Sig", all_predictor_col = "Sig", normalise = T,
-  minoverlap = 2, maxgap = 0, minoverlap_redundant = 5,
-  merge_domain_data = T, merge_by_occurence_mcols = c("query",
-  "interacts_with"), merge_by_domain_res_cols = c("IDs_interactor_viral",
+  minoverlap = 2, minoverlap_redundant = 5, merge_domain_data = T,
+  merge_by_occurence_mcols = c("query", "interacts_with"),
+  merge_by_domain_res_cols = c("IDs_interactor_viral",
   "IDs_interactor_human"), count_ranges_by = list(by = "IDs_domain_human",
   name = "motif_occ_per_domain", normalise_by = "domain_count", normalised_name
   = "normalised_motif_occ_per_domain"),
   filter_by_domain_data = "p.value < 0.05",
-  select_predictor_per_range = min, ...)
+  select_predictor_per_range = max, ...)
 
 queryOCCByMCOL(res, keytype = "IDs_domain_human", key = "IPR032440")
 
@@ -54,7 +54,7 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
   name = "motif_occ_per_domain", normalise_by = "domain_count", normalised_name
   = "normalised_motif_occ_per_domain"),
   filter_by_domain_data = "p.value < 0.05",
-  select_predictor_per_range = min, dir_suff = "")
+  select_predictor_per_range = max, dir_suff = "")
 }
 \arguments{
 \item{occurence_file}{a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) occurence output}
@@ -102,8 +102,6 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
 \item{normalise}{logical, normalise predictor value, just in case predictor doesn't span the full range between 0 ... 1}
 
 \item{minoverlap}{integer, passed to \code{\link[GenomicRanges]{findOverlaps}}}
-
-\item{maxgap}{integer, passed to \code{\link[GenomicRanges]{findOverlaps}}}
 
 \item{minoverlap_redundant}{for removing motif classes that match the same occurence}
 
