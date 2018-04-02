@@ -318,7 +318,8 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
 
   # keep only specific query proteins
   if(!is.null(query_list)){
-    to_keep = tstrsplit(names(forSLIMFinder$fasta_subset_list), ":")[[2]] %in% query_list
+    to_keep = gsub("\\.","",tstrsplit(names(forSLIMFinder$fasta_subset_list), ":")[[2]]) %in% query_list
+    if(sum(to_keep) == 0) stop("no datasets contain query proteins requested in query_list")
     forSLIMFinder$fasta_subset_list = forSLIMFinder$fasta_subset_list[to_keep]
     forSLIMFinder$interaction_subset = forSLIMFinder$interaction_subset[to_keep]
     forSLIMFinder$length = length(forSLIMFinder$fasta_subset_list)
