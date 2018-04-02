@@ -32,7 +32,7 @@ runCompariMotif3 = function(input_file = "./SLIMFinder/result/motifs.txt",
   if(with == "self"){
     input_database = ""
   } else if(with == "db"){
-    input_database = paste0("searchdb=", LSF_project_path, elm_filename)
+    input_database = paste0("searchdb=", elm_filename)
   } else stop("'with' is provided but is not 'self' or 'db'")
   out_file = paste0("resfile=", LSF_project_path, out_file)
   command = paste(comparimotif_call, input_res, input_database, parameters, out_file)
