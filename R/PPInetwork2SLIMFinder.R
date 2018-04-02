@@ -25,6 +25,8 @@
 ##' @param memory_step interger, increment by which to increase how much memory each job should be given if \code{memory_start} is not enough and the job has failed
 ##' @param compare_motifs logical, compare motifs using CompariMotif3? The procedure is relatively fast but memory consuming.
 ##' @param Njobs_limit integer, the number of LSF jobs allowed to run simultaneously
+##' @param CompariMotif3_dburl dburl url where to download database for CompariMotif V3. Argument for \code{\link{runCompariMotif3}}
+##' @param CompariMotif3_dbpath path to directory where to save and keep ELM database (\link{http://elm.eu.org/}) or other database of linear motifs in a format required by comparimotif_V3: \link{http://rest.slimsuite.unsw.edu.au/docs&page=module:comparimotif_V3}
 ##' @details QSLIMFinder command line options (http://rest.slimsuite.unsw.edu.au/docs&page=module:qslimfinder)
 ##'
 ##'### Basic Input/Output Options ###
@@ -275,7 +277,9 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                  memory_start = 350,
                                  memory_step = 100,
                                  compare_motifs = T,
-                                 Njobs_limit = 490)
+                                 Njobs_limit = 490,
+                                 CompariMotif3_dburl = "http://elm.eu.org/elms/elms_index.tsv",
+                                 CompariMotif3_dbpath = "./data_files/")
 {
   # check class correctness
   if(!grepl("clean_MItab",class(interaction_main_set))) stop("interaction_main_set is not of class clean_MItab27 or related clean_MItab class")
@@ -372,13 +376,17 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   # compare discovered motifs to ELM
   runCompariMotif3(input_file = paste0(resultdir, "motifs.txt"),
                    slimpath = paste0(software_path, "slimsuite/tools/"),
+                   dbpath = CompariMotif3_dbpath,
+                   dburl = CompariMotif3_dburl,
                    run = T, with = "db",
-                   out_file = paste0(resultdir, "comparimotif.tdt"))
+                   out_file = paste0(resultdir, "comparimotif.tdt"),
+                   LSF_project_path = LSF_project_path)
   # compare discovered motifs to each other
   runCompariMotif3(input_file = paste0(resultdir, "motifs.txt"),
                    slimpath = paste0(software_path, "slimsuite/tools/"),
                    run = T, with = "self",
-                   out_file = paste0(resultdir, "comparimotif_with_self.tdt"))
+                   out_file = paste0(resultdir, "comparimotif_with_self.tdt"),
+                   LSF_project_path = LSF_project_path)
   #R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.tdt"), paste0(resultdir, "comparimotif_with_self.compare.tdt.gz"))
   #R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.xgmml"), paste0(resultdir, "comparimotif_with_self.compare.xgmml.gz"))
   }

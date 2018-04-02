@@ -18,7 +18,9 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
   software_path = "../software/cluster/", length_set1_min = 2,
   length_set2_min = 1, write_log = T, N_seq = 200, seed_list = NULL,
   memory_start = 350, memory_step = 100, compare_motifs = T,
-  Njobs_limit = 490)
+  Njobs_limit = 490,
+  CompariMotif3_dburl = "http://elm.eu.org/elms/elms_index.tsv",
+  CompariMotif3_dbpath = "./data_files/")
 }
 \arguments{
 \item{dataset_name}{refer to \code{\link[MItools]{mBenchmarkMotifs}}}
@@ -66,6 +68,10 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
 \item{compare_motifs}{logical, compare motifs using CompariMotif3? The procedure is relatively fast but memory consuming.}
 
 \item{Njobs_limit}{integer, the number of LSF jobs allowed to run simultaneously}
+
+\item{CompariMotif3_dburl}{dburl url where to download database for CompariMotif V3. Argument for \code{\link{runCompariMotif3}}}
+
+\item{CompariMotif3_dbpath}{path to directory where to save and keep ELM database (\link{http://elm.eu.org/}) or other database of linear motifs in a format required by comparimotif_V3: \link{http://rest.slimsuite.unsw.edu.au/docs&page=module:comparimotif_V3}}
 }
 \value{
 path to RData containing all objects used by this pipeline

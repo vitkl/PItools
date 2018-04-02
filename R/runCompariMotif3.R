@@ -24,7 +24,7 @@ runCompariMotif3 = function(input_file = "./SLIMFinder/result/motifs.txt",
                             LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
                             run = F, with = c("self", "db")[2]){
   if(with == "db"){
-    elm_filename = paste0(LSF_project_path, dbpath, Sys.Date(), "elms_index.tsv")
+    elm_filename = paste0(LSF_project_path, dbpath, data.table::year(Sys.Date()), "elms_index.tsv")
     if(!file.exists(elm_filename)) download.file(dburl, elm_filename)
   }
   comparimotif_call = paste0("python ", LSF_project_path, slimpath, "comparimotif_V3.py")
