@@ -17,8 +17,8 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
   LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
   software_path = "../software/cluster/", length_set1_min = 2,
   length_set2_min = 1, write_log = T, N_seq = 200, seed_list = NULL,
-  memory_start = 350, memory_step = 100, compare_motifs = T,
-  Njobs_limit = 490,
+  query_list = NULL, memory_start = 350, memory_step = 100,
+  compare_motifs = T, Njobs_limit = 490,
   CompariMotif3_dburl = "http://elm.eu.org/elms/elms_index.tsv",
   CompariMotif3_dbpath = "./data_files/")
 }
@@ -59,7 +59,9 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
 
 \item{N_seq}{number of sequences per batch}
 
-\item{seed_list}{character vector of UniprotKB accesions that should serve as a seed for QSLIMFinder. These proteins are supposed to recognise SLIMs. Overrides selection of seed protein by \code{domain_pvalue_cutoff}}
+\item{seed_list}{character vector of UniprotKB accesions that should serve as a seed for QSLIMFinder datasets. These proteins are supposed to recognise SLIMs. Overrides selection of seed protein by \code{domain_pvalue_cutoff}}
+
+\item{query_list}{character vector of UniprotKB accesions that should serve as a query for QSLIMFinder}
 
 \item{memory_start}{integer, how much memory each job should be given initially}
 

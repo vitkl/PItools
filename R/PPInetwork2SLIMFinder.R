@@ -20,7 +20,8 @@
 ##' @param length_set2_min mininal number of proteins in a QSLIMFinder dataset from \code{interaction_query_set}. Argument for \code{\link{filterInteractionSubsetFASTA_list}}
 ##' @param write_log FALSE will not allow runQSLIMFinder to detect crashed jobs
 ##' @param N_seq number of sequences per batch
-##' @param seed_list character vector of UniprotKB accesions that should serve as a seed for QSLIMFinder. These proteins are supposed to recognise SLIMs. Overrides selection of seed protein by \code{domain_pvalue_cutoff}
+##' @param seed_list character vector of UniprotKB accesions that should serve as a seed for QSLIMFinder datasets. These proteins are supposed to recognise SLIMs. Overrides selection of seed protein by \code{domain_pvalue_cutoff}
+##' @param query_list character vector of UniprotKB accesions that should serve as a query for QSLIMFinder
 ##' @param memory_start integer, how much memory each job should be given initially
 ##' @param memory_step interger, increment by which to increase how much memory each job should be given if \code{memory_start} is not enough and the job has failed
 ##' @param compare_motifs logical, compare motifs using CompariMotif3? The procedure is relatively fast but memory consuming.
@@ -273,7 +274,7 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                  length_set2_min = 1,
                                  write_log = T,
                                  N_seq = 200,
-                                 seed_list = NULL,
+                                 seed_list = NULL, query_list = NULL,
                                  memory_start = 350,
                                  memory_step = 100,
                                  compare_motifs = T,
@@ -314,6 +315,15 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                              seed_id_vect = proteins_w_signif_domains,
                                              fasta = all.fasta,
                                              single_interact_from_set2 = T, set1_only = main_set_only)
+
+  # keep only specific query proteins
+  if(!is.null(query_list)){
+    to_keep = tstrsplit(names(forSLIMFinder$fasta_subset_list), ":")[[2]] %in% query_list
+    forSLIMFinder$fasta_subset_list = forSLIMFinder$fasta_subset_list[to_keep]
+    forSLIMFinder$interaction_subset = forSLIMFinder$interaction_subset[to_keep]
+    forSLIMFinder$length = length(forSLIMFinder$fasta_subset_list)
+  }
+
 
   # filter for only significant domain - query protein pair
   domain_filt = copy(domain_res)
