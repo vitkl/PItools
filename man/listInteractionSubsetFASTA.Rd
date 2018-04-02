@@ -5,8 +5,7 @@
 \title{get FASTA sequences of interactors of specific proteins: for QSLIMFinder}
 \usage{
 listInteractionSubsetFASTA(interaction_set1, interaction_set2, seed_id_vect,
-  fasta, single_interact_from_set2 = T, set1_only = T, clustermq = T,
-  clustermq_job_size = 100, clustermq_memory = 2000)
+  fasta, single_interact_from_set2 = T, set1_only = T)
 }
 \arguments{
 \item{interaction_set1}{cleanMItab object containing molecular interactions}
@@ -20,12 +19,6 @@ listInteractionSubsetFASTA(interaction_set1, interaction_set2, seed_id_vect,
 \item{single_interact_from_set2}{logical, split sequence sets to contain only one protein from interaction_set2 (only one query protein for QSLIMFinder). If FALSE, set2 will contain all proteins that interact with an element of \code{seed_id_vect} (which means multiple query proteins for QSLIMFinder).}
 
 \item{set1_only}{logical, only relevant if \code{single_interact_from_set2 = TRUE}, sequence set1 should contain only proteins that interact with an element of seed_id_vect in interaction_set1. If FALSE, proteins that interact with an element of seed_id_vect in interaction_set2 but are not a single query protein are also included. Argument for \code{\link{singleInteractFromSet2}}}
-
-\item{clustermq}{Use clustermq LSF job scheduler (TRUE) as an alternative to parLapply (FALSE). Details: \link[clustermq]{Q}}
-
-\item{clustermq_job_size}{When using clustermq: The number of function calls per job}
-
-\item{clustermq_memory}{When using clustermq: memory requested for each job}
 }
 \value{
 object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.
