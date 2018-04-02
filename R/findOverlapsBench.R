@@ -56,5 +56,5 @@ findOverlapsBench = function(occuring, benchmarking, predictor_col = "Sig", labe
   #res_no_overlap = Reduce(rbind, res_no_overlap_list)
 
   res = rbind(res_overlap, res_no_overlap)
-  list(overlapping_GRanges = occuring_subset, for_ROC = res)
+  list(overlapping_GRanges = occuring_subset, for_ROC = res, not_found = no_overlap)
 }

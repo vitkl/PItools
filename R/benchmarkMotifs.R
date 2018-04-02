@@ -336,25 +336,23 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
       combined_instances_query_temp = combined_instances_query
     }
 
-    #overlapping_GRanges_all = findOverlapsBench(occuring = occurence,
+    #overlaps_all = findOverlapsBench(occuring = occurence,
     #                                            benchmarking = combined_instances_all_temp,
     #                                            predictor_col = all_predictor_col,
     #                                            labels_col = "for_benchmarking",
     #                                            normalise = normalise,
     #                                            minoverlap = minoverlap)$overlapping_GRanges
-    #overlapping_GRanges_all = overlapping_GRanges_all[overlapping_GRanges_all$for_benchmarking == 1,]
-    overlapping_GRanges_query = findOverlapsBench(occuring = occurence_query,
+    #overlapping_GRanges_all = overlaps_all$overlapping_GRanges[overlaps_all$overlapping_GRanges$for_benchmarking == 1,]
+    overlaps_query = findOverlapsBench(occuring = occurence_query,
                                                   benchmarking = combined_instances_query_temp,
                                                   predictor_col = query_predictor_col,
                                                   labels_col = "for_benchmarking",
                                                   normalise = normalise,
-                                                  minoverlap = minoverlap)$overlapping_GRanges
-    overlapping_GRanges_query = overlapping_GRanges_query[overlapping_GRanges_query$for_benchmarking == 1,]
+                                                  minoverlap = minoverlap)
+    overlapping_GRanges_query = overlaps_query$overlapping_GRanges[overlaps_query$overlapping_GRanges$for_benchmarking == 1,]
   })
 
   ##### KNOWN #####
-  #motif_protein_table_queryKNOWN = as.data.table(cbind(mcols(instances_query)[, c("ID")], UNIPROT = seqnames(instances_query)))
-  # number of proteins with motif
   N_query_prot_with_known_instances = length(unique(as.character(seqnames(instances_query)))) #motif_protein_table_queryKNOWN[, uniqueN(UNIPROT)]#, by = .(ID)]
   # total number of instances
   N_query_known_instances = length(unique(instances_query))
@@ -366,23 +364,23 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
   # N_all_known_instances = length(unique(instances_all))
 
   ##### FOUND #####
-  #motif_protein_table_query = as.data.table(cbind(mcols(overlapping_GRanges_query)[, c("ID", "Pattern")], UNIPROT = seqnames(overlapping_GRanges_query)))
   # number of proteins with motif
   N_query_prot_with_known_instances_found = length(unique(as.character(seqnames(overlapping_GRanges_query)))) #motif_protein_table_query[, uniqueN(UNIPROT), by = .(ID, Pattern)]
   # total number of discovered instances
   N_query_known_instances_found = length(unique(overlapping_GRanges_query))
   # number of known instances that match discovered instances
-  N_query_match_known_instances_found = length(unique(paste0(mcols(overlapping_GRanges_query)[, c("ID")],
-                                                             seqnames(overlapping_GRanges_query))))
+  N_query_match_known_instances_found = N_query_known_instances - length(unique(overlaps_query$not_found))
+  # total found
+  N_query_total_instances_found = length(unique(occurence_query))
 
-  #motif_protein_table_all = as.data.table(cbind(mcols(overlapping_GRanges_all)[, c("ID", "Pattern")], UNIPROT = seqnames(overlapping_GRanges_all)))
   # number of proteins with motif
   #N_all_prot_with_known_instances_found = length(unique(as.character(seqnames(overlapping_GRanges_all)))) #motif_protein_table_all[, uniqueN(UNIPROT), by = .(ID, Pattern)]
   # total number of discovered instances
   #N_all_known_instances_found = length(unique(overlapping_GRanges_all))
   # number of known instances that match discovered instances
-  #N_all_match_known_instances_found = length(unique(paste0(mcols(overlapping_GRanges_all)[, c("ID")],
-  #                                                         seqnames(overlapping_GRanges_all))))
+  #N_all_match_known_instances_found = N_all_known_instances - length(unique(overlaps_all$not_found))
+  # total found
+  #N_all_total_instances_found = length(unique(occurence))
 
 
   out = list(
@@ -396,6 +394,8 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
     N_query_prot_with_known_instances = N_query_prot_with_known_instances, N_query_known_instances = N_query_known_instances,
     #N_all_prot_with_known_instances = N_all_prot_with_known_instances, N_all_known_instances = N_all_known_instances,
     N_query_prot_with_known_instances_found = N_query_prot_with_known_instances_found, N_query_known_instances_found = N_query_known_instances_found,
+    N_query_total_instances_found = N_query_total_instances_found,
+    #N_all_total_instances_found = N_all_total_instances_found,
     #N_all_prot_with_known_instances_found = N_all_prot_with_known_instances_found, N_all_known_instances_found = N_all_known_instances_found,
     N_query_match_known_instances_found = N_query_match_known_instances_found#,
     #N_all_match_known_instances_found = N_all_match_known_instances_found

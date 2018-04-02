@@ -62,30 +62,34 @@ benchmarkMotifsROC = function(res, data_type = c("both","query", "all")[1],
   }
 
   if(data_type == "both"){
-    legend_names = c("M discovered / matching N known / \nknown & discoverable",
+    legend_names = c("total discovered / including M / \nmatching N known / known & discoverable\n",
                      paste0("query instances(proteins): \n",
-                            res$N_query_known_instances_found,
-                            " / ",res$N_query_match_known_instances_found,"(",res$N_query_prot_with_known_instances_found,")",
+                            res$N_query_total_instances_found,
+                            " / ",res$N_query_known_instances_found,
+                            " / \n",res$N_query_match_known_instances_found,"(",res$N_query_prot_with_known_instances_found,")",
                             " / ",res$N_query_known_instances,"(",res$N_query_prot_with_known_instances,")"),
                      paste0("non-query instances(proteins): \n",
-                            res$N_all_known_instances_found,
-                            " / ",res$N_all_match_known_instances_found,"(",res$N_all_prot_with_known_instances_found,")",
+                            res$N_all_total_instances_found,
+                            " / ",res$N_all_known_instances_found,
+                            " / \n",res$N_all_match_known_instances_found,"(",res$N_all_prot_with_known_instances_found,")",
                             " / ",res$N_all_known_instances,"(",res$N_all_prot_with_known_instances,")"))
     legend_cols = c("transparent",col_query, col_all)
   }
   if(data_type == "all"){
-    legend_names = c("M discovered / matching N known / \nknown & discoverable",
+    legend_names = c("total discovered / including M / \nmatching N known / known & discoverable\n",
                      paste0("non-query instances(proteins): \n",
-                            res$N_all_known_instances_found,
-                            " / ",res$N_all_match_known_instances_found,"(",res$N_all_prot_with_known_instances_found,")",
+                            res$N_all_total_instances_found,
+                            " / ",res$N_all_known_instances_found,
+                            " / \n",res$N_all_match_known_instances_found,"(",res$N_all_prot_with_known_instances_found,")",
                             " / ",res$N_all_known_instances,"(",res$N_all_prot_with_known_instances,")"))
     legend_cols = c("transparent", col_all)
   }
   if(data_type == "query"){
-  legend_names = c("M discovered / matching N known / \nknown & discoverable",
+  legend_names = c("total discovered / including M / \nmatching N known / known & discoverable\n",
                    paste0("query instances(proteins): \n",
-                          res$N_query_known_instances_found,
-                          " / ",res$N_query_match_known_instances_found,"(",res$N_query_prot_with_known_instances_found,")",
+                          res$N_query_total_instances_found,
+                          " / ",res$N_query_known_instances_found,
+                          " / \n",res$N_query_match_known_instances_found,"(",res$N_query_prot_with_known_instances_found,")",
                           " / ",res$N_query_known_instances,"(",res$N_query_prot_with_known_instances,")"))
   legend_cols = c("transparent",col_query)
   }
