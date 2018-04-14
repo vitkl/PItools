@@ -28,7 +28,7 @@
   "IDs_interactor_human"), count_ranges_by = list(by = "IDs_domain_human",
   name = "motif_occ_per_domain", normalise_by = "domain_count", normalised_name
   = "normalised_motif_occ_per_domain"),
-  filter_by_domain_data = "p.value < 0.05",
+  filter_by_domain_data = "p.value < 0.05", motif_pval_cutoff = 1,
   select_predictor_per_range = max, ...)
 
 queryOCCByMCOL(res, keytype = "IDs_domain_human", key = "IPR032440")
@@ -53,7 +53,7 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
   "IDs_interactor_human"), count_ranges_by = list(by = "IDs_domain_human",
   name = "motif_occ_per_domain", normalise_by = "domain_count", normalised_name
   = "normalised_motif_occ_per_domain"),
-  filter_by_domain_data = "p.value < 0.05",
+  filter_by_domain_data = "p.value < 0.05", motif_pval_cutoff = 1,
   select_predictor_per_range = max, dir_suff = "")
 }
 \arguments{

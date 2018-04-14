@@ -57,7 +57,7 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
                            merge_by_domain_res_cols = c("IDs_interactor_viral", "IDs_interactor_human"),
                            count_ranges_by = list(by = "IDs_domain_human", name = "motif_occ_per_domain",
                                                   normalise_by = "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
-                           filter_by_domain_data = "p.value < 0.05",
+                           filter_by_domain_data = "p.value < 0.05", motif_pval_cutoff = 1,
                            select_predictor_per_range = max, ...) {
 
   ### Load domain enrichment results, PPI data, and data used for QSLIMfinder
@@ -87,6 +87,8 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
   occurence = SLIMFinderOcc2GRanges(occurence_file = occurence_file,
                                     main_file = main_file,
                                     one_from_cloud = one_from_cloud)
+  # apply motif_pval_cutoff
+  occurence = occurence[mcols(occurence[,query_predictor_col])[,1] < motif_pval_cutoff]
   #instances_all = ELMdb2GRanges(dbfile = dbfile_main,
   #                              dburl = dburl_main,
   #                              tsvurl = gsub("gff", "tsv", dburl_main),
@@ -456,6 +458,7 @@ mBenchmarkMotifs = function(datasets = c("", "Vidal"),
                             count_ranges_by = list(by = "IDs_domain_human", name = "motif_occ_per_domain",
                                                    normalise_by = "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
                             filter_by_domain_data = "p.value < 0.05",
+                            motif_pval_cutoff = 1,
                             select_predictor_per_range = max,
                             dir_suff = ""){
 
@@ -495,6 +498,7 @@ mBenchmarkMotifs = function(datasets = c("", "Vidal"),
                              minoverlap_redundant = minoverlap_redundant,
                              merge_motif_variants = merge_motif_variants,
                              filter_by_domain_data = filter_by_domain_data,
+                             motif_pval_cutoff = motif_pval_cutoff,
                              select_predictor_per_range = select_predictor_per_range)
 
     result$description = description
