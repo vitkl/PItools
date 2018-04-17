@@ -117,7 +117,7 @@ ELMdb2GRanges = function(dbfile = "../viral_project/data_files/instances9606.gff
 ##' @author Vitalii Kleshchevnikov
 ##' @param instances ELM database motif occurrence GRanges object returned by \code{\link{ELMdb2GRanges}}
 ##' @param motif_types character vector of motif types
-##' @return Genomic Ranges object filtered by motif type
+##' @return Genomic Ranges object filtered by motif type (ELMType column)
 ##' @import GenomicRanges
 ##' @export filterBYmotifType
 ##' @seealso \code{\link{SLIMFinderOcc2GRanges}}, \code{\link{GRangesINinteractionSubsetFASTA}}
@@ -126,9 +126,10 @@ ELMdb2GRanges = function(dbfile = "../viral_project/data_files/instances9606.gff
 ##'                   dburl = "http://elm.eu.org/instances.gff?q=None&taxon=Homo%20sapiens&instance_logic=")
 ##' instances9606 = filterBYmotifType(instances9606, motif_types = c("DOC", "MOD", "LIG", "DEG", "CLV", "TRG"))
 filterBYmotifType = function(instances, motif_types = c("DOC", "MOD", "LIG", "DEG", "CLV", "TRG")) {
-  TOkeep = lapply(motif_types, function(motif_type) {
-    grepl(motif_type, instances$ID)
-  })
-  TOkeep = Reduce(`|`,TOkeep)
+  #TOkeep = lapply(motif_types, function(motif_type) {
+  #  grepl(motif_type, instances$ID)
+  #})
+  #TOkeep = Reduce(`|`,TOkeep)
+  TOkeep = instances$ELMType %in% motif_types
   instances[TOkeep]
 }

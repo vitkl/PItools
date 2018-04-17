@@ -38,8 +38,8 @@
 benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/result/occurence.txt",
                            main_file = "../viral_project/SLIMFinder_Vidal/result/main_result.txt",
                            domain_res_file = "../viral_project/processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
-                           motif_setup = "../viral_project/processed_data_files/QSLIMFinder_instances_h2v_Vidal_clust201710.RData",
-                           neg_set = c("random", "all_instances", "all_proteins")[1],
+                           motif_setup = "../viral_project/processed_data_files/QSLIMFinder_instances_h2v_Full_IntAct2_clust201802.RData",
+                           neg_set = c("all_instances", "all_proteins", "random")[1],
                            domain_results_obj = "res_count", motif_input_obj = "forSLIMFinder_Ready",
                            one_from_cloud = T,
                            dbfile_main = "../viral_project/data_files/instances_all.gff",
@@ -373,7 +373,8 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
   # number of known instances that match discovered instances
   N_query_match_known_instances_found = N_query_known_instances - length(unique(overlaps_query$not_found))
   # total found
-  N_query_total_instances_found = length(unique(occurence_query))
+  N_query_total_instances_found = length(unique(paste0(seqnames(occurence_query),
+                                                       start(occurence_query), end(occurence_query))))
 
   # number of proteins with motif
   #N_all_prot_with_known_instances_found = length(unique(as.character(seqnames(overlapping_GRanges_all)))) #motif_protein_table_all[, uniqueN(UNIPROT), by = .(ID, Pattern)]
@@ -382,7 +383,8 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
   # number of known instances that match discovered instances
   #N_all_match_known_instances_found = N_all_known_instances - length(unique(overlaps_all$not_found))
   # total found
-  #N_all_total_instances_found = length(unique(occurence))
+  #N_all_total_instances_found = length(unique(paste0(seqnames(occurence_query),
+  #                                                   start(occurence_query), end(occurence_query))))
 
 
   out = list(

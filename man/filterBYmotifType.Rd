@@ -13,7 +13,7 @@ filterBYmotifType(instances, motif_types = c("DOC", "MOD", "LIG", "DEG",
 \item{motif_types}{character vector of motif types}
 }
 \value{
-Genomic Ranges object filtered by motif type
+Genomic Ranges object filtered by motif type (ELMType column)
 }
 \description{
 Filter ELM database motif occurrence GRanges by motif type

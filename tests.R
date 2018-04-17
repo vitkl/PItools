@@ -168,3 +168,31 @@ legend(x = 80, y = 50, c("statictic used in permutation test:","domain frequency
 plot(colnames(enrichment), enrichment[1,], ylab = "Fisher test pvalue", xlab = "top N viral protein - domain pairs selected", col = "red", type = "l", ylim = c(0,0.004))
 lines(x = colnames(enrichment), y = enrichmentFISHER[1,], col = "blue", type = "l")
 legend(x = 80, y = 0.0041, c("statictic used in permutation test:","domain frequency among interactors of a viral protein", "Fisher test pval: domain overrepresentation over the background"), col = c("white","red", "blue"), lty = 1 ,merge = TRUE)
+
+big_jobs = sapply(list.files(), function(file){length(readLines(file))}) == 1
+error_paths = paste0("/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/qslimfinder.Full_IntAct4.FALSE/log_dir/error/", gsub("\\.sh","", names(big_jobs)[big_jobs]))
+sapply(error_paths, function(error_path) {
+  system(paste0("cat ", error_path," | grep Terminated"), intern=T)
+  })
+
+log_paths = paste0("/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/qslimfinder.Full_IntAct4.FALSE/log_dir/log/", gsub("\\.sh","", names(big_jobs)[big_jobs]))
+job_status = sapply(log_paths, function(log_path) {
+  system(paste0("cat ", log_path," | grep TERM_MEMLIMIT"), intern=T)
+})
+
+# how many terminated because of memory
+sum(job_status == "TERM_MEMLIMIT: job killed after reaching LSF memory usage limit.") # 9
+sum(sapply(job_status, function(element) {
+  length(element) == 0
+})) # 65
+
+all.jobs = sapply(list.files(), function(file){length(readLines(file))})
+error_paths = paste0("/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/qslimfinder.Full_IntAct4.FALSE/log_dir/error/", gsub("\\.sh","", names(all.jobs)))
+errors = sapply(error_paths, function(error_path) {
+  system(paste0("cat ", error_path," | grep Terminated"), intern=T)
+})
+
+log_paths = paste0("/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/qslimfinder.Full_IntAct4.FALSE/log_dir/log/", gsub("\\.sh","", names(all.jobs)))
+successes = sapply(log_paths, function(log_path) {
+  system(paste0("cat ", log_path," | grep \"Successfully completed\""), intern=T)
+})
