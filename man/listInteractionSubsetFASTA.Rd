@@ -2,15 +2,15 @@
 % Please edit documentation in R/mInteractionSubsetFASTA.R
 \name{listInteractionSubsetFASTA}
 \alias{listInteractionSubsetFASTA}
-\title{get FASTA sequences of interactors of specific proteins: for QSLIMFinder}
+\title{get FASTA sequences of proteins that interact with seed proteins (datasets for QSLIMFinder)}
 \usage{
 listInteractionSubsetFASTA(interaction_set1, interaction_set2, seed_id_vect,
   fasta, single_interact_from_set2 = T, set1_only = T)
 }
 \arguments{
-\item{interaction_set1}{cleanMItab object containing molecular interactions}
+\item{interaction_set1}{cleanMItab object containing molecular interactions (such as all interactions between human proteins)}
 
-\item{interaction_set2}{a different cleanMItab object containing molecular interactions (conceptually different source, such as other type of interactions)}
+\item{interaction_set2}{a different cleanMItab object containing molecular interactions (conceptually different source of interaction data, such as other type of interactions or human-viral interactions)}
 
 \item{seed_id_vect}{a vector of interactor IDs for which to retrieve interactions (for each separately)}
 
@@ -24,7 +24,7 @@ listInteractionSubsetFASTA(interaction_set1, interaction_set2, seed_id_vect,
 object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.
 }
 \description{
-get FASTA sequences of interactors of specific proteins: for QSLIMFinder
+get FASTA sequences of proteins that interact with seed proteins (datasets for QSLIMFinder)
 }
 \examples{
 forSLIMFinder = listInteractionSubsetFASTA(interaction_set1 = all_human_interaction,

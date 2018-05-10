@@ -1,8 +1,8 @@
-##' get FASTA sequences of interactors of specific proteins: for QSLIMFinder
+##' get FASTA sequences of proteins that interact with seed proteins (datasets for QSLIMFinder)
 ##' @name listInteractionSubsetFASTA
 ##' @author Vitalii Kleshchevnikov
-##' @param interaction_set1 cleanMItab object containing molecular interactions
-##' @param interaction_set2 a different cleanMItab object containing molecular interactions (conceptually different source, such as other type of interactions)
+##' @param interaction_set1 cleanMItab object containing molecular interactions (such as all interactions between human proteins)
+##' @param interaction_set2 a different cleanMItab object containing molecular interactions (conceptually different source of interaction data, such as other type of interactions or human-viral interactions)
 ##' @param seed_id_vect a vector of interactor IDs for which to retrieve interactions (for each separately)
 ##' @param fasta AAStringSet containing sequences for all proteins in interaction_set1 and interaction_set2
 ##' @param single_interact_from_set2 logical, split sequence sets to contain only one protein from interaction_set2 (only one query protein for QSLIMFinder). If FALSE, set2 will contain all proteins that interact with an element of \code{seed_id_vect} (which means multiple query proteins for QSLIMFinder).

@@ -2,7 +2,7 @@
 % Please edit documentation in R/cleanMITAB.R
 \name{cleanMITAB}
 \alias{cleanMITAB}
-\title{\code{cleanMITAB} extracts interactor Uniprot (or other ID as specified by interactor_IDs_databases) IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values and generates unique pair ID}
+\title{Process molecular interaction data in MITAB 2.5 or 2.7 formats}
 \usage{
 cleanMITAB(MITABdata)
 }
@@ -13,7 +13,7 @@ cleanMITAB(MITABdata)
 Object of S3 class "clean_MItab25" or "clean_MItab27" containing interaction data in a data.table. Within each interacting pair all interactor attributes are sorted according to alphanumerically sorted interactor UniprotKB accessions
 }
 \description{
-\code{cleanMITAB} extracts interactor Uniprot (or other ID as specified by interactor_IDs_databases) IDs, interactor taxonomy IDs, Publication Identifiers, Confidence values and generates unique pair ID
+\code{cleanMITAB} extracts columns of molecular interaction data in MITAB 2.5 or 2.7 formats. For simple MITAB 2.5, columns are interactor Uniprot IDs(or other ID as specified by interactor_IDs_databases), interactor taxonomy IDs, Publication Identifiers, Confidence values and generates unique pair ID. MITAB 2.7 includes  additional information: see details.
 }
 \details{
 Output column description (MITAB 2.5):

@@ -89,7 +89,10 @@ humanViralDegree = function(data = NULL, directory = "./data_files/", Interactio
   inViral_human_interaction = subsetMITABbyID(MITABdata = all_human_interaction,
                                               ID_seed = human_viral_proteins, within_seed = T)
   inViral_human_human_degree = edgelist2degree(inViral_human_interaction$data)[ID %in% human_viral_proteins]
-  inViral_human_human_degree_legend = paste0("viral-interacting proteins, human-human: \n", NuniqueInteractions(inViral_human_interaction)," interacting pairs, \n", NuniqueInteractors(inViral_human_interaction)," human proteins")
+  inViral_human_human_degree_legend = paste0("viral-interacting proteins, human-human: \n",
+                                             NuniqueInteractions(inViral_human_interaction),
+                                             " interacting pairs, \n",
+                                             NuniqueInteractors(inViral_human_interaction)," human proteins")
   inViral_human_human_degree[, legend := inViral_human_human_degree_legend]
 
   inViral_human_viral_degree = edgelist2degree(all_viral_interaction$data)[ID %in% human_viral_proteins]
@@ -120,21 +123,38 @@ humanViralDegree = function(data = NULL, directory = "./data_files/", Interactio
 ##' @author Vitalii Kleshchevnikov
 ##' @description use \code{\link[MItools]{interSpeciesInteractome}} and \code{\link[MItools]{fullInteractome}} to retrieve and load human-human, human-viral and viral-viral PPI data from IntActFTP
 ##' @description to be used with \code{\link[MItools]{humanViralDegree}}
-##' @param where to find / keep PPI data (arg for \code{\link[MItools]{fullInteractome}}, \code{\link[MItools]{interSpeciesInteractome}}))
+##' @param directory to find / keep PPI data (arg for \code{\link[MItools]{fullInteractome}}, \code{\link[MItools]{interSpeciesInteractome}}))
+##' @param loadIntActFTP_dir where to find specific release (arg for \code{\link[MItools]{loadIntActFTP}})
+##' @param release release date
 ##' @import data.table
 ##' @export loadHumanViralPPI
-loadHumanViralPPI = function(directory = "./data_files/"){
+loadHumanViralPPI = function(directory = "./data_files/",
+                             loadIntActFTP_dir = "./data_files/IntActRelease_2017Nov13/",
+                             release = "2017Nov13"){
   # load ppi data
+  IntAct = loadIntActFTP(dir = loadIntActFTP_dir,
+                         release = release)
+  # human-viral
+  all_viral_interaction = interSpeciesInteractome(taxid1 = 9606, taxid2 = 10239, database = "IntActFTP", format = "tab27",
+                                                            clean = TRUE, protein_only = TRUE,
+                                                            MITABdata = IntAct, directory = directory,
+                                                            releaseORdate = release)
   # human-human
   all_human_interaction = fullInteractome(taxid = 9606, database = "IntActFTP", format = "tab27",
-                                          clean = TRUE, protein_only = TRUE, directory = directory)
+                                          clean = TRUE, protein_only = TRUE,
+                                          MITABdata = IntAct, directory = directory,
+                                          releaseORdate = release)
 
   # human-viral
   all_viral_interaction = interSpeciesInteractome(taxid1 = 9606, taxid2 = 10239, database = "IntActFTP", format = "tab27",
-                                                  clean = TRUE, protein_only = TRUE, directory = directory)
+                                                  clean = TRUE, protein_only = TRUE,
+                                                  MITABdata = IntAct, directory = directory,
+                                                  releaseORdate = release)
   # viral-viral
   all_within_viral_interaction = fullInteractome(taxid = 10239, database = "IntActFTP", format = "tab27",
-                                                 clean = TRUE, protein_only = TRUE, directory = directory)
+                                                 clean = TRUE, protein_only = TRUE,
+                                                 MITABdata = IntAct, directory = directory,
+                                                 releaseORdate = release)
   HumanViralPPI = list(human_human = all_human_interaction, human_viral = all_viral_interaction, viral_viral = all_within_viral_interaction)
   return(HumanViralPPI)
 }

@@ -232,7 +232,7 @@
 ##'
 ##'allsig=T/F : Whether to also output all SLiMChance combinations (Sig/SigV/SigPrime/SigPrimeV) [False]
 ##'
-##'Memory requirements for jobs:
+##'Memory requirements for jobs. How much memory is enough for most jobs?
 ##'files = list.files("./qslimfinder.Full_IntAct.FALSE/log_dir/log/")
 ##'times = sapply(files, function(file) system(paste0("cat ./qslimfinder.Full_IntAct.FALSE/log_dir/log/",file," | grep Requested"), intern = T))
 ##'> table(times)

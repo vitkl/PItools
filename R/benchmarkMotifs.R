@@ -401,8 +401,9 @@ benchmarkMotifs = function(occurence_file = "../viral_project/SLIMFinder_Vidal/r
     N_query_total_instances_found = N_query_total_instances_found,
     #N_all_total_instances_found = N_all_total_instances_found,
     #N_all_prot_with_known_instances_found = N_all_prot_with_known_instances_found, N_all_known_instances_found = N_all_known_instances_found,
-    N_query_match_known_instances_found = N_query_match_known_instances_found#,
-    #N_all_match_known_instances_found = N_all_match_known_instances_found
+    N_query_match_known_instances_found = N_query_match_known_instances_found,
+    #N_all_match_known_instances_found = N_all_match_known_instances_found,
+    domain_res = domain_res
   )
   class(out) = "benchmarkMotifsResult"
   out

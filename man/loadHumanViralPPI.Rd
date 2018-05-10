@@ -4,10 +4,16 @@
 \alias{loadHumanViralPPI}
 \title{load human-human, human-viral and viral-viral PPI data from IntActFTP}
 \usage{
-loadHumanViralPPI(directory = "./data_files/")
+loadHumanViralPPI(directory = "./data_files/",
+  loadIntActFTP_dir = "./data_files/IntActRelease_2017Nov13/",
+  release = "2017Nov13")
 }
 \arguments{
-\item{where}{to find / keep PPI data (arg for \code{\link[MItools]{fullInteractome}}, \code{\link[MItools]{interSpeciesInteractome}}))}
+\item{directory}{to find / keep PPI data (arg for \code{\link[MItools]{fullInteractome}}, \code{\link[MItools]{interSpeciesInteractome}}))}
+
+\item{loadIntActFTP_dir}{where to find specific release (arg for \code{\link[MItools]{loadIntActFTP}})}
+
+\item{release}{release date}
 }
 \description{
 use \code{\link[MItools]{interSpeciesInteractome}} and \code{\link[MItools]{fullInteractome}} to retrieve and load human-human, human-viral and viral-viral PPI data from IntActFTP
