@@ -5,9 +5,11 @@
 \title{Filter molecular interactions by interaction detection methods and / or participant identification method}
 \usage{
 subsetMITABbyMethod(MITABdata, Interaction_detection_methods = NULL,
-  Identification_method = NULL, Identification_method_participant_A = NULL,
-  Identification_method_participant_B = NULL, ontology_directory = "./",
-  ontology_date = NULL, inverse_filter = F)
+  Identification_method = NULL,
+  Identification_method_participant_A = NULL,
+  Identification_method_participant_B = NULL,
+  ontology_directory = "./", ontology_date = NULL,
+  inverse_filter = F)
 }
 \arguments{
 \item{MITABdata}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[MItools]{MITABdata}})}

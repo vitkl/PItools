@@ -4,9 +4,9 @@
 \alias{printMotifDomainTable}
 \title{\code{printMotifDomainTable} combines Domain enrichment and Motif search results}
 \usage{
-printMotifDomainTable(input, doman_viral_pairs = F, motifs = F, destfile,
-  fdr_pval_thresh = 0.05, only_with_motifs = F, fdr_motifs = 1,
-  occurence_QSLIMFinder = NA, comparimotif_wdb = NA,
+printMotifDomainTable(input, doman_viral_pairs = F, motifs = F,
+  destfile, fdr_pval_thresh = 0.05, only_with_motifs = F,
+  fdr_motifs = 1, occurence_QSLIMFinder = NA, comparimotif_wdb = NA,
   patterns_QSLIMFinder = NA, print_table = T, one_from_cloud = T,
   entry.list = NULL)
 }

@@ -4,8 +4,8 @@
 \alias{reduceOverlappingGRanges}
 \title{Reduce Overlapping GRanges keeping metadata (collapsing withing each column separated by pipes)}
 \usage{
-reduceOverlappingGRanges(GRanges, minoverlap = 5, merge_motif_variants = F,
-  ...)
+reduceOverlappingGRanges(GRanges, minoverlap = 5,
+  merge_motif_variants = F, ...)
 }
 \arguments{
 \item{GRanges}{any Genomic Ranges object with metadata (mcols())}

@@ -4,7 +4,8 @@
 \alias{domainProteinPairMatch}
 \title{Check if the protein in the set2 is associated with domain that is contained in the protein in the name and remove if not}
 \usage{
-domainProteinPairMatch(InteractionSubsetFASTA_list, domain_res, remove = T)
+domainProteinPairMatch(InteractionSubsetFASTA_list, domain_res,
+  remove = T)
 }
 \arguments{
 \item{InteractionSubsetFASTA_list}{object of class InteractionSubsetFASTA_list created by \code{\link{listInteractionSubsetFASTA}}}

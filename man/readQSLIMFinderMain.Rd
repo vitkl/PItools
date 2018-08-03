@@ -9,7 +9,8 @@
 readQSLIMFinderMain(outputfile = "forSLIMFinder_file_list$outputfile",
   check_exist = F)
 
-readQSLIMFinderOccurence(outputdir = "forSLIMFinder_file_list$outputdir",
+
+  readQSLIMFinderOccurence(outputdir = "forSLIMFinder_file_list$outputdir",
   check_exist = F)
 
 writePatternList(QSLIMFinder_main_result, filename = "./motifs.txt")

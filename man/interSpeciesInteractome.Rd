@@ -4,10 +4,10 @@
 \alias{interSpeciesInteractome}
 \title{Retrieve interspecies interactions (proteins only or not) for a given pair of taxonomy IDs}
 \usage{
-interSpeciesInteractome(MITABdata = NULL, taxid1 = 9606, taxid2 = 10239,
-  database = "imex", format = "tab25", clean = TRUE,
-  protein_only = TRUE, directory = NULL, releaseORdate = NULL,
-  remove_obsolete_id = F)
+interSpeciesInteractome(MITABdata = NULL, taxid1 = 9606,
+  taxid2 = 10239, database = "imex", format = "tab25",
+  clean = TRUE, protein_only = TRUE, directory = NULL,
+  releaseORdate = NULL, remove_obsolete_id = F)
 }
 \arguments{
 \item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}} or \code{\link{loadIntActFTP}}, default in NULL}

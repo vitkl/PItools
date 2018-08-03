@@ -12,8 +12,8 @@
   domain_res_file = "../viral_project/processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
   motif_setup = "../viral_project/processed_data_files/QSLIMFinder_instances_h2v_Full_IntAct2_clust201802.RData",
   neg_set = c("all_instances", "all_proteins", "random")[1],
-  domain_results_obj = "res_count", motif_input_obj = "forSLIMFinder_Ready",
-  one_from_cloud = T,
+  domain_results_obj = "res_count",
+  motif_input_obj = "forSLIMFinder_Ready", one_from_cloud = T,
   dbfile_main = "../viral_project/data_files/instances_all.gff",
   dburl_main = "http://elm.eu.org/instances.gff?q=None&taxon=Homo\%20sapiens&instance_logic=",
   dbfile_query = "../viral_project/data_files/instances_query.gff",
@@ -21,38 +21,39 @@
   query_res_query_only = T, motif_types = c("DOC", "MOD", "LIG", "DEG",
   "CLV", "TRG"), all_res_excl_query = T, merge_motif_variants = F,
   seed = 21, N = 100, replace = T, within1sequence = T,
-  query_predictor_col = "Sig", all_predictor_col = "Sig", normalise = T,
-  minoverlap = 2, minoverlap_redundant = 5, merge_domain_data = T,
-  merge_by_occurence_mcols = c("query", "interacts_with"),
-  merge_by_domain_res_cols = c("IDs_interactor_viral",
-  "IDs_interactor_human"), count_ranges_by = list(by = "IDs_domain_human",
-  name = "motif_occ_per_domain", normalise_by = "domain_count", normalised_name
-  = "normalised_motif_occ_per_domain"),
+  query_predictor_col = "Sig", all_predictor_col = "Sig",
+  normalise = T, minoverlap = 2, minoverlap_redundant = 5,
+  merge_domain_data = T, merge_by_occurence_mcols = c("query",
+  "interacts_with"), merge_by_domain_res_cols = c("IDs_interactor_viral",
+  "IDs_interactor_human"), count_ranges_by = list(by =
+  "IDs_domain_human", name = "motif_occ_per_domain", normalise_by =
+  "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
   filter_by_domain_data = "p.value < 0.05", motif_pval_cutoff = 1,
   select_predictor_per_range = max, ...)
 
 queryOCCByMCOL(res, keytype = "IDs_domain_human", key = "IPR032440")
 
 mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
-  dir = "./", neg_set = c("random", "all_instances", "all_proteins")[1],
+  dir = "./", neg_set = c("random", "all_instances",
+  "all_proteins")[1],
   domain_res_file = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
-  domain_results_obj = "res_count", motif_input_obj = "forSLIMFinder_Ready",
-  one_from_cloud = T, type = "QSLIMFinder",
-  dbfile_main = "./data_files/instances9606.gff",
+  domain_results_obj = "res_count",
+  motif_input_obj = "forSLIMFinder_Ready", one_from_cloud = T,
+  type = "QSLIMFinder", dbfile_main = "./data_files/instances9606.gff",
   dburl_main = "http://elm.eu.org/instances.gff?q=None&taxon=Homo\%20sapiens&instance_logic=",
   dbfile_query = "./data_files/instances10239.gff",
   dburl_query = "http://elm.eu.org/instances.gff?q=all&taxon=irus&instance_logic=",
   query_res_query_only = T, motif_types = c("DOC", "MOD", "LIG", "DEG",
   "CLV", "TRG"), all_res_excl_query = T, seed = 21, N = 100,
   replace = T, within1sequence = T, query_predictor_col = "Sig",
-  all_predictor_col = "Sig", normalise = T, minoverlap = 2, maxgap = 0,
-  minoverlap_redundant = 5, merge_motif_variants = F,
+  all_predictor_col = "Sig", normalise = T, minoverlap = 2,
+  maxgap = 0, minoverlap_redundant = 5, merge_motif_variants = F,
   motif_setup_months = "201710", merge_domain_data = T,
   merge_by_occurence_mcols = c("query", "interacts_with"),
   merge_by_domain_res_cols = c("IDs_interactor_viral",
-  "IDs_interactor_human"), count_ranges_by = list(by = "IDs_domain_human",
-  name = "motif_occ_per_domain", normalise_by = "domain_count", normalised_name
-  = "normalised_motif_occ_per_domain"),
+  "IDs_interactor_human"), count_ranges_by = list(by =
+  "IDs_domain_human", name = "motif_occ_per_domain", normalise_by =
+  "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
   filter_by_domain_data = "p.value < 0.05", motif_pval_cutoff = 1,
   select_predictor_per_range = max, dir_suff = "")
 }

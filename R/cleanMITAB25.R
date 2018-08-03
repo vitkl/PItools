@@ -23,9 +23,10 @@ cleanMITAB25 = function(mitab){
   suppressWarnings({mitab[, Confidence_values := as.numeric(Confidence_values)]})
   #mitab[, Interaction_identifiers := unlist(gsubfn::strapplyc(Interaction_identifiers,"EBI-[[:digit:]]+",simplify = T)), by =Interaction_identifiers]
   # generating unique identifier for interacting pairs
-  mitab[, pair_id := apply(data.table(IDs_interactor_A,IDs_interactor_B,stringsAsFactors = F), 1,
-                           function(a) { z = sort(a)
-                           paste0(z[1],"|",z[2]) })]
+  mitab[, pair_id := {
+    z = sort(c(IDs_interactor_A, IDs_interactor_B))
+    paste0(z[1],"|",z[2])
+  }, by = .(IDs_interactor_A,IDs_interactor_B)]
 
   # reorder by all interactor attribute columns by pair_id (alphanumeric order)
   mitab[, c("IDs_A_order", "IDs_B_order") := tstrsplit(pair_id, "\\|")]

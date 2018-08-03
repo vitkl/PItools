@@ -16,9 +16,9 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
   SLIMFinder_dir = paste0("./", dataset_name, "/"),
   LSF_project_path = "/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/",
   software_path = "../software/cluster/", length_set1_min = 2,
-  length_set2_min = 1, write_log = T, N_seq = 200, seed_list = NULL,
-  query_list = NULL, memory_start = 350, memory_step = 100,
-  compare_motifs = T, Njobs_limit = 490,
+  length_set2_min = 1, write_log = T, N_seq = 200,
+  seed_list = NULL, query_list = NULL, memory_start = 350,
+  memory_step = 100, compare_motifs = T, Njobs_limit = 490,
   CompariMotif3_dburl = "http://elm.eu.org/elms/elms_index.tsv",
   CompariMotif3_dbpath = "./data_files/")
 }

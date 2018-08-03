@@ -9,10 +9,11 @@ benchmarkMotifsROC(res, data_type = c("both", "query", "all")[1],
   col_query = c("grey"), col_all = c("black"), ...,
   text_args = "col = \\"black\\"", ROCR_data = F,
   legend_args = "x = 0.8 | y = 0.25", x_query = 0.25, x_all = 0.75,
-  measure1 = "tpr", measure2 = "fpr", single_metric = c("auc", "prbe")[1],
-  single_metric_name = c("Median AUC",
+  measure1 = "tpr", measure2 = "fpr", single_metric = c("auc",
+  "prbe")[1], single_metric_name = c("Median AUC",
   "Precision-recall break-even point")[1],
-  summarise_single_metric = c("median", "")[1], both_metrics_vs_cutoff = F)
+  summarise_single_metric = c("median", "")[1],
+  both_metrics_vs_cutoff = F)
 
 mBenchmarkMotifsROC(res_list, data_type = "query", ...)
 }

@@ -4,7 +4,8 @@
 \alias{subsetMITABbyID}
 \title{Retrieve interactions for a list of interactors (given data table, not using webservice)}
 \usage{
-subsetMITABbyID(MITABdata, ID_seed, within_seed = F, only_seed2nonseed = F)
+subsetMITABbyID(MITABdata, ID_seed, within_seed = F,
+  only_seed2nonseed = F)
 }
 \arguments{
 \item{MITABdata}{molecular interaction data, object of class "clean_MItab25", "clean_MItab27", "clean_MItab25_fullInteractome", "clean_MItab27_fullInteractome"}

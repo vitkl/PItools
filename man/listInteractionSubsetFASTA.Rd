@@ -4,8 +4,8 @@
 \alias{listInteractionSubsetFASTA}
 \title{get FASTA sequences of proteins that interact with seed proteins (datasets for QSLIMFinder)}
 \usage{
-listInteractionSubsetFASTA(interaction_set1, interaction_set2, seed_id_vect,
-  fasta, single_interact_from_set2 = T, set1_only = T)
+listInteractionSubsetFASTA(interaction_set1, interaction_set2,
+  seed_id_vect, fasta, single_interact_from_set2 = T, set1_only = T)
 }
 \arguments{
 \item{interaction_set1}{cleanMItab object containing molecular interactions (such as all interactions between human proteins)}

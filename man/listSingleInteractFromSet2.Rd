@@ -4,7 +4,8 @@
 \alias{listSingleInteractFromSet2}
 \title{Split interaction subset from 2 sets so that each elements contains only one of the proteins from set 2, and retrieve FASTA sequences for each}
 \usage{
-listSingleInteractFromSet2(subset1, single_interact_from_set2, set1_only, fasta)
+listSingleInteractFromSet2(subset1, single_interact_from_set2, set1_only,
+  fasta)
 }
 \arguments{
 \item{subset1}{interaction_subset_from_2_sets object produced by \code{\link{subset2setsBy1ID}}}

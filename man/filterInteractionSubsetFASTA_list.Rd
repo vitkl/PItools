@@ -4,8 +4,9 @@
 \alias{filterInteractionSubsetFASTA_list}
 \title{Filter InteractionSubsetFASTA_list by the size of the interaction sets (number of proteins in each)}
 \usage{
-filterInteractionSubsetFASTA_list(interactionFASTA_list, length_set1_min = 0,
-  length_set2_min = 0, length_set1_max = Inf, length_set2_max = Inf)
+filterInteractionSubsetFASTA_list(interactionFASTA_list,
+  length_set1_min = 0, length_set2_min = 0, length_set1_max = Inf,
+  length_set2_max = Inf)
 }
 \arguments{
 \item{interactionFASTA_list}{object of class InteractionSubsetFASTA_list created by \code{\link{listInteractionSubsetFASTA}}}

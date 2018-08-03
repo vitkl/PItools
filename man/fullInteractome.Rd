@@ -5,8 +5,9 @@
 \title{Retrieve interactome (proteins only or not) of a given taxonomic species}
 \usage{
 fullInteractome(MITABdata = NULL, taxid = 9606, database = "imex",
-  format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL,
-  releaseORdate = NULL, remove_obsolete_id = F, within_species = T)
+  format = "tab25", clean = TRUE, protein_only = TRUE,
+  directory = NULL, releaseORdate = NULL, remove_obsolete_id = F,
+  within_species = T)
 }
 \arguments{
 \item{MITABdata}{object of class "RAW_MItab25" or "RAW_MItab27" (list) containing molecular interaction data as returned by \code{\link{queryPSICQUICrlib}} or \code{\link{loadIntActFTP}}, default in NULL}
