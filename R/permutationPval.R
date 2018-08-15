@@ -15,6 +15,7 @@
 ##' @param clustermq_jobs maximal number of computing cluster jobs to use (ignored unless clustermq == TRUE)
 ##' @param clustermq_template Add specific arguments to computing cluster job submission call. Not needed in most cases. Details: \code{\link[clustermq]{Q}} (ignored unless clustermq == TRUE)
 ##' @param split_comp_inner_N parallel evaluation of permutations is split into the outer and inner replicate calls helps to save memory by decreasing the total size of the result. This argument let's you manually specify the number of inner replicate calls. This has to be optimised for data size when using clustermq (ignored unless clustermq == TRUE)
+##' @param clustermq_fail_on_error If TRUE clustermq will fail if one of the jobs returns an error. Details: \code{\link[clustermq]{Q}} (ignored unless clustermq == TRUE)
 ##' @param formula argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object
 ##' @param x argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration_XZEmpiricalPval"
 ##' @param ... argument for \code{permutationPvalPlot}, base R plotting parameters
@@ -44,7 +45,7 @@
 ##' # formula is used to subset the table before plotting
 ##' # to avoid plotting single number multiple times
 ##' plot(res, nodeX ~ YmissingZ_perX)
-permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F, clustermq = F, clustermq_mem = 4000, clustermq_jobs = 100, clustermq_template = list(), split_comp_inner_N = NULL){
+permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F, clustermq = F, clustermq_mem = 4000, clustermq_jobs = 100, clustermq_template = list(), split_comp_inner_N = NULL, clustermq_fail_on_error = TRUE){
   ########################################################################################################################
   # if data is not data.table or is not coerce-able to data.table: stop
   if(!is.data.table(data)) if(is.data.frame(data)) data = as.data.table(data) else if(is.matrix(data)) data = as.data.table(data) else stop("data is provided but is not data.table, data.frame or matrix")
@@ -155,7 +156,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
                   includeAssociations = includeAssociations,
                   also_permuteYZ = also_permuteYZ, inner_N = inner_N),
     seed = seed,
-    memory = clustermq_mem, template = clustermq_template, n_jobs = clustermq_jobs)
+    memory = clustermq_mem, template = clustermq_template, n_jobs = clustermq_jobs, fail_on_error = clustermq_fail_on_error)
   }
   ########### stop clustermq
 

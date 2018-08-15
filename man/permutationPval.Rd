@@ -53,6 +53,8 @@ plot(res, nodeX ~ YmissingZ_perX)
 
 \item{split_comp_inner_N}{parallel evaluation of permutations is split into the outer and inner replicate calls helps to save memory by decreasing the total size of the result. This argument let's you manually specify the number of inner replicate calls. This has to be optimised for data size when using clustermq (ignored unless clustermq == TRUE)}
 
+\item{clustermq_fail_on_error}{If TRUE clustermq will fail if one of the jobs returns an error. Details: \code{\link[clustermq]{Q}} (ignored unless clustermq == TRUE)}
+
 \item{formula}{argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object}
 
 \item{x}{argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration_XZEmpiricalPval"}
