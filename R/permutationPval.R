@@ -39,7 +39,7 @@
 ##' # formula is used to subset the table before plotting
 ##' # to avoid plotting single number multiple times
 ##' plot(res, nodeX ~ YmissingZ_perX)
-permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F){
+permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F, clustermq = F, clustermq_mem = 4000, clustermq_jobs = 100, clustermq_template = list()){
   ########################################################################################################################
   # if data is not data.table or is not coerce-able to data.table: stop
   if(!is.data.table(data)) if(is.data.frame(data)) data = as.data.table(data) else if(is.matrix(data)) data = as.data.table(data) else stop("data is provided but is not data.table, data.frame or matrix")
@@ -93,25 +93,25 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   # if both XY and YZ interactions are to be permuted create a table to be used for permuting YZ interactions
   if(also_permuteYZ) data_list$permuted_interactionsYZ = data_list$interactionsYZ
 
-  # set up parallel processing
-  # create cluster
-  if(is.null(cores)) cores = detectCores()-1
-  cl <- makeCluster(cores)
-  # get library support needed to run the code
-  clusterEvalQ(cl, {library(MItools); library(data.table); library(BiocGenerics)})
-  # put objects in place that might be needed for the code
-  clusterExport(cl, c("data_list", "by_cols", "exprs", "nodes", "nodes_call", "includeAssociations", "also_permuteYZ"), envir=environment())
-  # set seed
-  clusterSetRNGStream(cl, iseed = seed)
-
-  # splitting computation into the outer and inner replicate helps to save memory by decreasing the total size of the result
+  #### parallel processing: splitting computation into the outer and inner replicate helps to save memory by decreasing the total size of the result
   if(N%%10 == 0) {
     if(N < 10000) outer_N = N/10
     if(N < 10000) inner_N = 10
     if(N > 10000 & N%%100 == 0) outer_N = N/100 else outer_N = N/10
     if(N > 10000 & N%%100 == 0) inner_N = 100 else inner_N = 10
   } else {outer_N = N; inner_N = 1}
-  clusterExport(cl, c("inner_N"), envir=environment())
+
+  ########### set up parallel processing
+  if(!clustermq) {
+  # create cluster
+  if(is.null(cores)) cores = detectCores()-1
+  cl <- makeCluster(cores)
+  # get library support needed to run the code
+  clusterEvalQ(cl, {library(MItools); library(data.table); library(BiocGenerics)})
+  # put objects in place that might be needed for the code
+  clusterExport(cl, c("data_list", "by_cols", "exprs", "nodes", "nodes_call", "includeAssociations", "also_permuteYZ", "inner_N"), envir=environment())
+  # set seed
+  clusterSetRNGStream(cl, iseed = seed)
 
   #perform permutations - returns counts when observed statistic is lower than permuted (higher_counts), how many X-Z pair have non missing values and were used in calculation (not_missing), + names of X and Z
   # outer replicate
@@ -122,21 +122,44 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
       data_list = MItools:::calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
       # count how many times observed is lower than permuted giving us the empirical probability of observing value as high or higher by chance
       data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
-    })
+    }, simplify = FALSE)
     # end of inner replicate
     # aggregate attributes across permutations
     temp2_inner = MItools:::aggregatePermutations(temp_inner, nodes, nodes_call)
-  }, simplify = TRUE, USE.NAMES = TRUE)
+  }, simplify = FALSE, USE.NAMES = TRUE)
   # end of outer replicate
   stopCluster(cl)
+  ########### stop parallel processing
+  } else {
+  ########### use clustermq
+    temp = clustermq::Q(fun = function(i){
+      # inner replicate
+      temp_inner = replicate(n = inner_N, expr = {
+        # calculate statistic using permuted network
+        data_list = MItools:::calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
+        # count how many times observed is lower than permuted giving us the empirical probability of observing value as high or higher by chance
+        data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
+      }, simplify = "array")
+      # end of inner replicate
+      # aggregate attributes across permutations
+      MItools:::aggregatePermutations(temp_inner, nodes, nodes_call)
+    }, 1:outer_N,
+    export = list(data_list = data_list, by_cols = by_cols,
+                  exprs = exprs, nodes = nodes, nodes_call = nodes_call,
+                  includeAssociations = includeAssociations,
+                  also_permuteYZ = also_permuteYZ, inner_N = inner_N),
+    seed = seed,
+    memory = clustermq_mem, template = clustermq_template, n_jobs = clustermq_jobs)
+  }
+  ########### stop clustermq
 
   # aggregate attributes across permutations
-  temp2 = aggregatePermutations(temp, nodes, nodes_call)
+  temp = aggregatePermutations(temp, nodes, nodes_call)
 
   # calculate P-value
-  temp2[, p.value := higher_counts / not_missing]
+  temp[, p.value := higher_counts / not_missing]
   # merge p-value result to the original "data" data.table
-  data_with_pval = temp2[data, on = c(nodes$nodeX, nodes$nodeZ)]
+  data_with_pval = temp[data, on = c(nodes$nodeX, nodes$nodeZ)]
   # add observed statistic to the original "data" data.table
   data_list$observed = data_list$observed[, c(nodes$nodeX, nodes$nodeZ, "observed_statistic", "YmissingZ_perX"), with = F]
   data_with_pval = data_list$observed[data_with_pval, on = c(nodes$nodeX, nodes$nodeZ), allow.cartesian = TRUE]

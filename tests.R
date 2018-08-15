@@ -5,19 +5,47 @@ install()
 
 library(MItools)
 library(GenomicRanges)
+library(R.utils)
 data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
+file_BioPlex3 = "../viral_project/processed_data_files/BioPlex3human_net_w_domains"
+gunzip(paste0(file_BioPlex3,".gz"), remove = F)
+data = fread(file_BioPlex3, sep = "\t", stringsAsFactors = F)
+unlink(file_BioPlex3)
 res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
-                associations2test = IDs_interactor_viral ~ IDs_domain_human,
-                node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
-                                 IDs_domain_human ~ domain_count,
-                                 IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
-                data = data,
-                statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
-                select_nodes = IDs_domain_human ~ domain_count >= 1,
-                N = 1000,
-                cores = NULL, seed = 2)
+                      associations2test = IDs_interactor_viral ~ IDs_domain_human,
+                      node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
+                                       IDs_domain_human ~ domain_count,
+                                       IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
+                      data = data,
+                      statistic = IDs_interactor_viral + IDs_domain_human ~ .N,
+                      select_nodes = IDs_domain_human ~ domain_count >= 1,
+                      N = 1000,
+                      cores = NULL, seed = 2, clustermq = T, clustermq_mem = 2000)
 plot(res)
 res
+
+microbenchmark::microbenchmark({res <- permutationPval(interactions2permute = IDs_interactor_human_A ~ IDs_interactor_human_B, # first set of interacting pairs (XY) that are to be permuted
+                                                       associations2test = IDs_interactor_human_A ~ IDs_domain_human_B, # set of interacting pairs to be tested (XZ), YZ interactions are assumed
+                                                       node_attr = list(IDs_interactor_human_A ~ IDs_interactor_human_A_degree,
+                                                                        IDs_domain_human_B ~ domain_count),
+                                                       data = data,
+                                                       statistic = IDs_interactor_human_A + IDs_domain_human_B ~ .N,
+                                                       select_nodes = NULL,
+                                                       N = 100,
+                                                       cores = NULL, seed = 2, also_permuteYZ = F,
+                                                       clustermq = T, clustermq_mem = 4000)}, times = 1)
+
+{permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
+                 associations2test = IDs_interactor_viral ~ IDs_domain_human,
+                 node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
+                                  IDs_domain_human ~ domain_count,
+                                  IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
+                 data = data,
+                 statistic = IDs_interactor_viral + IDs_domain_human ~ .N,
+                 select_nodes = IDs_domain_human ~ domain_count >= 1,
+                 N = 1000,
+                 cores = 3, seed = 2, clustermq = F)}
+
 
 set.seed(1)
 random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE)
@@ -26,15 +54,15 @@ res_g = res
 all.equal(res_g, res)
 
 res2 = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
-                      associations2test = IDs_interactor_viral ~ IDs_domain_human,
-                      node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
-                                       IDs_domain_human ~ domain_count,
-                                       IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
-                      data = data,
-                      statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
-                      select_nodes = IDs_domain_human ~ domain_count > 16,
-                      N = 10,
-                      cores = NULL, seed = NULL)
+                       associations2test = IDs_interactor_viral ~ IDs_domain_human,
+                       node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
+                                        IDs_domain_human ~ domain_count,
+                                        IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
+                       data = data,
+                       statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
+                       select_nodes = IDs_domain_human ~ domain_count > 16,
+                       N = 10,
+                       cores = NULL, seed = NULL)
 
 microbenchmark::microbenchmark({res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
                                                       associations2test = IDs_interactor_viral ~ IDs_domain_human,
@@ -48,27 +76,27 @@ microbenchmark::microbenchmark({res = permutationPval(interactions2permute = IDs
                                                       cores = NULL, seed = 1)}, times = 10)
 
 profvis::profvis({resEnv = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
-                                        associations2test = IDs_interactor_viral ~ IDs_domain_human,
-                                        node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
-                                                         IDs_domain_human ~ domain_count,
-                                                         IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
-                                        data = data,
-                                        statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
-                                        select_nodes = IDs_domain_human ~ domain_count >= 1,
-                                        N = 10,
-                                        cores = NULL, seed = 1)})
+                                           associations2test = IDs_interactor_viral ~ IDs_domain_human,
+                                           node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
+                                                            IDs_domain_human ~ domain_count,
+                                                            IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
+                                           data = data,
+                                           statistic = IDs_interactor_viral + IDs_domain_human ~ .N / IDs_interactor_viral_degree,
+                                           select_nodes = IDs_domain_human ~ domain_count >= 1,
+                                           N = 10,
+                                           cores = NULL, seed = 1)})
 
 # Fisher test
 microbenchmark::microbenchmark({resFISHER = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
-                                                      associations2test = IDs_interactor_viral ~ IDs_domain_human,
-                                                      node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
-                                                                       IDs_domain_human ~ domain_count + N_prot_w_interactors,
-                                                                       IDs_interactor_viral + IDs_domain_human ~ domain_count_per_IDs_interactor_viral),
-                                                      data = data,
-                                                      statistic = IDs_interactor_viral + IDs_domain_human ~ fisher.test(matrix(c(unique(domain_count), unique(N_prot_w_interactors) - unique(domain_count), unique(domain_count_per_IDs_interactor_viral), unique(IDs_interactor_viral_degree) - unique(domain_count_per_IDs_interactor_viral)),2,2), alternative = "greater", conf.int = F)$p.value,
-                                                      select_nodes = IDs_domain_human ~ domain_count >= 1,
-                                                      N = 100,
-                                                      cores = NULL, seed = 1)}, times = 10)
+                                                            associations2test = IDs_interactor_viral ~ IDs_domain_human,
+                                                            node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
+                                                                             IDs_domain_human ~ domain_count + N_prot_w_interactors,
+                                                                             IDs_interactor_viral + IDs_domain_human ~ domain_count_per_IDs_interactor_viral),
+                                                            data = data,
+                                                            statistic = IDs_interactor_viral + IDs_domain_human ~ fisher.test(matrix(c(unique(domain_count), unique(N_prot_w_interactors) - unique(domain_count), unique(domain_count_per_IDs_interactor_viral), unique(IDs_interactor_viral_degree) - unique(domain_count_per_IDs_interactor_viral)),2,2), alternative = "greater", conf.int = F)$p.value,
+                                                            select_nodes = IDs_domain_human ~ domain_count >= 1,
+                                                            N = 100,
+                                                            cores = NULL, seed = 1)}, times = 10)
 
 qplot(x = resFISHER$data_with_pval[p.value < 0.5, IDs_interactor_viral_degree], y = resFISHER$data_with_pval[p.value < 0.5, domain_count], geom = "bin2d") + scale_x_log10() + scale_y_log10()
 qplot(x = res$data_with_pval[p.value < 0.5, IDs_interactor_viral_degree], y = res$data_with_pval[p.value < 0.5, domain_count], geom = "bin2d") + scale_x_log10() + scale_y_log10()
@@ -173,7 +201,7 @@ big_jobs = sapply(list.files(), function(file){length(readLines(file))}) == 1
 error_paths = paste0("/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/qslimfinder.Full_IntAct4.FALSE/log_dir/error/", gsub("\\.sh","", names(big_jobs)[big_jobs]))
 sapply(error_paths, function(error_path) {
   system(paste0("cat ", error_path," | grep Terminated"), intern=T)
-  })
+})
 
 log_paths = paste0("/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral_project/qslimfinder.Full_IntAct4.FALSE/log_dir/log/", gsub("\\.sh","", names(big_jobs)[big_jobs]))
 job_status = sapply(log_paths, function(log_path) {

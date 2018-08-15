@@ -118,7 +118,7 @@ checkSelectNodes = function(select_nodes, node_attr, nodes, cols){
 
   if(is.null(node_attr)){
     if(!((mean(select_node %in% all_nodes) == 1) &
-       (mean(select_attribute %in% all_nodes) == 1))) stop(paste0("select_nodes is supplied for node(s): ",paste0(select_node, collapse = " and ")," , however, one or more of these nodes are not supplied in interactions2permute or associations2test"))
+         (mean(select_attribute %in% all_nodes) == 1))) stop(paste0("select_nodes is supplied for node(s): ",paste0(select_node, collapse = " and ")," , however, one or more of these nodes are not supplied in interactions2permute or associations2test"))
   } else {
     if(!(is.formula(node_attr))) stop("node_attr is not formula")
     node = all.vars(node_attr[[2]])
@@ -256,7 +256,7 @@ calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
   if(also_permuteYZ) {
     data_list$permuted_interactionsYZ[, nodes$nodeY := sample(eval(nodes_call$nodeY))]
     setkeyv(data_list$permuted_interactionsYZ, cols = nodes$nodeY)
-    }
+  }
 
   # merge without removing X that don't have a match in Z, interactionsXY on the inside of "[" (in i position) means keep all interactionsXY, discard non-matching interactionsYZ
   # if also_permuteYZ is FALSE merge permuted XY to observed YZ
@@ -268,7 +268,7 @@ calcPermutedStatistic = function(data_list, by_cols, exprs, nodes, nodes_call, i
     setkeyv(data_list$associations, cols = c(nodes$nodeX, nodes$nodeZ))
     setkeyv(data_list$permuted, cols = c(nodes$nodeX, nodes$nodeZ))
     data_list$permuted = unique(data_list$associations[data_list$permuted, on = c(nodes$nodeX, nodes$nodeZ), allow.cartesian = T, nomatch = 0])
-    }
+  }
 
   # record in how many cases statistic is missing per X: we don't care in permuted cases, so I don't track this
   # data_list$permuted[, YmissingZ_perX := sum(is.na(eval(nodes_call$nodeZ))),
@@ -322,16 +322,27 @@ observedVSpermuted = function(data_list, nodes_call, nodes){
 ##' @usage temp2_inner = MItools:::aggregatePermutations(temp_inner, nodes, nodes_call)
 aggregatePermutations = function(temp, nodes, nodes_call){
   # aggregate attributes across permutations
-  temp2 = data.table(higher_counts = 0, not_missing = 0, temp[nodes$nodeX,1][[1]], temp[nodes$nodeZ,1][[1]])
-  setnames(temp2, colnames(temp2), c("higher_counts", "not_missing", nodes$nodeX, nodes$nodeZ))
 
-  for(i in 1:ncol(temp)){
-    if(!(all.equal(temp2[, eval(nodes_call$nodeX)], temp[nodes$nodeX, i][[1]]) &
-         all.equal(temp2[, eval(nodes_call$nodeZ)], temp[nodes$nodeZ, i][[1]]))) stop("X and/or Z ids mismatch, you have stumbled upon a bug in permutationPval code") else
-           temp2[, higher_counts := higher_counts + temp["higher_counts", i][[1]]]
-  }
-  for(i in 1:ncol(temp)){
-    temp2[, not_missing := not_missing + temp["not_missing",i][[1]]]
+  if(class(temp) == "list" & class(temp[[1]])[1] == "data.table")
+  { # list of data.tables
+    temp2 = data.table(higher_counts = 0, not_missing = 0, temp[[1]][, nodes$nodeX, with = F], temp[[1]][, nodes$nodeZ, with = F])
+    #setnames(temp2, colnames(temp2), c("higher_counts", "not_missing", nodes$nodeX, nodes$nodeZ))
+    for (j in 1:length(temp)) {
+      set(temp2, j = "higher_counts", value = temp2[,higher_counts] + temp[[j]][,higher_counts])
+      set(temp2, j = "not_missing", value = temp2[,not_missing] + temp[[j]][,not_missing])
+    }
+  } else
+
+  { # matrix of vectors (each cell contains a vector)
+    temp2 = data.table(higher_counts = 0, not_missing = 0, temp[nodes$nodeX,1][[1]], temp[nodes$nodeZ,1][[1]])
+    setnames(temp2, colnames(temp2), c("higher_counts", "not_missing", nodes$nodeX, nodes$nodeZ))
+    for(i in 1:ncol(temp)){
+      if(!(all.equal(temp2[, eval(nodes_call$nodeX)], temp[nodes$nodeX, i][[1]]) &
+           all.equal(temp2[, eval(nodes_call$nodeZ)], temp[nodes$nodeZ, i][[1]]))) stop("X and/or Z ids mismatch, you have stumbled upon a bug in permutationPval code") else{
+             temp2[, higher_counts := higher_counts + temp["higher_counts", i][[1]]]
+             temp2[, not_missing := not_missing + temp["not_missing",i][[1]]]
+           }
+    }
   }
   return(temp2)
 }
