@@ -10,6 +10,11 @@
 ##' @param cores specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[parallel]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.
 ##' @param seed seed for RNG for reproducible sampling
 ##' @param also_permuteYZ logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?
+##' @param clustermq if TRUE uses clustermq job scheduling (\code{\link[clustermq]{Q}}) instead of local parallelisation (\code{\link[MItools]{parReplicate}})  = F,  = 4000,  = 100, clustermq_template = list(), split_comp_inner_N
+##' @param clustermq_mem memory in MB to allocate for each job (ignored unless clustermq == TRUE)
+##' @param clustermq_jobs maximal number of computing cluster jobs to use (ignored unless clustermq == TRUE)
+##' @param clustermq_template Add specific arguments to computing cluster job submission call. Not needed in most cases. Details: \code{\link[clustermq]{Q}} (ignored unless clustermq == TRUE)
+##' @param split_comp_inner_N parallel evaluation of permutations is split into the outer and inner replicate calls helps to save memory by decreasing the total size of the result. This argument let's you manually specify the number of inner replicate calls. This has to be optimised for data size when using clustermq (ignored unless clustermq == TRUE)
 ##' @param formula argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object
 ##' @param x argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration_XZEmpiricalPval"
 ##' @param ... argument for \code{permutationPvalPlot}, base R plotting parameters
@@ -39,7 +44,7 @@
 ##' # formula is used to subset the table before plotting
 ##' # to avoid plotting single number multiple times
 ##' plot(res, nodeX ~ YmissingZ_perX)
-permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F, clustermq = F, clustermq_mem = 4000, clustermq_jobs = 100, clustermq_template = list()){
+permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F, clustermq = F, clustermq_mem = 4000, clustermq_jobs = 100, clustermq_template = list(), split_comp_inner_N = NULL){
   ########################################################################################################################
   # if data is not data.table or is not coerce-able to data.table: stop
   if(!is.data.table(data)) if(is.data.frame(data)) data = as.data.table(data) else if(is.matrix(data)) data = as.data.table(data) else stop("data is provided but is not data.table, data.frame or matrix")
@@ -100,6 +105,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
     if(N > 10000 & N%%100 == 0) outer_N = N/100 else outer_N = N/10
     if(N > 10000 & N%%100 == 0) inner_N = 100 else inner_N = 10
   } else {outer_N = N; inner_N = 1}
+  if(!is.null(split_comp_inner_N)) {inner_N = split_comp_inner_N; outer_N = round(N/split_comp_inner_N)}
 
   ########### set up parallel processing
   if(!clustermq) {

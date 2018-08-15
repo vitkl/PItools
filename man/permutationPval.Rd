@@ -43,6 +43,16 @@ plot(res, nodeX ~ YmissingZ_perX)
 
 \item{also_permuteYZ}{logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?}
 
+\item{clustermq}{if TRUE uses clustermq job scheduling (\code{\link[clustermq]{Q}}) instead of local parallelisation (\code{\link[MItools]{parReplicate}})  = F,  = 4000,  = 100, clustermq_template = list(), split_comp_inner_N}
+
+\item{clustermq_mem}{memory in MB to allocate for each job (ignored unless clustermq == TRUE)}
+
+\item{clustermq_jobs}{maximal number of computing cluster jobs to use (ignored unless clustermq == TRUE)}
+
+\item{clustermq_template}{Add specific arguments to computing cluster job submission call. Not needed in most cases. Details: \code{\link[clustermq]{Q}} (ignored unless clustermq == TRUE)}
+
+\item{split_comp_inner_N}{parallel evaluation of permutations is split into the outer and inner replicate calls helps to save memory by decreasing the total size of the result. This argument let's you manually specify the number of inner replicate calls. This has to be optimised for data size when using clustermq (ignored unless clustermq == TRUE)}
+
 \item{formula}{argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object}
 
 \item{x}{argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration_XZEmpiricalPval"}

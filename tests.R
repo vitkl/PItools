@@ -31,9 +31,10 @@ microbenchmark::microbenchmark({res <- permutationPval(interactions2permute = ID
                                                        data = data,
                                                        statistic = IDs_interactor_human_A + IDs_domain_human_B ~ .N,
                                                        select_nodes = NULL,
-                                                       N = 100,
+                                                       N = 30,
                                                        cores = NULL, seed = 2, also_permuteYZ = F,
-                                                       clustermq = T, clustermq_mem = 4000)}, times = 1)
+                                                       clustermq = T, clustermq_mem = 3000,
+                                                       split_comp_inner_N = 2, clustermq_jobs = 5)}, times = 1)
 
 {permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
                  associations2test = IDs_interactor_viral ~ IDs_domain_human,
