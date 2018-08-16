@@ -8,6 +8,7 @@
 ##' @param select_nodes formula or list of formulas specifying which nodes of specific node type to select before permutation based on condition (\code{X} ~ \code{degree} > \code{10})
 ##' @param N number of times to run permutation of PPI network
 ##' @param cores specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[parallel]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.
+##' @param cluster_type Type of the cluster to create when using R parrallel (\code{\link[parallel]{clusterApply}}). Type "FORK" means cluster nodes share objects in memory. Details: (\code{\link[parallel]{makeCluster}})
 ##' @param seed seed for RNG for reproducible sampling
 ##' @param also_permuteYZ logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?
 ##' @param clustermq if TRUE uses clustermq job scheduling (\code{\link[clustermq]{Q}}) instead of local parallelisation (\code{\link[MItools]{parReplicate}})  = F,  = 4000,  = 100, clustermq_template = list(), split_comp_inner_N
@@ -16,6 +17,7 @@
 ##' @param clustermq_template Add specific arguments to computing cluster job submission call. Not needed in most cases. Details: \code{\link[clustermq]{Q}} (ignored unless clustermq == TRUE)
 ##' @param split_comp_inner_N parallel evaluation of permutations is split into the outer and inner replicate calls helps to save memory by decreasing the total size of the result. This argument let's you manually specify the number of inner replicate calls. This has to be optimised for data size when using clustermq (ignored unless clustermq == TRUE)
 ##' @param clustermq_fail_on_error If TRUE clustermq will fail if one of the jobs returns an error. Details: \code{\link[clustermq]{Q}} (ignored unless clustermq == TRUE)
+##' @param clustermq_log_worker If TRUE clustermq will save log of worker jobs. Where in is save is determined by clustermq.template
 ##' @param formula argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object
 ##' @param x argument for \code{permutationPvalPlot}, output of \code{permutationPval}, class "XYZinteration_XZEmpiricalPval"
 ##' @param ... argument for \code{permutationPvalPlot}, base R plotting parameters
@@ -45,7 +47,7 @@
 ##' # formula is used to subset the table before plotting
 ##' # to avoid plotting single number multiple times
 ##' plot(res, nodeX ~ YmissingZ_perX)
-permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, seed = NULL, also_permuteYZ = F, clustermq = F, clustermq_mem = 4000, clustermq_jobs = 100, clustermq_template = list(), split_comp_inner_N = NULL, clustermq_fail_on_error = TRUE){
+permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2test = nodeX ~ nodeZ, node_attr = NULL, data, statistic, select_nodes = NULL, N = 1000, cores = NULL, cluster_type = "PSOCK", seed = NULL, also_permuteYZ = F, clustermq = F, clustermq_mem = 4000, clustermq_jobs = 100, clustermq_template = list(), split_comp_inner_N = NULL, clustermq_fail_on_error = TRUE, clustermq_log_worker = FALSE){
   ########################################################################################################################
   # if data is not data.table or is not coerce-able to data.table: stop
   if(!is.data.table(data)) if(is.data.frame(data)) data = as.data.table(data) else if(is.matrix(data)) data = as.data.table(data) else stop("data is provided but is not data.table, data.frame or matrix")
@@ -110,35 +112,37 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
 
   ########### set up parallel processing
   if(!clustermq) {
-  # create cluster
-  if(is.null(cores)) cores = detectCores()-1
-  cl <- makeCluster(cores)
-  # get library support needed to run the code
-  clusterEvalQ(cl, {library(MItools); library(data.table); library(BiocGenerics)})
-  # put objects in place that might be needed for the code
-  clusterExport(cl, c("data_list", "by_cols", "exprs", "nodes", "nodes_call", "includeAssociations", "also_permuteYZ", "inner_N"), envir=environment())
-  # set seed
-  clusterSetRNGStream(cl, iseed = seed)
+    # create cluster
+    if(is.null(cores)) cores = detectCores()-1
+    cl <- makeCluster(cores, type = cluster_type)
+    if(cluster_type != "FORK"){
+      # get library support needed to run the code
+      clusterEvalQ(cl, {library(MItools); library(data.table); library(BiocGenerics)})
+      # put objects in place that might be needed for the code
+      clusterExport(cl, c("data_list", "by_cols", "exprs", "nodes", "nodes_call", "includeAssociations", "also_permuteYZ", "inner_N"), envir=environment())
+    }
+    # set seed
+    clusterSetRNGStream(cl, iseed = seed)
 
-  #perform permutations - returns counts when observed statistic is lower than permuted (higher_counts), how many X-Z pair have non missing values and were used in calculation (not_missing), + names of X and Z
-  # outer replicate
-  temp = parReplicate(cl = cl, n = outer_N, expr = {
-    # inner replicate
-    temp_inner = replicate(n = inner_N, expr = {
-      # calculate statistic using permuted network
-      data_list = MItools:::calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
-      # count how many times observed is lower than permuted giving us the empirical probability of observing value as high or higher by chance
-      data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
-    }, simplify = FALSE)
-    # end of inner replicate
-    # aggregate attributes across permutations
-    temp2_inner = MItools:::aggregatePermutations(temp_inner, nodes, nodes_call)
-  }, simplify = FALSE, USE.NAMES = TRUE)
-  # end of outer replicate
-  stopCluster(cl)
-  ########### stop parallel processing
+    #perform permutations - returns counts when observed statistic is lower than permuted (higher_counts), how many X-Z pair have non missing values and were used in calculation (not_missing), + names of X and Z
+    # outer replicate
+    temp = parReplicate(cl = cl, n = outer_N, expr = {
+      # inner replicate
+      temp_inner = replicate(n = inner_N, expr = {
+        # calculate statistic using permuted network
+        data_list = MItools:::calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
+        # count how many times observed is lower than permuted giving us the empirical probability of observing value as high or higher by chance
+        data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
+      }, simplify = FALSE)
+      # end of inner replicate
+      # aggregate attributes across permutations
+      MItools:::aggregatePermutations(temp_inner, nodes, nodes_call)
+    }, simplify = FALSE, USE.NAMES = TRUE)
+    # end of outer replicate
+    stopCluster(cl)
+    ########### stop parallel processing
   } else {
-  ########### use clustermq
+    ########### use clustermq
     temp = clustermq::Q(fun = function(i){
       # inner replicate
       temp_inner = replicate(n = inner_N, expr = {
@@ -146,7 +150,7 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
         data_list = MItools:::calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
         # count how many times observed is lower than permuted giving us the empirical probability of observing value as high or higher by chance
         data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
-      }, simplify = "array")
+      }, simplify = FALSE)
       # end of inner replicate
       # aggregate attributes across permutations
       MItools:::aggregatePermutations(temp_inner, nodes, nodes_call)
@@ -156,7 +160,8 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
                   includeAssociations = includeAssociations,
                   also_permuteYZ = also_permuteYZ, inner_N = inner_N),
     seed = seed,
-    memory = clustermq_mem, template = clustermq_template, n_jobs = clustermq_jobs, fail_on_error = clustermq_fail_on_error)
+    memory = clustermq_mem, template = clustermq_template, n_jobs = clustermq_jobs,
+    fail_on_error = clustermq_fail_on_error, log_worker = clustermq_log_worker)
   }
   ########### stop clustermq
 

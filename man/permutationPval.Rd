@@ -39,6 +39,8 @@ plot(res, nodeX ~ YmissingZ_perX)
 
 \item{cores}{specify how many cores to use for parallel processing, default (NULL) is to detect all cores on the machine and use all minus one. When using LSF cluster you must specify the number of cores to use because \code{\link[parallel]{detectCores}} doen't know how much cores you have requested from LSF (with bsub -n) and detects all cores on the actual physical node.}
 
+\item{cluster_type}{Type of the cluster to create when using R parrallel (\code{\link[parallel]{clusterApply}}). Type "FORK" means cluster nodes share objects in memory. Details: (\code{\link[parallel]{makeCluster}})}
+
 \item{seed}{seed for RNG for reproducible sampling}
 
 \item{also_permuteYZ}{logical, permute Y-Z interactions in addition to X-Y (specified in interactions2permute) ?}
@@ -54,6 +56,8 @@ plot(res, nodeX ~ YmissingZ_perX)
 \item{split_comp_inner_N}{parallel evaluation of permutations is split into the outer and inner replicate calls helps to save memory by decreasing the total size of the result. This argument let's you manually specify the number of inner replicate calls. This has to be optimised for data size when using clustermq (ignored unless clustermq == TRUE)}
 
 \item{clustermq_fail_on_error}{If TRUE clustermq will fail if one of the jobs returns an error. Details: \code{\link[clustermq]{Q}} (ignored unless clustermq == TRUE)}
+
+\item{clustermq_log_worker}{If TRUE clustermq will save log of worker jobs. Where in is save is determined by clustermq.template}
 
 \item{formula}{argument for \code{permutationPvalPlot}, formula specifying attribute of which nodes to plot like this: nodeX + nodeZ ~ p.value. The default is to plot p.value histogram for nodeX and nodeZ as specified in the \code{x} object}
 

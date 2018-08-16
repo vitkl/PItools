@@ -7,9 +7,10 @@ library(MItools)
 library(GenomicRanges)
 library(R.utils)
 data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
-file_BioPlex3 = "../viral_project/processed_data_files/BioPlex3human_net_w_domains"
+file_BioPlex3 = "../viral_project/processed_data_files/human_net_w_domains"
 gunzip(paste0(file_BioPlex3,".gz"), remove = F)
 data = fread(file_BioPlex3, sep = "\t", stringsAsFactors = F)
+data = data[IDs_interactor_human_B != "UNKNOWN"]
 unlink(file_BioPlex3)
 res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
                       associations2test = IDs_interactor_viral ~ IDs_domain_human,
@@ -19,7 +20,7 @@ res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interact
                       data = data,
                       statistic = IDs_interactor_viral + IDs_domain_human ~ .N,
                       select_nodes = IDs_domain_human ~ domain_count >= 1,
-                      N = 1000,
+                      N = 100, clustermq_jobs = 20, split_comp_inner_N = 2,
                       cores = NULL, seed = 2, clustermq = T, clustermq_mem = 2000)
 plot(res)
 res
@@ -30,11 +31,14 @@ microbenchmark::microbenchmark({res <- permutationPval(interactions2permute = ID
                                                                         IDs_domain_human_B ~ domain_count),
                                                        data = data,
                                                        statistic = IDs_interactor_human_A + IDs_domain_human_B ~ .N,
-                                                       select_nodes = NULL,
+                                                       select_nodes = IDs_domain_human_B ~ domain_count >= 1,
                                                        N = 30,
                                                        cores = NULL, seed = 2, also_permuteYZ = F,
-                                                       clustermq = T, clustermq_mem = 3000,
-                                                       split_comp_inner_N = 2, clustermq_jobs = 5)}, times = 1)
+                                                       clustermq = T, clustermq_mem = 20000,
+                                                       split_comp_inner_N = 3, clustermq_jobs = 5,
+                                                       clustermq_log_worker = T)}, times = 1)
+plot(res, IDs_interactor_human_A + IDs_domain_human_B ~ log10(not_missing))
+res$data_with_pval[!is.na(IDs_domain_human_B)]
 
 {permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
                  associations2test = IDs_interactor_viral ~ IDs_domain_human,
