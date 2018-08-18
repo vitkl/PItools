@@ -36,14 +36,19 @@ listInteractionSubsetFASTA = function(interaction_set1, interaction_set2, seed_i
   subset1_fasta = listSingleInteractFromSet2(subset1, single_interact_from_set2, set1_only, fasta)
 
   if(length(seed_id_vect) >= 2){
-      for (seed_id in seed_id_vect[2:length(seed_id_vect)]) {
-        subset = subset2setsBy1ID(interaction_set1 = interaction_set1,
-                                  interaction_set2 = interaction_set2,
-                                  seed_id = seed_id)
-        subset_fasta = listSingleInteractFromSet2(subset1 = subset, single_interact_from_set2, set1_only, fasta)
-        subset1_fasta$fasta_subset_list = c(subset1_fasta$fasta_subset_list, subset_fasta$fasta_subset_list)
-        subset1_fasta$interaction_subset = c(subset1_fasta$interaction_subset, subset_fasta$interaction_subset)
-      }
+    # set up progress bar
+    pb = progress::progress_bar$new(
+      format = "Creating datasets for QSLIMFinder [:bar] :current/:total eta: :eta",
+      total = length(seed_id_vect)-1, clear = FALSE, width= 80, show_after = 0)
+    for (seed_id in seed_id_vect[2:length(seed_id_vect)]) {
+      pb$tick()
+      subset = subset2setsBy1ID(interaction_set1 = interaction_set1,
+                                interaction_set2 = interaction_set2,
+                                seed_id = seed_id)
+      subset_fasta = listSingleInteractFromSet2(subset1 = subset, single_interact_from_set2, set1_only, fasta)
+      subset1_fasta$fasta_subset_list = c(subset1_fasta$fasta_subset_list, subset_fasta$fasta_subset_list)
+      subset1_fasta$interaction_subset = c(subset1_fasta$interaction_subset, subset_fasta$interaction_subset)
+    }
   }
 
   subset1_fasta$length = length(subset1_fasta$fasta_subset_list)

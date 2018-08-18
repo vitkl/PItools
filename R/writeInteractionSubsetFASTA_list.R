@@ -52,7 +52,12 @@ writeInteractionSubsetFASTA_list = function(interactionFASTA_list, dir = "./SLIM
   #  interactionFASTA_list$interaction_subset = interactionFASTA_list$interaction_subset[to_keep]
   #}
 
+  # set up progress bar
+  pb <- progress::progress_bar$new(
+    format = "writing datasets to files [:bar] :current/:total eta: :eta",
+    total = length(interactionFASTA_list$fasta_subset_list), clear = FALSE, width= 80, show_after = 0)
   for (i in 1:length(interactionFASTA_list$fasta_subset_list)) {
+    pb$tick()
     name = names(interactionFASTA_list$fasta_subset_list[i])
     name = gsub("\\:", "\\.", name)
     name2 = unlist(strsplit(gsub("interactors_of\\.|\\.$", "",name), "\\."))
