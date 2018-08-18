@@ -49,8 +49,8 @@ domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, non_q
   seq2keep = data.table(seq2keep = character(), name = character())
   # set up progress bar
   pb_check <- progress::progress_bar$new(
-    format = "checking datasets for enriched domains [:bar] :current/:total eta: :eta",
-    total = length(interaction_subset), clear = FALSE, width= 80)
+    format = "filtering datasets by enriched domains [:bar] :current/:total eta: :eta",
+    total = length(interaction_subset), clear = FALSE, width= 80, show_after = 0)
   for (i in 1:length(interaction_subset)) {
     pb_check$tick()
     interaction_subset_x = interaction_subset[[i]]
@@ -63,7 +63,7 @@ domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, non_q
     if(!is.null(non_query_domain_res)){
       all_ids_set1 = interaction_subset_x$ids_set1
       non_query_which_nodeY = non_query_domain_res$data_with_pval[, eval(nodeY_non_query_domain_res)] %in% name[1]
-      # if non-query domains should be the same as query domains - do filter
+      # if non-query domains should be the same as query domains - do filter by this criteria
       if(query_domains_only){
         query_domains = domain_res$data_with_pval[which_nodeY, eval(nodeZ)]
         which_set1_proteins = non_query_domain_res$data_with_pval[non_query_which_nodeY &
@@ -76,8 +76,9 @@ domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, non_q
         non_query_ids_set1 = all_ids_set1[all_ids_set1 %in% which_set1_proteins]
       }
 
+      # if proteins from domain_res "query" set should not be removed - find those matching domain filtering criteria
       if(!non_query_set_only){
-        # if non-query domains should be the same as query domains - do filter
+        # if non-query domains should be the same as query domains - do filter by this criteria
         if(query_domains_only){
           query_ids_set1 = all_ids_set1[domain_res$data_with_pval[which_nodeY & eval(nodeZ) %in% query_domains,
                                                                   all_ids_set1 %in% eval(nodeX)]]
@@ -87,32 +88,16 @@ domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, non_q
         }
         ids_set1 = unique(c(non_query_ids_set1, query_ids_set1))
       } else ids_set1 = non_query_ids_set1
-      to_keep = to_keep
+      # update which datasets should be kept
+      to_keep = to_keep &
         length(ids_set1) >= 1 &
         length(non_query_ids_set1) >= non_query_domains_N
-      if(to_keep){
-        seq2keep = rbind(seq2keep,
-                         data.table(seq2keep = c(ids_set1, name[2]),
-                                    name = names(interaction_subset[i])))
-      }
-    }
-    which_to_keep[i] = to_keep
-  }
+      which_to_keep[i] = to_keep
 
-  if(remove){
-    # 1 remove datasets
-    InteractionSubsetFASTA_list$fasta_subset_list = InteractionSubsetFASTA_list$fasta_subset_list[which_to_keep]
-    InteractionSubsetFASTA_list$interaction_subset = InteractionSubsetFASTA_list$interaction_subset[which_to_keep]
-    InteractionSubsetFASTA_list$length = length(InteractionSubsetFASTA_list$fasta_subset_list)
-    # remove sequences from remaining datasets
-    if(!is.null(non_query_domain_res)){
-      # set up progress bar
-      pb_remove = progress::progress_bar$new(
-        format = "removing proteins w\\o enriched domains [:bar] :current/:total eta: :eta",
-        total = length(unique(seq2keep$name)), clear = FALSE, width= 80)
-      for (dataset_name in unique(seq2keep$name)) {
-        pb_remove$tick()
-        seq2keep_1 = unique(seq2keep[name == dataset_name, seq2keep])
+      # remove sequences from datasets
+      if(to_keep & remove){
+        dataset_name = names(interaction_subset[i])
+        seq2keep_1 = c(ids_set1, name[2])
         # remove sequences from FASTA sequence list
         fasta_temp = InteractionSubsetFASTA_list$fasta_subset_list[[dataset_name]][seq2keep_1]
         fasta_temp = AAStringSetList(fasta_temp)
@@ -128,6 +113,13 @@ domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, non_q
         InteractionSubsetFASTA_list$interaction_subset[[dataset_name]] = int_temp
       }
     }
+  }
+
+  if(remove){
+    # 1 remove datasets
+    InteractionSubsetFASTA_list$fasta_subset_list = InteractionSubsetFASTA_list$fasta_subset_list[which_to_keep]
+    InteractionSubsetFASTA_list$interaction_subset = InteractionSubsetFASTA_list$interaction_subset[which_to_keep]
+    InteractionSubsetFASTA_list$length = length(InteractionSubsetFASTA_list$fasta_subset_list)
     return(InteractionSubsetFASTA_list)
   } else return(which_to_keep)
 }
