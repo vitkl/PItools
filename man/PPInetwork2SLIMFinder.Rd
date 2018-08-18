@@ -20,14 +20,17 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
   seed_list = NULL, query_list = NULL, memory_start = 350,
   memory_step = 100, compare_motifs = T, Njobs_limit = 490,
   CompariMotif3_dburl = "http://elm.eu.org/elms/elms_index.tsv",
-  CompariMotif3_dbpath = "./data_files/")
+  CompariMotif3_dbpath = "./data_files/",
+  non_query_domain_res_file = "../viral_project/processed_data_files/predict_domain_human_clust20180819.RData",
+  non_query_domain_results_obj = NULL, non_query_domains_N = 2,
+  non_query_set_only = c(main_set_only), query_domains_only = T)
 }
 \arguments{
 \item{dataset_name}{refer to \code{\link[MItools]{mBenchmarkMotifs}}}
 
 \item{interaction_main_set}{clean_MItab class, use this set of protein interactions to construct QSLIMFinder datasets}
 
-\item{interaction_query_set}{clean_MItab class, use this set of protein interactions as a query (+ add to the QSLIMFinder datasets). SLIMFinder \code{analysis_type} also requires this option because it add proteins from these interactions to the SLIMFinder datasets}
+\item{interaction_query_set}{clean_MItab class, use this set of protein interactions as a query (+ add to the QSLIMFinder datasets). Both interaction sets have shared seed proteins. SLIMFinder \code{analysis_type} also requires this option because it add proteins from these interactions to the SLIMFinder datasets}
 
 \item{analysis_type}{"qslimfinder" or "slimfinder"}
 
@@ -41,7 +44,7 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
 
 \item{fasta_path}{relative path (from the project folder) to the FASTA file containing sequences for all proteins in \code{interaction_main_set} and \code{interaction_query_set}}
 
-\item{main_set_only}{logical, sequence set for motif search should contain only proteins from \code{interaction_main_set}. If FALSE, non-query proteins from \code{interaction_query_set} are also included. Argument for \code{\link{listInteractionSubsetFASTA}}}
+\item{main_set_only}{logical, If TRUE sequence sets for motif search contain only proteins from \code{interaction_main_set}. If FALSE, non-query proteins from \code{interaction_query_set} are also included. Argument for \code{\link{listInteractionSubsetFASTA}}}
 
 \item{domain_pvalue_cutoff}{construct SLIMFinder datasets using interactions of proteins that contain domain associated to protein in the query set with p-value \code{domain_pvalue_cutoff} or lower}
 
@@ -74,6 +77,16 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
 \item{CompariMotif3_dburl}{dburl url where to download database for CompariMotif V3. Argument for \code{\link{runCompariMotif3}}}
 
 \item{CompariMotif3_dbpath}{path to directory where to save and keep ELM database (\link{http://elm.eu.org/}) or other database of linear motifs in a format required by comparimotif_V3: \link{http://rest.slimsuite.unsw.edu.au/docs&page=module:comparimotif_V3}}
+
+\item{non_query_domain_res_file}{path to RData file containing the result of domain enrichment analysis for non-query proteins}
+
+\item{non_query_domain_results_obj}{character, name of the object containing domain enrichment results for non-query proteins (class == XYZinteration_XZEmpiricalPval), when provided will be used for filtering datasets.}
+
+\item{non_query_domains_N}{the number of non-query proteins with predicted domains for each dataset. Used only when non_query_domain_results_obj is not NULL}
+
+\item{non_query_set_only}{If TRUE sequence sets for motif search contain only proteins (interacting partners of a seed) from non_query_domain_results_obj, if FALSE - both from non_query_domain_results_obj and domain_res_obj. Used only when non_query_domain_results_obj is not NULL and by default equals to main_set_only}
+
+\item{query_domains_only}{If TRUE proteins whose sequences will be used for motif search must be predicted to bind the same domains in a seed protein as domains predicted for query protein. Used only when non_query_domain_results_obj is not NULL}
 }
 \value{
 path to RData containing all objects used by this pipeline

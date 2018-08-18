@@ -4,14 +4,14 @@
 ##' @author Vitalii Kleshchevnikov
 ##' @param dataset_name refer to \code{\link[MItools]{mBenchmarkMotifs}}
 ##' @param interaction_main_set clean_MItab class, use this set of protein interactions to construct QSLIMFinder datasets
-##' @param interaction_query_set  clean_MItab class, use this set of protein interactions as a query (+ add to the QSLIMFinder datasets). SLIMFinder \code{analysis_type} also requires this option because it add proteins from these interactions to the SLIMFinder datasets
+##' @param interaction_query_set  clean_MItab class, use this set of protein interactions as a query (+ add to the QSLIMFinder datasets). Both interaction sets have shared seed proteins. SLIMFinder \code{analysis_type} also requires this option because it add proteins from these interactions to the SLIMFinder datasets
 ##' @param analysis_type "qslimfinder" or "slimfinder"
 ##' @param options any options from QSLIMFinder or SLIMFinder. Detail http://rest.slimsuite.unsw.edu.au/docs&page=module:qslimfinder or http://rest.slimsuite.unsw.edu.au/docs&page=module:slimfinder => Commandline
 ##' @param domain_res_file relative path to domain enrichment results RData
 ##' @param domain_results_obj which object contains domain enrichment results in \code{domain_res_file}, XYZinteration_XZEmpiricalPval?
 ##' @param center_domains logical, center QSLIMFinder datasets at domains?
 ##' @param fasta_path relative path (from the project folder) to the FASTA file containing sequences for all proteins in \code{interaction_main_set} and \code{interaction_query_set}
-##' @param main_set_only logical, sequence set for motif search should contain only proteins from \code{interaction_main_set}. If FALSE, non-query proteins from \code{interaction_query_set} are also included. Argument for \code{\link{listInteractionSubsetFASTA}}
+##' @param main_set_only logical, If TRUE sequence sets for motif search contain only proteins from \code{interaction_main_set}. If FALSE, non-query proteins from \code{interaction_query_set} are also included. Argument for \code{\link{listInteractionSubsetFASTA}}
 ##' @param domain_pvalue_cutoff construct SLIMFinder datasets using interactions of proteins that contain domain associated to protein in the query set with p-value \code{domain_pvalue_cutoff} or lower
 ##' @param SLIMFinder_dir directory to store SLIMFinder datasets and results within the project directory
 ##' @param LSF_project_path full path to the project directory
@@ -28,6 +28,11 @@
 ##' @param Njobs_limit integer, the number of LSF jobs allowed to run simultaneously
 ##' @param CompariMotif3_dburl dburl url where to download database for CompariMotif V3. Argument for \code{\link{runCompariMotif3}}
 ##' @param CompariMotif3_dbpath path to directory where to save and keep ELM database (\link{http://elm.eu.org/}) or other database of linear motifs in a format required by comparimotif_V3: \link{http://rest.slimsuite.unsw.edu.au/docs&page=module:comparimotif_V3}
+##' @param non_query_domain_res_file path to RData file containing the result of domain enrichment analysis for non-query proteins
+##' @param non_query_domain_results_obj character, name of the object containing domain enrichment results for non-query proteins (class == XYZinteration_XZEmpiricalPval), when provided will be used for filtering datasets.
+##' @param non_query_domains_N the number of non-query proteins with predicted domains for each dataset. Used only when non_query_domain_results_obj is not NULL
+##' @param non_query_set_only If TRUE sequence sets for motif search contain only proteins (interacting partners of a seed) from non_query_domain_results_obj, if FALSE - both from non_query_domain_results_obj and domain_res_obj. Used only when non_query_domain_results_obj is not NULL and by default equals to main_set_only
+##' @param query_domains_only If TRUE proteins whose sequences will be used for motif search must be predicted to bind the same domains in a seed protein as domains predicted for query protein. Used only when non_query_domain_results_obj is not NULL
 ##' @details QSLIMFinder command line options (http://rest.slimsuite.unsw.edu.au/docs&page=module:qslimfinder)
 ##'
 ##'### Basic Input/Output Options ###
@@ -280,7 +285,12 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
                                  compare_motifs = T,
                                  Njobs_limit = 490,
                                  CompariMotif3_dburl = "http://elm.eu.org/elms/elms_index.tsv",
-                                 CompariMotif3_dbpath = "./data_files/")
+                                 CompariMotif3_dbpath = "./data_files/",
+                                 non_query_domain_res_file = "../viral_project/processed_data_files/predict_domain_human_clust20180819.RData",
+                                 non_query_domain_results_obj = NULL, # res_count_all
+                                 non_query_domains_N = 2,
+                                 non_query_set_only = c(main_set_only),
+                                 query_domains_only = T)
 {
   # check class correctness
   if(!grepl("clean_MItab",class(interaction_main_set))) stop("interaction_main_set is not of class clean_MItab27 or related clean_MItab class")
@@ -290,6 +300,13 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
   domain_res_env = R.utils::env(load(domain_res_file))
   domain_res = domain_res_env[[domain_results_obj]]
   rm(domain_res_env)
+
+  # domain enrichment results - non-query proteins
+  if(!is.null(non_query_domain_results_obj)){
+    non_query_domain_res_env = R.utils::env(load(non_query_domain_res_file))
+    non_query_domain_res = non_query_domain_res_env[[non_query_domain_results_obj]]
+    rm(non_query_domain_res_env)
+  } else non_query_domain_res = NULL
 
   # check class of the domain analysis results
   if(!grepl("XYZinteration_XZEmpiricalPval",class(domain_res))) stop("domain_results_obj does not point to object of class XYZinteration_XZEmpiricalPval")
@@ -328,17 +345,23 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
 
   # filter for only significant domain - query protein pair
   domain_filt = copy(domain_res)
-  if(is.null(seed_list)) domain_filt$data_with_pval = domain_filt$data_with_pval[p.value <= domain_pvalue_cutoff,]
+  if(!is.null(non_query_domain_res)) non_query_domain_res$data_with_pval = non_query_domain_res$data_with_pval[p.value <= domain_pvalue_cutoff,]
+  domain_filt$data_with_pval = domain_filt$data_with_pval[p.value <= domain_pvalue_cutoff,]
+
 
   # center at domains (combine seed protein networks if those have the same domain)
   if(center_domains) forSLIMFinder = centerDomains(forSLIMFinder, domain_filt)
 
   # filter for only sets where seed protein - query protein pair matches significant domain - query protein pair
-  if(!center_domains) forSLIMFinder = domainProteinPairMatch(forSLIMFinder, domain_filt, remove = T)
+  if(!center_domains) forSLIMFinder = domainProteinPairMatch(forSLIMFinder, domain_filt,
+                                                             non_query_domain_res = non_query_domain_res,
+                                                             non_query_domains_N = non_query_domains_N,
+                                                             non_query_set_only = non_query_set_only,
+                                                             query_domains_only = query_domains_only, remove = T)
 
   # filter datasets by size
   forSLIMFinder_Ready = filterInteractionSubsetFASTA_list(forSLIMFinder,
-                           length_set1_min = length_set1_min, length_set2_min = length_set2_min)
+                                                          length_set1_min = length_set1_min, length_set2_min = length_set2_min)
 
   # write datasets (fasta + query)
   if(!dir.exists(SLIMFinder_dir)) dir.create(SLIMFinder_dir)
@@ -382,24 +405,24 @@ PPInetwork2SLIMFinder = function(dataset_name = "SLIMFinder",
 
   # compare motif only if any were found and if asked (compare_motifs = T)
   if(sum(!is.na(QSLIMFinder_main_result$IC)) > 0 & compare_motifs){
-  writePatternList(QSLIMFinder_main_result, filename = paste0(resultdir, "motifs.txt"))
+    writePatternList(QSLIMFinder_main_result, filename = paste0(resultdir, "motifs.txt"))
 
-  # compare discovered motifs to ELM
-  runCompariMotif3(input_file = paste0(resultdir, "motifs.txt"),
-                   slimpath = paste0(software_path, "slimsuite/tools/"),
-                   dbpath = CompariMotif3_dbpath,
-                   dburl = CompariMotif3_dburl,
-                   run = T, with = "db",
-                   out_file = paste0(resultdir, "comparimotif.tdt"),
-                   LSF_project_path = LSF_project_path)
-  # compare discovered motifs to each other
-  runCompariMotif3(input_file = paste0(resultdir, "motifs.txt"),
-                   slimpath = paste0(software_path, "slimsuite/tools/"),
-                   run = T, with = "self",
-                   out_file = paste0(resultdir, "comparimotif_with_self.tdt"),
-                   LSF_project_path = LSF_project_path)
-  #R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.tdt"), paste0(resultdir, "comparimotif_with_self.compare.tdt.gz"))
-  #R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.xgmml"), paste0(resultdir, "comparimotif_with_self.compare.xgmml.gz"))
+    # compare discovered motifs to ELM
+    runCompariMotif3(input_file = paste0(resultdir, "motifs.txt"),
+                     slimpath = paste0(software_path, "slimsuite/tools/"),
+                     dbpath = CompariMotif3_dbpath,
+                     dburl = CompariMotif3_dburl,
+                     run = T, with = "db",
+                     out_file = paste0(resultdir, "comparimotif.tdt"),
+                     LSF_project_path = LSF_project_path)
+    # compare discovered motifs to each other
+    runCompariMotif3(input_file = paste0(resultdir, "motifs.txt"),
+                     slimpath = paste0(software_path, "slimsuite/tools/"),
+                     run = T, with = "self",
+                     out_file = paste0(resultdir, "comparimotif_with_self.tdt"),
+                     LSF_project_path = LSF_project_path)
+    #R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.tdt"), paste0(resultdir, "comparimotif_with_self.compare.tdt.gz"))
+    #R.utils::gzip(paste0(resultdir, "comparimotif_with_self.compare.xgmml"), paste0(resultdir, "comparimotif_with_self.compare.xgmml.gz"))
   }
 
   # compress input, remove input, log and output
