@@ -5,12 +5,21 @@
 \title{Check if the protein in the set2 is associated with domain that is contained in the protein in the name and remove if not}
 \usage{
 domainProteinPairMatch(InteractionSubsetFASTA_list, domain_res,
-  remove = T)
+  non_query_domain_res = NULL, non_query_domains_N = 0,
+  non_query_set_only = T, query_domains_only = F, remove = T)
 }
 \arguments{
 \item{InteractionSubsetFASTA_list}{object of class InteractionSubsetFASTA_list created by \code{\link{listInteractionSubsetFASTA}}}
 
 \item{domain_res}{the result of domain enrichment analysis: object class XYZinteration_XZEmpiricalPval, the output of \code{\link{permutationPval}}. The domain should be in nodeZ, the set2 protein should be in the nodeX, the set1 protein should be in the nodeY.}
+
+\item{non_query_domain_res}{the result of domain enrichment analysis for non-query proteins, when provided will be used for filtering.}
+
+\item{non_query_domains_N}{the number of non-query proteins with predicted domains for each dataset. Used only when non_query_domain_res is not NULL}
+
+\item{non_query_set_only}{If TRUE interacting partners of a seed are taken only from non_query_domain_res, if FALSE - both from non_query_domain_res and domain_res. Used only when non_query_domain_res is not NULL}
+
+\item{query_domains_only}{If TRUE interacting partners of a seed that are taken from non_query_domain_res must be predicted to interact with a seed using domains predicted for query. Used only when non_query_domain_res is not NULL}
 
 \item{remove}{logical, remove and return InteractionSubsetFASTA_list or just show which sequence and interaction sets have a protein in the set2 associated with domain that is contained in the protein in the name.}
 }
