@@ -13,6 +13,7 @@
 SLIMFinderOcc2GRanges = function(occurence_file = "../viral_project/SLIMFinder_Vidal/result/occurence.txt", main_file = "../viral_project/SLIMFinder_Vidal/result/main_result.txt", one_from_cloud = T) {
   occurence = unique(fread(occurence_file, stringsAsFactors = F))
   occurence[, Seq := gsub("_UNK__.+$","",Seq)]
+  occurence[, prot_names := Seq]
   if(!is.null(main_file)) {
     pattens = unique(fread(main_file, stringsAsFactors = F)[, c("RunID", "RunTime") := NULL])
     if(one_from_cloud){
@@ -24,7 +25,7 @@ SLIMFinderOcc2GRanges = function(occurence_file = "../viral_project/SLIMFinder_V
   }
 
   occurence[, query := gsub("interactors_of\\.[[:alnum:]]{6,10}\\.", "", Dataset)]
-  occurence[, interacts_with := gsub("interactors_of\\.|\\.[[:alnum:]]{6,10}", "", Dataset)]
+  occurence[, interacts_with := gsub("interactors_of\\.|((\\.[[:alnum:]]{6,10})|(\\.[[:alnum:]]{6,10})-PRO_[[:alnum:]]{6,10})", "", Dataset)]
   seqinfo_temp = unique(occurence[,.(Seq, Prot_Len)])
   seqinfo_res = seqinfo_temp$Prot_Len
   names(seqinfo_res) = seqinfo_temp$Seq
