@@ -1,7 +1,7 @@
 Package: MItools
 Type: Package
 Title: Molecular interaction data tools, retrieving data using PSICQUIC service
-Version: 0.1.38
+Version: 0.1.39
 Author: Vitalii Kleshchevnikov
 Maintainer: Vitalii Kleshchevnikov <vk7@sanger.ac.uk>
 Authors@R: c(person("Vitalii", "Kleshchevnikov",, "vk7@sanger.ac.uk", role = c("aut", "cre")))
