@@ -83,28 +83,28 @@ humanViralDegree = function(data = NULL, directory = "./data_files/", Interactio
   viral_proteins = extractInteractors(all_viral_interaction, taxid = 9606, inverse_filter = T)
 
   human_human_degree = edgelist2degree(all_human_interaction$data)
-  human_human_degree_legend = paste0("full human-human: \n", NuniqueInteractions(all_human_interaction)," interacting pairs, \n", NuniqueInteractors(all_human_interaction)," human proteins")
+  human_human_degree_legend = paste0("full human-human: \n", uniqueNinteractions(all_human_interaction)," interacting pairs, \n", uniqueNinteractors(all_human_interaction)," human proteins")
   human_human_degree[, legend := human_human_degree_legend]
 
   inViral_human_interaction = subsetMITABbyID(MITABdata = all_human_interaction,
                                               ID_seed = human_viral_proteins, within_seed = T)
   inViral_human_human_degree = edgelist2degree(inViral_human_interaction$data)[ID %in% human_viral_proteins]
   inViral_human_human_degree_legend = paste0("viral-interacting proteins, human-human: \n",
-                                             NuniqueInteractions(inViral_human_interaction),
+                                             uniqueNinteractions(inViral_human_interaction),
                                              " interacting pairs, \n",
-                                             NuniqueInteractors(inViral_human_interaction)," human proteins")
+                                             uniqueNinteractors(inViral_human_interaction)," human proteins")
   inViral_human_human_degree[, legend := inViral_human_human_degree_legend]
 
   inViral_human_viral_degree = edgelist2degree(all_viral_interaction$data)[ID %in% human_viral_proteins]
-  inViral_human_viral_degree_legend = paste0("human-viral: \n", NuniqueInteractions(all_viral_interaction)," interacting pairs, \n", NuniqueInteractors(all_viral_interaction, taxid = 9606, inverse_filter = F)," human proteins")
+  inViral_human_viral_degree_legend = paste0("human-viral: \n", uniqueNinteractions(all_viral_interaction)," interacting pairs, \n", uniqueNinteractors(all_viral_interaction, taxid = 9606, inverse_filter = F)," human proteins")
   inViral_human_viral_degree[, legend := inViral_human_viral_degree_legend]
 
   inViral_viral_human_degree = edgelist2degree(all_viral_interaction$data)[ID %in% viral_proteins]
-  inViral_viral_human_degree_legend = paste0("viral-human: \n", NuniqueInteractions(all_viral_interaction)," interacting pairs, \n", NuniqueInteractors(all_viral_interaction, taxid = 9606, inverse_filter = T)," viral proteins")
+  inViral_viral_human_degree_legend = paste0("viral-human: \n", uniqueNinteractions(all_viral_interaction)," interacting pairs, \n", uniqueNinteractors(all_viral_interaction, taxid = 9606, inverse_filter = T)," viral proteins")
   inViral_viral_human_degree[, legend := inViral_viral_human_degree_legend]
 
   inViral_viral_viral_degree = edgelist2degree(all_within_viral_interaction$data)[ID %in% viral_proteins]
-  inViral_viral_viral_degree_legend = paste0("viral-viral (human host): \n", NuniqueInteractions(all_within_viral_interaction)," interacting pairs, \n", NuniqueInteractors(all_within_viral_interaction)," viral proteins")
+  inViral_viral_viral_degree_legend = paste0("viral-viral (human host): \n", uniqueNinteractions(all_within_viral_interaction)," interacting pairs, \n", uniqueNinteractors(all_within_viral_interaction)," viral proteins")
   inViral_viral_viral_degree[, legend := inViral_viral_viral_degree_legend]
 
   degree_distributions = rbind(human_human_degree, inViral_human_human_degree, inViral_human_viral_degree, inViral_viral_human_degree, inViral_viral_viral_degree)

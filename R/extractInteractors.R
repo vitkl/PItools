@@ -9,8 +9,8 @@
 ##' @return character vector of interactor IDs or an integer count of interactions or interactors
 ##' @import data.table
 ##' @export extractInteractors
-##' @export NuniqueInteractions
-##' @export NuniqueInteractors
+##' @export uniqueNinteractions
+##' @export uniqueNinteractors
 extractInteractors = function(cleanMITAB, taxid = NULL, inverse_filter = F) {
 if(!grepl("clean_MItab",class(cleanMITAB))) stop("cleanMITAB is not of class clean_MItab27 or related clean_MItab class")
 if(is.null(taxid)){
@@ -29,18 +29,18 @@ if(is.null(taxid)){
 }
 
 ##' @rdname extractInteractors
-##' @name NuniqueInteractions
+##' @name uniqueNinteractions
 ##' @import data.table
-##' @export NuniqueInteractions
-NuniqueInteractions = function(cleanMITAB){
+##' @export uniqueNinteractions
+uniqueNinteractions = function(cleanMITAB){
   if(!grepl("clean_MItab",class(cleanMITAB))) stop("cleanMITAB is not of class clean_MItab27 or related clean_MItab class")
   length(unique(cleanMITAB$data$pair_id))
 }
 ##' @rdname extractInteractors
-##' @name NuniqueInteractors
+##' @name uniqueNinteractors
 ##' @import data.table
-##' @export NuniqueInteractors
-NuniqueInteractors = function(cleanMITAB, taxid = NULL, inverse_filter = F){
+##' @export uniqueNinteractors
+uniqueNinteractors = function(cleanMITAB, taxid = NULL, inverse_filter = F){
   if(!grepl("clean_MItab",class(cleanMITAB))) stop("cleanMITAB is not of class clean_MItab27 or related clean_MItab class")
 
   if(is.null(taxid)){
