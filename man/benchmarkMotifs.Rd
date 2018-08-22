@@ -7,13 +7,14 @@
 \title{Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)}
 \usage{
 
-  benchmarkMotifs(occurence_file = "../viral_project/SLIMFinder_Vidal/result/occurence.txt",
-  main_file = "../viral_project/SLIMFinder_Vidal/result/main_result.txt",
-  domain_res_file = "../viral_project/processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
-  motif_setup = "../viral_project/processed_data_files/QSLIMFinder_instances_h2v_Full_IntAct2_clust201802.RData",
+  benchmarkMotifs(occurence_file = "../viral_project/qslimfinder.Full_IntAct3.FALSE/result/occurence.txt",
+  main_file = "../viral_project/qslimfinder.Full_IntAct3.FALSE/result/main_result.txt",
+  domain_res_file = "../viral_project/processed_data_files/domain_res_count_20171019.RData",
+  motif_setup = "../viral_project/processed_data_files/QSLIMFinder_instances_h2v_qslimfinder.Full_IntAct3.FALSE_clust201802.RData",
   neg_set = c("all_instances", "all_proteins", "random")[1],
   domain_results_obj = "res_count",
-  motif_input_obj = "forSLIMFinder_Ready", one_from_cloud = T,
+  motif_input_obj = "forSLIMFinder_Ready", motif_setup_obj2 = NULL,
+  occurence_filt = NULL, one_from_cloud = T,
   dbfile_main = "../viral_project/data_files/instances_all.gff",
   dburl_main = "http://elm.eu.org/instances.gff?q=None&taxon=Homo\%20sapiens&instance_logic=",
   dbfile_query = "../viral_project/data_files/instances_query.gff",
@@ -25,37 +26,23 @@
   normalise = T, minoverlap = 2, minoverlap_redundant = 5,
   merge_domain_data = T, merge_by_occurence_mcols = c("query",
   "interacts_with"), merge_by_domain_res_cols = c("IDs_interactor_viral",
-  "IDs_interactor_human"), count_ranges_by = list(by =
-  "IDs_domain_human", name = "motif_occ_per_domain", normalise_by =
-  "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
+  "IDs_interactor_human", "IDs_domain_human", "Taxid_interactor_human",
+  "Taxid_interactor_viral"),
+  merge_by_non_query_domain_res_cols = c("IDs_interactor_human_A",
+  "IDs_interactor_human_B", "IDs_domain_human_B",
+  "Taxid_interactor_human_A", "Taxid_interactor_human_B"),
   filter_by_domain_data = "p.value < 0.05", motif_pval_cutoff = 1,
-  select_predictor_per_range = max, ...)
+  select_predictor_per_range = max,
+  non_query_domain_res_file = "../viral_project/processed_data_files/predict_domain_human_clust20180819.RData",
+  non_query_domain_results_obj = NULL, non_query_domains_N = 0,
+  non_query_set_only = F, query_domains_only = F,
+  min_non_query_domain_support = 3, select_top_domain = F, ...)
 
 queryOCCByMCOL(res, keytype = "IDs_domain_human", key = "IPR032440")
 
-mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
-  dir = "./", neg_set = c("random", "all_instances",
-  "all_proteins")[1],
-  domain_res_file = "./processed_data_files/what_we_find_VS_ELM_clust20171019.RData",
-  domain_results_obj = "res_count",
-  motif_input_obj = "forSLIMFinder_Ready", one_from_cloud = T,
-  type = "QSLIMFinder", dbfile_main = "./data_files/instances9606.gff",
-  dburl_main = "http://elm.eu.org/instances.gff?q=None&taxon=Homo\%20sapiens&instance_logic=",
-  dbfile_query = "./data_files/instances10239.gff",
-  dburl_query = "http://elm.eu.org/instances.gff?q=all&taxon=irus&instance_logic=",
-  query_res_query_only = T, motif_types = c("DOC", "MOD", "LIG", "DEG",
-  "CLV", "TRG"), all_res_excl_query = T, seed = 21, N = 100,
-  replace = T, within1sequence = T, query_predictor_col = "Sig",
-  all_predictor_col = "Sig", normalise = T, minoverlap = 2,
-  maxgap = 0, minoverlap_redundant = 5, merge_motif_variants = F,
-  motif_setup_months = "201710", merge_domain_data = T,
-  merge_by_occurence_mcols = c("query", "interacts_with"),
-  merge_by_domain_res_cols = c("IDs_interactor_viral",
-  "IDs_interactor_human"), count_ranges_by = list(by =
-  "IDs_domain_human", name = "motif_occ_per_domain", normalise_by =
-  "domain_count", normalised_name = "normalised_motif_occ_per_domain"),
-  filter_by_domain_data = "p.value < 0.05", motif_pval_cutoff = 1,
-  select_predictor_per_range = max, dir_suff = "")
+mBenchmarkMotifs(datasets = c("qslimfinder.Full_IntAct3.FALSE"),
+  descriptions = c("human network (full IntAct) searched \\nfor motifs present in viral proteins"),
+  dir = "./", motif_setup_months = "201802", ...)
 }
 \arguments{
 \item{occurence_file}{a path to a tsv (txt) file containing QSLIMFinder (SLIMFinder) occurence output}
@@ -69,6 +56,10 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
 \item{domain_results_obj}{character, name of the object containing domain enrichment results (class == XYZinteration_XZEmpiricalPval)}
 
 \item{motif_input_obj}{character, name of the object of class InteractionSubsetFASTA_list containing: FASTA sequences for interacting proteins, molecular interaction data they correspond to. Each element of a list contains input for individual QSLIMFinder run.}
+
+\item{motif_setup_obj2}{alternative way to provide motif_input_obj (class InteractionSubsetFASTA_list) directly. This object should not require matching domain-protein pairs. It must have been already processed by \code{\link{domainProteinPairMatch}} Can be useful for repeating benchmarking.}
+
+\item{occurence_filt}{QSLIMFinder (SLIMFinder) occurence output filtered by those that we could have found from motif_input_obj.}
 
 \item{one_from_cloud}{use only one top motif from motif cloud}
 
@@ -84,7 +75,7 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
 
 \item{motif_types}{character vector of motif types}
 
-\item{all_res_excl_query}{all results in the output is all occurences excluding the query proteins. If FALSE, all results include occurences in all proteins.}
+\item{all_res_excl_query}{all results in the output is all occurences excluding the query proteins. If FALSE, all results include occurences in all proteins. Not implemented}
 
 \item{merge_motif_variants}{If FALSE (default) merge motif occurences only if motifs are variants of the same motif (such as TRG_NLS).}
 
@@ -106,11 +97,35 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
 
 \item{minoverlap_redundant}{for removing motif classes that match the same occurence}
 
+\item{merge_domain_data}{If TRUE, merge domain enrichment results to motif occurence}
+
+\item{merge_by_occurence_mcols}{columns of mcols (metadata of GRanges) that contain IDs of [1] protein with motif, [2] proteins with domain, e.g. c("query", "interacts_with"),}
+
+\item{merge_by_domain_res_cols}{columns of domain enrichment results that contain IDs of [1] protein with motif, [2] proteins with domain, [3] domain, [4] and [5] Taxid for proteins with motif and domain respectively, e.g. c("IDs_interactor_viral", "IDs_interactor_human", "IDs_domain_human", "Taxid_interactor_human","Taxid_interactor_viral"). If Taxid columns are not present - omit.}
+
+\item{merge_by_non_query_domain_res_cols}{columns of domain enrichment results for non-query proteins that contain IDs of [1] protein with motif, [2] proteins with domain, [3] domain, [4] and [5] Taxid for proteins with motif and domain respectively, e.g. c("IDs_interactor_human_A", "IDs_interactor_human_B", "IDs_domain_human_B", "Taxid_interactor_human_A","Taxid_interactor_human_B"). If Taxid columns are not present - omit.}
+
 \item{filter_by_domain_data}{criteria to filter domain data and restrict motif search datasets (for example, "p.value < 0.05" or "fdr_pval < 0.05 & domain_count_per_IDs_interactor_viral > 1")}
 
 \item{select_predictor_per_range}{function (such as min) that select predictor value if multiple values (such as returned by multiple datasets or multiple domains integrated) describe the same range}
 
+\item{non_query_domain_res_file}{path to RData file containing the result of domain enrichment analysis for non-query proteins}
+
+\item{non_query_domain_results_obj}{character, name of the object containing domain enrichment results for non-query proteins (class == XYZinteration_XZEmpiricalPval), when provided will be used for filtering datasets.}
+
+\item{non_query_domains_N}{the number of non-query proteins with predicted domains for each dataset. Used only when non_query_domain_results_obj is not NULL}
+
+\item{non_query_set_only}{If TRUE sequence sets searched for motif are filtered to contain only proteins from non_query_domain_results_obj (interacting partners of a seed), if FALSE - both from non_query_domain_results_obj and domain_res_obj. Used only when non_query_domain_results_obj is not NULL.}
+
+\item{query_domains_only}{If TRUE proteins whose sequences will be used for motif search must be predicted to bind the same domains in a seed protein as domains predicted for query protein. Used only when non_query_domain_results_obj is not NULL}
+
+\item{min_non_query_domain_support}{Minimal number of non-query proteins with the same motif as the query that are predicted to bind the same domain. Used to filter domains and proteins that do not predict top domains. Used only when non_query_domain_results_obj is not NULL.}
+
+\item{select_top_domain}{If TRUE, top domain is selected using a product of domain p-values for all proteins with the same motif (min p-value) found using the same dataset. Used only when non_query_domain_results_obj is not NULL.}
+
 \item{...}{other arguments passed to passed to \code{\link[GenomicRanges]{findOverlaps}}}
+
+\item{res}{object class \code{(benchmarkMotifsResult)}, the output of benchmarkMotifs}
 
 \item{keytype}{character, name of the column that contains key identifiers}
 
@@ -121,11 +136,13 @@ mBenchmarkMotifs(datasets = c("", "Vidal"), descriptions = c("", ""),
 \item{descriptions}{character vector, description of the datasets (title of the ROC plot)}
 
 \item{dir}{character, base directory. For example, "./" in "./SLIMFinder_Vidal/result/occurence.txt"}
-
-\item{dir_suff}{character, SLIMFinder results folder prefix. For example, "SLIMFinder" in "./SLIMFinder_Vidal/result/occurence.txt"}
 }
 \value{
+object class \code{(benchmarkMotifsResult)} containing occurence (GRanges, all, query, just after filtering by motif setup), instances_all (GRanges, known instances in all proteins or all excluding the query proteins), instances_query (GRanges, known instances in query proteins), predictions_all (for ROCR), labels_all (for ROCR), predictions_query (for ROCR), labels_query (for ROCR), overlapping_GRanges_all (GRanges, known instances that we also found), overlapping_GRanges_query(GRanges, known instances that we also found), N_query_prot_with_known_instances, N_query_known_instances, N_all_prot_with_known_instances, N_all_known_instances
+
 GenomicRanges containing motifs for a given key
+
+list of objects of class \code{(benchmarkMotifsResult)}
 }
 \description{
 Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)

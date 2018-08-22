@@ -56,13 +56,17 @@ domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, non_q
     interaction_subset_x = interaction_subset[[i]]
     name = interaction_subset_x$name
     name = unlist(strsplit(name, ":"))
-    which_nodeY = domain_res$data_with_pval[, eval(nodeY)] %in% name[1]
-    to_keep = domain_res$data_with_pval[which_nodeY, name[2] %in% eval(nodeX)]
+    which_nodeY = domain_res$data_with_pval[, eval(nodeY)] == name[1]
+    if(sum(which_nodeY) >= 1){
+      to_keep = domain_res$data_with_pval[which_nodeY, name[2] == eval(nodeX)]
+      to_keep = isTRUE(sum(to_keep) >= 1 & is.logical(to_keep))
+    } else to_keep = FALSE
+
 
     # filter non-query proteins by domain
     if(!is.null(non_query_domain_res)){
       all_ids_set1 = interaction_subset_x$ids_set1
-      non_query_which_nodeY = non_query_domain_res$data_with_pval[, eval(nodeY_non_query_domain_res)] %in% name[1]
+      non_query_which_nodeY = non_query_domain_res$data_with_pval[, eval(nodeY_non_query_domain_res)] == name[1]
       # if non-query domains should be the same as query domains - do filter by this criteria
       if(query_domains_only){
         query_domains = domain_res$data_with_pval[which_nodeY, eval(nodeZ)]
@@ -92,7 +96,6 @@ domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, non_q
       to_keep = to_keep &
         length(ids_set1) >= 1 &
         length(non_query_ids_set1) >= non_query_domains_N
-      which_to_keep[i] = to_keep
 
       # remove sequences from datasets
       if(to_keep & remove){
@@ -113,6 +116,7 @@ domainProteinPairMatch = function(InteractionSubsetFASTA_list, domain_res, non_q
         InteractionSubsetFASTA_list$interaction_subset[[dataset_name]] = int_temp
       }
     }
+    which_to_keep[i] = to_keep
   }
 
   if(remove){

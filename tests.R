@@ -32,11 +32,11 @@ microbenchmark::microbenchmark({res <- permutationPval(interactions2permute = ID
                                                        data = data,
                                                        statistic = IDs_interactor_human_A + IDs_domain_human_B ~ .N,
                                                        select_nodes = IDs_domain_human_B ~ domain_count >= 1,
-                                                       N = 30,
+                                                       N = 180,
                                                        cores = NULL, seed = 2, also_permuteYZ = F,
                                                        clustermq = T, clustermq_mem = 20000,
-                                                       split_comp_inner_N = 3, clustermq_jobs = 5,
-                                                       clustermq_log_worker = T)}, times = 1)
+                                                       split_comp_inner_N = 3, clustermq_jobs = 30,
+                                                       clustermq_log_worker = F)}, times = 1)
 plot(res, IDs_interactor_human_A + IDs_domain_human_B ~ log10(not_missing))
 res$data_with_pval[!is.na(IDs_domain_human_B)]
 
@@ -229,3 +229,51 @@ log_paths = paste0("/hps/nobackup/research/petsalaki/users/vitalii/vitalii/viral
 successes = sapply(log_paths, function(log_path) {
   system(paste0("cat ", log_path," | grep \"Successfully completed\""), intern=T)
 })
+
+## TEST for benchmarking
+occurence_file = "../viral_project/qslimfinder.Full_IntAct3.FALSE/result/occurence.txt"
+main_file = "../viral_project/qslimfinder.Full_IntAct3.FALSE/result/main_result.txt"
+domain_res_file = "../viral_project/processed_data_files/domain_res_count_20171019.RData"
+motif_setup = "../viral_project/processed_data_files/QSLIMFinder_instances_h2v_qslimfinder.Full_IntAct3.FALSE_clust201802.RData"
+neg_set = c("all_instances", "all_proteins", "random")[1]
+domain_results_obj = "res_count"
+motif_input_obj = "forSLIMFinder_Ready"
+one_from_cloud = T
+dbfile_main = "../viral_project/data_files/instances_all.gff"
+dburl_main = "http://elm.eu.org/instances.gff?q=None&taxon=Homo%20sapiens&instance_logic="
+dbfile_query = "../viral_project/data_files/instances_query.gff"
+dburl_query = "http://elm.eu.org/instances.gff?q=all&taxon=irus&instance_logic="
+query_res_query_only = T
+motif_types = c("DOC", "MOD", "LIG")
+all_res_excl_query = T
+merge_motif_variants = F
+seed = 21
+N = 100
+replace = T
+within1sequence = T
+query_predictor_col = "Sig"
+all_predictor_col = "Sig"
+normalise = T
+minoverlap = 2
+minoverlap_redundant = 5
+merge_domain_data = T
+merge_by_occurence_mcols = c("query", "interacts_with")
+merge_by_domain_res_cols = c("IDs_interactor_viral", "IDs_interactor_human", "IDs_domain_human", "Taxid_interactor_human","Taxid_interactor_viral")
+merge_by_non_query_domain_res_cols = c("IDs_interactor_human_A", "IDs_interactor_human_B", "IDs_domain_human_B", "Taxid_interactor_human_A","Taxid_interactor_human_B")
+count_ranges_by = list(by = "IDs_domain_human", name = "motif_occ_per_domain",
+                       normalise_by = "domain_count", normalised_name = "normalised_motif_occ_per_domain")
+filter_by_domain_data = "p.value < 0.5"
+motif_pval_cutoff = 1
+select_predictor_per_range = max
+non_query_domain_res_file = "../viral_project/processed_data_files/predict_domain_human_clust20180819.RData"
+non_query_domain_results_obj = "res_count_all" # NULL res_count_all
+non_query_domains_N = 0
+non_query_set_only = F
+query_domains_only = F
+min_non_query_domain_support = 3
+select_top_domain = F
+
+# creating a website
+# Install release version from CRAN
+install.packages("pkgdown")
+pkgdown::build_site()
