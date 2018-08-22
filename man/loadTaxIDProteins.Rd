@@ -16,7 +16,7 @@ loadTaxIDProteins(taxid, dir)
 loadTaxIDProteins function loads all UniProt accessions for a given taxonomy ID
 }
 \examples{
-loadTaxIDProteins(taxid = 9606, dir = "./")
+#loadTaxIDProteins(taxid = 9606, dir = "./")
 }
 \author{
 Vitalii Kleshchevnikov

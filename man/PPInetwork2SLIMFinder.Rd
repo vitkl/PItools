@@ -22,7 +22,7 @@ PPInetwork2SLIMFinder(dataset_name = "SLIMFinder",
   CompariMotif3_dburl = "http://elm.eu.org/elms/elms_index.tsv",
   CompariMotif3_dbpath = "./data_files/",
   non_query_domain_res_file = "../viral_project/processed_data_files/predict_domain_human_clust20180819.RData",
-  non_query_domain_results_obj = NULL, non_query_domains_N = 2,
+  non_query_domain_results_obj = NULL, non_query_domains_N = 0,
   non_query_set_only = c(main_set_only), query_domains_only = T)
 }
 \arguments{

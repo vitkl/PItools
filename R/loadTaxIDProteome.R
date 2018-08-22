@@ -9,7 +9,7 @@
 ##' @importFrom httr headers
 ##' @importFrom downloader download
 ##' @export loadTaxIDProteins
-##' @examples loadTaxIDProteins(taxid = 9606, dir = "./")
+##' @examples #loadTaxIDProteins(taxid = 9606, dir = "./")
 ##' @author Vitalii Kleshchevnikov
 loadTaxIDProteins = function(taxid, dir){
   uniprot_release = httr::headers(httr::GET("http://www.uniprot.org/"))$`x-uniprot-release`
@@ -61,7 +61,7 @@ loadTaxIDAllLower = function(taxid, dir, with_description = F){
 ##' @importFrom httr headers
 ##' @importFrom downloader download
 ##' @export loadAllIDProteins
-##' @examples loadAllIDProteins(dir = "./")
+##' @examples #loadAllIDProteins(dir = "./")
 ##' @author Vitalii Kleshchevnikov
 loadAllIDProteins = function(dir){
   uniprot_release = httr::headers(httr::GET("http://www.uniprot.org/uniprot/?query=*"))$`x-uniprot-release`
