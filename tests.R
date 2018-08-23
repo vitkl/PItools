@@ -238,6 +238,8 @@ motif_setup = "../viral_project/processed_data_files/QSLIMFinder_instances_h2v_q
 neg_set = c("all_instances", "all_proteins", "random")[1]
 domain_results_obj = "res_count"
 motif_input_obj = "forSLIMFinder_Ready"
+motif_setup_obj2 = NULL
+occurence_filt = NULL
 one_from_cloud = T
 dbfile_main = "../viral_project/data_files/instances_all.gff"
 dburl_main = "http://elm.eu.org/instances.gff?q=None&taxon=Homo%20sapiens&instance_logic="
@@ -277,3 +279,73 @@ select_top_domain = F
 # Install release version from CRAN
 install.packages("pkgdown")
 pkgdown::build_site()
+
+
+## benchmarking ways to combine p-values for domains
+
+prior = mcol[p.value<1,mean(1-p.value)]
+mcol[, combined_p.value := updatePvalue(prior, p.value), by = .(query, Pattern, interacts_with, domain)]
+
+dom_elm = merge(mcol, elm_interactions,
+                by.x = c("query", "interacts_with", "domain"),
+                by.y = c("interactorElm", "interactorDomain", "InterProID"),
+                all.x = T, all.y = F)
+dom_elm[!is.na(Elm), Correct_SLiM_binding := "yes"]
+dom_elm[is.na(Elm), Correct_SLiM_binding := "no"]
+
+# filter and select unique to have one row per protein_with_motif - domain pair
+dom3 = unique(dom_elm[,.(query, domain, p.value = combined_p.value, Correct_SLiM_binding)])
+dom3[, both_SLIM_interaction := uniqueN(Correct_SLiM_binding) >= 2,
+     by = .(query)]
+dom3 = dom3[both_SLIM_interaction == T]
+# calculate N domain protein pairs
+dom3[, N_pairs := uniqueN(paste0(query, domain)), by = .(Correct_SLiM_binding)]
+dom3[, network := paste0(unique(N_pairs[Correct_SLiM_binding == "yes"]),
+                         " correct domains ",
+                         "/ ", unique(N_pairs[Correct_SLiM_binding == "no"]),
+                         " total")]
+ggplot(dom3, aes(p.value, color = Correct_SLiM_binding, fill = Correct_SLiM_binding)) +
+  geom_histogram(alpha = 0.3, aes(y = ..density..), bins = 50, position = "identity") +
+  theme_bw() +
+  facet_grid(network~., scales = "free_y")+
+  theme(legend.position = "none",
+        strip.text.y = element_text(angle = 0),
+        strip.text = element_text(size = 14),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 14),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 14),
+        text = element_text(size = 14))
+### benchmark end
+
+prior = mcol[p.value<1,mean(1-p.value)]
+prior
+updatePvalue = function(p.value1, p.value2, N = 1, incr = 1e-10){
+  N = max(length(p.value1), length(p.value2))
+  # add/substract small value to p-value to avoid 0 likelihood
+  p.value2[p.value2 == 1] = 1 - incr
+  p.value2[p.value2 == 0] = incr
+  # calculate likelihood
+  likelihood_of_2_1 = dbeta(p.value2, p.value1 * N, (1 - p.value1) * N)
+  likelihood_of_2_not_1 = dbeta(p.value2, (1 - p.value1) * N, p.value1 * N)
+
+  p.value = sum(likelihood_of_2_1 * p.value1) /
+    (sum(likelihood_of_2_1 * p.value1) +
+       sum(likelihood_of_2_not_1 * (1 - p.value1)))
+  p.value
+}
+
+probs = c(prior, 0.999, 0, 0.979)
+b = updatePvalue(probs[1], probs[2:4], N = 1)
+b
+up2 = updatePvalue(up1$p.value, probs[3], N = up1$N)
+up3 = updatePvalue(up2$p.value, probs[4], N = up2$N)
+up3
+
+combn(c(0.999, 0, 0.979),2)
+
+fit = beta.mle(c(0.999, 0.998, 0.979), tol = 1e-09)
+hist(rbeta(10000, 0.4999 + 100, 0.4999 + 100))
+mean(fit$param[1] / (fit$param[1] + fit$param[2]))
+
+### draft end

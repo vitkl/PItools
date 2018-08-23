@@ -40,6 +40,7 @@
 ##' @param non_query_set_only If TRUE sequence sets searched for motif are filtered to contain only proteins from non_query_domain_results_obj (interacting partners of a seed), if FALSE - both from non_query_domain_results_obj and domain_res_obj. Used only when non_query_domain_results_obj is not NULL.
 ##' @param query_domains_only If TRUE proteins whose sequences will be used for motif search must be predicted to bind the same domains in a seed protein as domains predicted for query protein. Used only when non_query_domain_results_obj is not NULL
 ##' @param min_non_query_domain_support Minimal number of non-query proteins with the same motif as the query that are predicted to bind the same domain. Used to filter domains and proteins that do not predict top domains. Used only when non_query_domain_results_obj is not NULL.
+##' @param min_top_domain_support4motif_nq Similar to min_non_query_domain_support. Minimal number of non-query proteins with the same motif as the query which have the same top-1 domain predicted.
 ##' @param select_top_domain If TRUE, top domain is selected using a product of domain p-values for all proteins with the same motif (min p-value) found using the same dataset. Used only when non_query_domain_results_obj is not NULL.
 ##' @param ... other arguments passed to passed to \code{\link[GenomicRanges]{findOverlaps}}
 ##' @return object class \code{(benchmarkMotifsResult)} containing occurence (GRanges, all, query, just after filtering by motif setup), instances_all (GRanges, known instances in all proteins or all excluding the query proteins), instances_query (GRanges, known instances in query proteins), predictions_all (for ROCR), labels_all (for ROCR), predictions_query (for ROCR), labels_query (for ROCR), overlapping_GRanges_all (GRanges, known instances that we also found), overlapping_GRanges_query(GRanges, known instances that we also found), N_query_prot_with_known_instances, N_query_known_instances, N_all_prot_with_known_instances, N_all_known_instances
@@ -79,7 +80,8 @@ benchmarkMotifs = function(occurence_file = "../viral_project/qslimfinder.Full_I
                            non_query_domains_N = 0,
                            non_query_set_only = F,
                            query_domains_only = F,
-                           min_non_query_domain_support = 3,
+                           min_non_query_domain_support = 0,
+                           min_top_domain_support4motif_nq = 0,
                            select_top_domain = F,
                            ...) {
 
@@ -213,7 +215,24 @@ benchmarkMotifs = function(occurence_file = "../viral_project/qslimfinder.Full_I
                                                 GenomicRanges::end(occurence))
       # extract metadata
       mcol = as.data.table(mcols(occurence))
-      # then for each motif in each dataset (viral-human pair, protein A - protein B pair) find how many non-query proteins from the same dataset each query-binding domain is predicted to bind
+
+      # combine p-values using geometric mean
+      gm_mean = function(x, na.rm=TRUE){
+        exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+      }
+      mcol[, combined_p.value := gm_mean(p.value), by = .(query, Pattern, interacts_with, domain)]
+
+      # find top domain for each motif 1-prod(1-p.value)
+      mcol[, top_domain := p.value == min(p.value), by = .(prot_names)]
+      mcol[is.na(top_domain), top_domain := FALSE]
+      top_temp = mcol[, .(top_domain_support4motif_nq = uniqueN(prot_names)),
+                    by=.(query, Pattern, interacts_with, domain, top_domain, domain_set)]
+      top_temp = top_temp[top_domain == T & domain_set == "non_query_set"]
+      top_temp = top_temp[, top_domain := NULL]
+      top_temp = top_temp[, domain_set := NULL]
+      mcol = merge(mcol, top_temp, by = c("query", "Pattern", "interacts_with", "domain"), all.x = T, all.y = T)
+
+      # for each motif in each dataset (viral-human pair, protein A - protein B pair) find how many non-query proteins from the same dataset each query-binding domain is predicted to bind
       q_temp = mcol[, .(domain_support4motif = uniqueN(prot_names)),
                     by=.(query, Pattern, interacts_with, domain, domain_set)]
       # add this data to mcols in 2 separate columns
@@ -227,8 +246,6 @@ benchmarkMotifs = function(occurence_file = "../viral_project/qslimfinder.Full_I
       # find which domains are supported by both non_query_set and query_set
       mcol[, domain_in_sets := uniqueN(domain_set),
            by=.(query, Pattern, interacts_with, domain)]
-      # find top domain-motif pair for each motif 1-prod(1-p.value)
-      mcol[, combined_p.value := 1-prod(1-p.value), by = .(query, Pattern, interacts_with, domain)]
 
       # add mcol back to GRanges
       setorder(mcol, motif_id_order)
@@ -237,11 +254,16 @@ benchmarkMotifs = function(occurence_file = "../viral_project/qslimfinder.Full_I
       non_query_domain_support = as.data.table(mcols(occurence))[,  !is.na(domain_support4motif_nq) &
                                                                    domain_support4motif_nq >= min_non_query_domain_support]
       occurence = occurence[non_query_domain_support]
+      # select domains that are top-1 for many human proteins
+      top_non_query_domain_support = as.data.table(mcols(occurence))[,  !is.na(top_domain_support4motif_nq) &
+                                                                   top_domain_support4motif_nq >= min_top_domain_support4motif_nq]
+      occurence = occurence[top_non_query_domain_support]
+
       if(select_top_domain){
-        top_domain = as.data.table(mcols(occurence))[, Domain_p.value == min(Domain_p.value), by = unique_position]
+        top_domain = as.data.table(mcols(occurence))[, p.value == min(p.value), by = unique_position]
         occurence = occurence[top_domain]
       }
-      if(query_domains_only) occurence = occurence[occurence$domain_in_both == 2]
+      if(query_domains_only) occurence = occurence[occurence$domain_in_sets == 2]
       #mcol[query == "P06463" & Pattern == "L.R..E" & interacts_with == "P17980" & domain == "IPR003959"]
       #mcol[query == "P06429" & Pattern == "LKE.V" & interacts_with == "Q9H9D4" & domain == "IPR013083"]
 

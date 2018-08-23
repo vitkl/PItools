@@ -36,7 +36,8 @@
   non_query_domain_res_file = "../viral_project/processed_data_files/predict_domain_human_clust20180819.RData",
   non_query_domain_results_obj = NULL, non_query_domains_N = 0,
   non_query_set_only = F, query_domains_only = F,
-  min_non_query_domain_support = 3, select_top_domain = F, ...)
+  min_non_query_domain_support = 0,
+  min_top_domain_support4motif_nq = 0, select_top_domain = F, ...)
 
 queryOCCByMCOL(res, keytype = "IDs_domain_human", key = "IPR032440")
 
@@ -120,6 +121,8 @@ mBenchmarkMotifs(datasets = c("qslimfinder.Full_IntAct3.FALSE"),
 \item{query_domains_only}{If TRUE proteins whose sequences will be used for motif search must be predicted to bind the same domains in a seed protein as domains predicted for query protein. Used only when non_query_domain_results_obj is not NULL}
 
 \item{min_non_query_domain_support}{Minimal number of non-query proteins with the same motif as the query that are predicted to bind the same domain. Used to filter domains and proteins that do not predict top domains. Used only when non_query_domain_results_obj is not NULL.}
+
+\item{min_top_domain_support4motif_nq}{Similar to min_non_query_domain_support. Minimal number of non-query proteins with the same motif as the query which have the same top-1 domain predicted.}
 
 \item{select_top_domain}{If TRUE, top domain is selected using a product of domain p-values for all proteins with the same motif (min p-value) found using the same dataset. Used only when non_query_domain_results_obj is not NULL.}
 
