@@ -1,5 +1,5 @@
 ---
-title: "Full interactomes and interspecies interactions"
+title: "Getting started: full interactomes and interspecies interactions"
 author: "Vitalii Kleshchevnikov"
 date: "17/10/2017"
 output: 
@@ -10,6 +10,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+This article shows how to install MItools package and download protein interaction data for one species (for example, human), 2 species/taxomony groups (for example, human and viruses) and how to filter this data by interaction detection method, publication ID (PMID) or list of protein IDs (UniprotKB).  
 
 ## Install MItools
 
@@ -22,9 +24,9 @@ suppressPackageStartupMessages({
 })
 ```
 
-## Load full human-human interactome and count interactions
+## Load full human-human interactome
 
-By species search is taxonomy-hierarchy aware.
+Interactome search by species is taxonomy-hierarchy aware.
 
 ```{r}
 human = fullInteractome(taxid = 9606, database = "IntActFTP",
@@ -54,14 +56,14 @@ human_mouse = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10090,
 # Count interactors and interactions
 
 ```{r}
-NuniqueInteractions(human)
-NuniqueInteractors(human)
+uniqueNinteractions(human)
+uniqueNinteractors(human)
 
-NuniqueInteractions(human_viral)
-NuniqueInteractors(human_viral)
+uniqueNinteractions(human_viral)
+uniqueNinteractors(human_viral)
 
-NuniqueInteractions(human_mouse)
-NuniqueInteractors(human_mouse)
+uniqueNinteractions(human_mouse)
+uniqueNinteractors(human_mouse)
 ```
 
 # filter human-human data by detection method and recount interactors and interactions
@@ -70,20 +72,20 @@ NuniqueInteractors(human_mouse)
 # subset two-hybrid interactions
 human_two_hybrid = subsetMITABbyMethod(MITABdata = human,
                Interaction_detection_methods = "MI:0018")
-NuniqueInteractions(human_two_hybrid)
-NuniqueInteractors(human_two_hybrid)
+uniqueNinteractions(human_two_hybrid)
+uniqueNinteractors(human_two_hybrid)
 
 # subset all interactions but two-hybrid
 human_NOT_two_hybrid = subsetMITABbyMethod(MITABdata = human,
                    Interaction_detection_methods = "MI:0018", inverse_filter = T)
-NuniqueInteractions(human_NOT_two_hybrid)
-NuniqueInteractors(human_NOT_two_hybrid)
+uniqueNinteractions(human_NOT_two_hybrid)
+uniqueNinteractors(human_NOT_two_hybrid)
 
 # subset affinity purification - mass spectrometry interactions
 human_AP_MS = subsetMITABbyMethod(MITABdata = human,
                Interaction_detection_methods = "MI:0004",  Identification_method = "MI:0433")
-NuniqueInteractions(human_AP_MS)
-NuniqueInteractors(human_AP_MS)
+uniqueNinteractions(human_AP_MS)
+uniqueNinteractors(human_AP_MS)
 ```
 
 # filter human-human data by PMID and recount interactors and interactions
@@ -92,14 +94,14 @@ NuniqueInteractors(human_AP_MS)
 # subset both published and unpublished Vidal group data
 Vidal_all = subsetMITABbyPMIDs(MITABdata = human,
                PMIDs = c("25416956", "unassigned1304"))
-NuniqueInteractions(Vidal_all)
-NuniqueInteractors(Vidal_all)
+uniqueNinteractions(Vidal_all)
+uniqueNinteractors(Vidal_all)
 
 # subset Mattias Mann 2015 paper data
 Mann = subsetMITABbyPMIDs(MITABdata = human,
                PMIDs = "26496610")
-NuniqueInteractions(Mann)
-NuniqueInteractors(Mann)
+uniqueNinteractions(Mann)
+uniqueNinteractors(Mann)
 ```
 
 You can get help and more details on these functions (for example, how to find which molecular ontology terms correspond to which methods): ?subsetMITABbyMethod
@@ -111,8 +113,8 @@ mediator_complex_proteins = fread("http://www.uniprot.org/uniprot/?query=GO:0016
 mediator_complex = subsetMITABbyID(Vidal_all,
                                    ID_seed = mediator_complex_proteins$Entry,
                                    within_seed = T, only_seed2nonseed = F)
-NuniqueInteractions(mediator_complex)
-NuniqueInteractors(mediator_complex)
+uniqueNinteractions(mediator_complex)
+uniqueNinteractors(mediator_complex)
 ```
 
 # Find interactions of the components of the mediator complex with other proteins
@@ -121,6 +123,15 @@ NuniqueInteractors(mediator_complex)
 mediator_complex_interactions = subsetMITABbyID(Vidal_all,
                                    ID_seed = mediator_complex_proteins$Entry,
                                    within_seed = F, only_seed2nonseed = T)
-NuniqueInteractions(mediator_complex_interactions)
-NuniqueInteractors(mediator_complex_interactions)
+uniqueNinteractions(mediator_complex_interactions)
+uniqueNinteractors(mediator_complex_interactions)
+```
+
+# Date and packages used
+
+```{r}
+Sys.Date. = Sys.Date()
+Sys.Date.
+session_info. = devtools::session_info()
+session_info.
 ```

@@ -63,7 +63,7 @@ Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">MItools</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.1.38</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.1.40</span>
       </span>
     </div>
 
@@ -77,6 +77,24 @@ Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)" />
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/articles/Full_interactomes_interspecies.html">Getting started: full interactomes and interspecies interactions</a>
+    </li>
+    <li>
+      <a href="../articles/articles/MItools_vs_igraph.html">MItools vs igraph: calculating degree of a protein</a>
+    </li>
+    <li>
+      <a href="../articles/articles/study_bias_doc.html">Study bias in the protein network</a>
+    </li>
+  </ul>
 </li>
       </ul>
       
@@ -114,7 +132,7 @@ Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)" />
   <span class='kw'>neg_set</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"all_instances"</span>, <span class='st'>"all_proteins"</span>, <span class='st'>"random"</span>)[<span class='fl'>1</span>],
   <span class='kw'>domain_results_obj</span> <span class='kw'>=</span> <span class='st'>"res_count"</span>,
   <span class='kw'>motif_input_obj</span> <span class='kw'>=</span> <span class='st'>"forSLIMFinder_Ready"</span>, <span class='kw'>motif_setup_obj2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>one_from_cloud</span> <span class='kw'>=</span> <span class='no'>T</span>,
+  <span class='kw'>occurence_filt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>one_from_cloud</span> <span class='kw'>=</span> <span class='no'>T</span>,
   <span class='kw'>dbfile_main</span> <span class='kw'>=</span> <span class='st'>"../viral_project/data_files/instances_all.gff"</span>,
   <span class='kw'>dburl_main</span> <span class='kw'>=</span> <span class='st'>"http://elm.eu.org/instances.gff?q=None&amp;taxon=Homo%20sapiens&amp;instance_logic="</span>,
   <span class='kw'>dbfile_query</span> <span class='kw'>=</span> <span class='st'>"../viral_project/data_files/instances_query.gff"</span>,
@@ -136,7 +154,8 @@ Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)" />
   <span class='kw'>non_query_domain_res_file</span> <span class='kw'>=</span> <span class='st'>"../viral_project/processed_data_files/predict_domain_human_clust20180819.RData"</span>,
   <span class='kw'>non_query_domain_results_obj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>non_query_domains_N</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>non_query_set_only</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='kw'>query_domains_only</span> <span class='kw'>=</span> <span class='no'>F</span>,
-  <span class='kw'>min_non_query_domain_support</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>select_top_domain</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='no'>...</span>)
+  <span class='kw'>min_non_query_domain_support</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>min_top_domain_support4motif_nq</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>select_top_domain</span> <span class='kw'>=</span> <span class='no'>F</span>, <span class='no'>...</span>)
 
 <span class='fu'>queryOCCByMCOL</span>(<span class='no'>res</span>, <span class='kw'>keytype</span> <span class='kw'>=</span> <span class='st'>"IDs_domain_human"</span>, <span class='kw'>key</span> <span class='kw'>=</span> <span class='st'>"IPR032440"</span>)
 
@@ -174,6 +193,10 @@ Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)" />
     <tr>
       <th>motif_setup_obj2</th>
       <td><p>alternative way to provide motif_input_obj (class InteractionSubsetFASTA_list) directly. This object should not require matching domain-protein pairs. It must have been already processed by <code><a href='domainProteinPairMatch.html'>domainProteinPairMatch</a></code> Can be useful for repeating benchmarking.</p></td>
+    </tr>
+    <tr>
+      <th>occurence_filt</th>
+      <td><p>QSLIMFinder (SLIMFinder) occurence output filtered by those that we could have found from motif_input_obj.</p></td>
     </tr>
     <tr>
       <th>one_from_cloud</th>
@@ -296,12 +319,20 @@ Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)" />
       <td><p>Minimal number of non-query proteins with the same motif as the query that are predicted to bind the same domain. Used to filter domains and proteins that do not predict top domains. Used only when non_query_domain_results_obj is not NULL.</p></td>
     </tr>
     <tr>
+      <th>min_top_domain_support4motif_nq</th>
+      <td><p>Similar to min_non_query_domain_support. Minimal number of non-query proteins with the same motif as the query which have the same top-1 domain predicted.</p></td>
+    </tr>
+    <tr>
       <th>select_top_domain</th>
       <td><p>If TRUE, top domain is selected using a product of domain p-values for all proteins with the same motif (min p-value) found using the same dataset. Used only when non_query_domain_results_obj is not NULL.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>other arguments passed to passed to <code><a href='http://www.rdocumentation.org/packages/GenomicRanges/topics/findOverlaps-methods'>findOverlaps</a></code></p></td>
+    </tr>
+    <tr>
+      <th>res</th>
+      <td><p>object class <code>(benchmarkMotifsResult)</code>, the output of benchmarkMotifs</p></td>
     </tr>
     <tr>
       <th>keytype</th>
@@ -327,7 +358,9 @@ Benchmark linear motif instance found using QSLIMFinder (SLIMFinder)" />
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>GenomicRanges containing motifs for a given key</p>
+    <p>object class <code>(benchmarkMotifsResult)</code> containing occurence (GRanges, all, query, just after filtering by motif setup), instances_all (GRanges, known instances in all proteins or all excluding the query proteins), instances_query (GRanges, known instances in query proteins), predictions_all (for ROCR), labels_all (for ROCR), predictions_query (for ROCR), labels_query (for ROCR), overlapping_GRanges_all (GRanges, known instances that we also found), overlapping_GRanges_query(GRanges, known instances that we also found), N_query_prot_with_known_instances, N_query_known_instances, N_all_prot_with_known_instances, N_all_known_instances</p>
+<p>GenomicRanges containing motifs for a given key</p>
+<p>list of objects of class <code>(benchmarkMotifsResult)</code></p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 

@@ -1,5 +1,8 @@
 pandoc: 1.19.2.1
 pkgdown: 1.1.0
 pkgdown_sha: ~
-articles: []
+articles:
+  Full_interactomes_interspecies: articles/Full_interactomes_interspecies.html
+  MItools_vs_igraph: articles/MItools_vs_igraph.html
+  study_bias_doc: articles/study_bias_doc.html
 

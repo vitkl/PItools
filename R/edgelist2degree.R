@@ -19,24 +19,24 @@
 ##' edgelist2degree_slow(edgelist)
 ##'
 ##' # download full human interactome (clean = TRUE is necessary to produce the right input for edgelist2degree)
-##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
-##' degree = edgelist2degree(full)
-edgelist2degree_slow = function(mitab, sep = "\\|"){
+##' full = fullInteractome(taxid = "9606", database = "IntActFTP", format = "tab25", clean = TRUE, protein_only = TRUE)
+##' degree = edgelist2degree(full$data)
+edgelist2degree_slow = function(mitab, sep = "\\|", order_by_degree = T){
   if("pair_id" %in% colnames(mitab)){
     mitab_t = unique(copy(mitab[,.(pair_id)]))
     mitab_t[, c("ida", "idb") := tstrsplit(pair_id, sep)]
     degrees = mitab_t[, .(c(ida, idb))][, .N, by = V1]
     setnames(degrees, colnames(degrees), c("ID", "N"))
   } else stop("pair_id column not supplied")
-  setorder(degrees, N, ID)
+  if(order_by_degree) setorder(degrees, N, ID)
   return(degrees)
 }
 
-edgelist2degree = function(mitab){
+edgelist2degree = function(mitab, order_by_degree = T){
   if(mean(c("IDs_interactor_A", "IDs_interactor_B") %in% colnames(mitab)) == 1){
     mitab_t = unique(copy(mitab[,.(IDs_interactor_A, IDs_interactor_B)]))
     degrees = mitab_t[, .(ID = c(IDs_interactor_A, IDs_interactor_B))][, .N, by = ID]
   } else stop("IDs_interactor_A and IDs_interactor_B columns not supplied")
-  setorder(degrees, N, ID)
+  if(order_by_degree) setorder(degrees, N, ID)
   return(degrees)
 }

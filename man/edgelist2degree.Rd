@@ -31,8 +31,8 @@ edgelist = data.table(pair_id = paste0(rep(c("P", "Q", "R"), each = 30),
 edgelist2degree_slow(edgelist)
 
 # download full human interactome (clean = TRUE is necessary to produce the right input for edgelist2degree)
-full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
-degree = edgelist2degree(full)
+full = fullInteractome(taxid = "9606", database = "IntActFTP", format = "tab25", clean = TRUE, protein_only = TRUE)
+degree = edgelist2degree(full$data)
 }
 \author{
 Vitalii Kleshchevnikov

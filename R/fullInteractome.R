@@ -51,7 +51,7 @@ fullInteractome = function(MITABdata = NULL, taxid = 9606, database = "imex", fo
     if(is.null(releaseORdate)) {
       if(!dir.exists(dir_last_release)) dir.create(dir_last_release)
     } else {
-      if(!dir.exists(dir_last_release)) stop(paste0("no data for IntAct release or date: ", releaseORdate," in the directory: ", directory))
+      if(!dir.exists(dir_last_release)) stop(paste0("no data for IntAct release or date: ", releaseORdate," in the directory: ", directory, ", set release to NULL do load the latest release"))
     }
     if(!is.null(MITABdata)) full_interactome = copy(MITABdata) else full_interactome = loadIntActFTP(dir_last_release)
 

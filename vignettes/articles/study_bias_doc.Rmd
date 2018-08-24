@@ -1,0 +1,471 @@
+---
+title: "Study bias in the protein network"
+author: "Vitalii Kleshchevnikov"
+date: "11/01/2018"
+output: 
+  html_document: 
+    fig_height: 6
+    fig_width: 8
+    keep_md: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+packages = c("MItools", "downloader", "parallel", "R.utils", "PSICQUIC", "Biostrings", "BiocGenerics", "GenomeInfoDb", "GenomicRanges", "qvalue", "rtracklayer", "ggplot2")
+# install packages if not available
+if(mean(packages %in% names(installed.packages()[,"Package"])) != 1){
+    packages_to_install = packages[!packages %in% names(installed.packages()[,"Package"])]
+    # specifying mirror is necessary for some Linux systems
+    install.packages(packages_to_install, dependencies = T, repos = "http://mirrors.ebi.ac.uk/CRAN/")
+    packages_to_install = packages[!packages %in% names(installed.packages()[,"Package"])]
+    source("https://bioconductor.org/biocLite.R")
+    biocLite(packages_to_install)
+    devtools::install_github("vitkl/MItools", dependencies = T)
+}
+
+suppressPackageStartupMessages({
+    library(MItools)
+    library(parallel)
+    library(downloader)
+    library(ggplot2)
+})
+```
+
+This article and accompanying slides cover fundamentals of working with PPI data and the problem of study bias in protein interactions networks.
+
+# Outline
+
+This workshop covers the following topics:  
+0. Brief intro into R Markdown  
+1. The fundamentals of protein-protein interactions (PPI) and networks (lecture)  
+2. Getting PPI data into R (from IntAct, using PSICQUIC)  
+3. Finding publication (Pubmed) IDs for every protein  
+4. Why should you care about the study bias in your network and how to evaluate it  
+
+# 0. Brief intro into R Markdown
+
+Learn more:  
+http://rmarkdown.rstudio.com/  
+
+Cheat sheet:  
+https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf  
+
+Online course on Reproducible data analysis:
+https://www.coursera.org/learn/reproducible-research/lecture/5NzHN/r-markdown  
+
+Slides:  
+https://github.com/vitkl/PPI_biases_workshop/blob/master/PPI_networks_and_study_bias.pptx   
+
+# 1. The fundamentals of protein-protein interactions (PPI) and networks (lecture)
+
+The PowerPoint presentation for this lecture can be found in the project folder (PPI_networks_and_study_bias.pptx). 
+
+# 2. Getting PPI data into R (from IntAct, using PSICQUIC)  
+
+You can download protein-protein interaction data directly from IntAct or using PSICQUIC and PSICQUIC client implemented in PSICQUIC R package. Both ways are implemented in MItools package. Downloading data from IntAct gets you all data from all IMEx consortium databases. PSICQUIC route allows to query non-IMEx databases and construct complex search queries.  
+As implemented in MItools, PSICQUIC route is slow to download (limit of 2500 interactions per second to lower the load on servers). IntAct route is faster but requires a large download (3GB, all data) and memory intensive processing locally.
+
+First, let's focus on the IntAct route. Later we will download molecular interactions from a large non-IMEx database called BioGRID. 
+
+## 2.1 Getting PPI data into R from IntAct
+### Load full human-human interactome and count interactions
+
+By species search is taxonomy-hierarchy aware.
+
+```{r}
+# find the date of the latest locally available release
+human = fullInteractome(taxid = 9606, database = "IntActFTP", # 9606 - human taxid
+                        clean = TRUE,
+                        protein_only = TRUE,
+                        directory = "./data_files/", # NULL to keep data files inside R library - default
+                        releaseORdate = NULL) # useful to keep track of the release date e.g. 2018Aug7, but for the first download set to NULL 
+```
+
+### Load all human-viral interactions
+
+10239 is the top viral clade identifier. 
+
+```{r}
+# read all data (filter later)
+IntAct = loadIntActFTP(dir = "./data_files/IntActRelease_2018Aug7/")
+# filter for viral-human interaction
+human_viral = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239,
+                                      database = "IntActFTP", MITABdata = IntAct,
+                                      clean = TRUE, protein_only = TRUE, 
+                                      directory = "./data_files/",
+                        releaseORdate = "2018Aug7")
+```
+
+### Load all human-mouse interactions
+
+```{r}
+# filter for viral-mouse interaction
+human_mouse = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10090,
+                                      database = "IntActFTP", MITABdata = IntAct,
+                                      clean = TRUE, protein_only = TRUE,
+                                      directory = "./data_files/",
+                        releaseORdate = "2018Aug7")
+# save RData file to save time processing this data if you want to proceed to later sections immediately
+rm(IntAct)
+save(list = ls(), file = "./RData_steps/study_bias_doc_1.RData")
+```
+
+You can find out any other taxid if you know species name using UniProt taxonomy search: https://www.uniprot.org/taxonomy/
+
+### Count interactors and interactions
+
+```{r}
+# load previosly saved RData
+load("./RData_steps/study_bias_doc_1.RData")
+
+uniqueNinteractions(human)
+uniqueNinteractors(human)
+
+uniqueNinteractions(human_viral)
+uniqueNinteractors(human_viral)
+
+uniqueNinteractions(human_mouse)
+uniqueNinteractors(human_mouse)
+# how many of these proteins are human?
+uniqueNinteractors(human_mouse, taxid = 9606)
+```
+
+### filter human-human data by detection method and recount interactors and interactions
+
+```{r}
+# subset two-hybrid interactions
+human_two_hybrid = subsetMITABbyMethod(MITABdata = human,
+                                       Interaction_detection_methods = "MI:0018")
+uniqueNinteractions(human_two_hybrid)
+uniqueNinteractors(human_two_hybrid)
+
+# subset all interactions but two-hybrid
+human_NOT_two_hybrid = subsetMITABbyMethod(MITABdata = human,
+                                           Interaction_detection_methods = "MI:0018", inverse_filter = T)
+uniqueNinteractions(human_NOT_two_hybrid)
+uniqueNinteractors(human_NOT_two_hybrid)
+
+# subset affinity purification - mass spectrometry interactions
+human_AP_MS = subsetMITABbyMethod(MITABdata = human,
+                                  Interaction_detection_methods = "MI:0004",  Identification_method = "MI:0433")
+uniqueNinteractions(human_AP_MS)
+uniqueNinteractors(human_AP_MS)
+```
+
+### filter human-human data by PMID and recount interactors and interactions
+
+```{r}
+# subset both published and unpublished Vidal group data
+Vidal_all = subsetMITABbyPMIDs(MITABdata = human,
+                               PMIDs = c("25416956", "unassigned1304"))
+uniqueNinteractions(Vidal_all)
+uniqueNinteractors(Vidal_all)
+
+# subset Mattias Mann 2015 paper data
+Mann = subsetMITABbyPMIDs(MITABdata = human,
+                          PMIDs = "26496610")
+uniqueNinteractions(Mann)
+uniqueNinteractors(Mann)
+```
+
+You can get help and more details on these functions (for example, how to find which molecular ontology terms correspond to which methods): ?subsetMITABbyMethod
+
+### Find interactions between components of the mediator complex in the Vidal dataset
+
+```{r}
+mediator_complex_proteins = fread("http://www.uniprot.org/uniprot/?query=GO:0016592%20AND%20taxonomy:9606&format=tab&columns=id")
+mediator_complex = subsetMITABbyID(Vidal_all,
+                                   ID_seed = mediator_complex_proteins$Entry,
+                                   within_seed = T, only_seed2nonseed = F)
+uniqueNinteractions(mediator_complex)
+uniqueNinteractors(mediator_complex)
+```
+
+### Find interactions of the components of the mediator complex with other proteins
+
+```{r}
+mediator_complex_interactions = subsetMITABbyID(Vidal_all,
+                                                ID_seed = mediator_complex_proteins$Entry,
+                                                within_seed = F, only_seed2nonseed = T)
+uniqueNinteractions(mediator_complex_interactions)
+uniqueNinteractors(mediator_complex_interactions)
+```
+
+## 2.2 Getting PPI data from non-IMEx databases into R using PSICQUIC
+
+Let's retrieve all human-viral interactions from BioGrid database. But first we need to find correct database names.   
+
+### Find correct database names.
+
+```{r}
+client = PSICQUIC()
+providers(client)
+```
+
+```{r, eval=FALSE}
+# Don't run
+human_viral_BioGrid = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239,
+                                              database = "BioGrid",
+                                              clean = TRUE, protein_only = TRUE,
+                                              directory = "./data_files/")
+human_BioGrid = fullInteractome(taxid = 9606, database = "BioGrid", # 9606 - human taxid
+                        clean = TRUE,
+                        protein_only = TRUE,
+                        directory = "./data_files/")
+```
+
+## 2.3 Advanced search
+
+This can be useful in you need interactions for a small number of proteins or if you want to query non-IMEx databases. Note that queryPSICQUIC doesn't keep track of database version data, while queryPSICQUICrlib does.
+
+```{r}
+# Query for interactions of bacterial RNA polymerase sigma factor SigA identified using two-hybrid methods in all imex databases
+queryPSICQUIC(query = "id:P74565 AND detmethod:\"MI:0018\"",
+              format = "tab27",
+              database = "imex",
+              file = "./data_files/P74565_2H_interactions_imex_tab27.tsv")
+
+# Query for interactions of sigma factor SigA identified using two-hybrid methods in mentha (a database that aggregates data from all primary databases, but does no interaction predition)
+queryPSICQUIC(query = "id:P74565 AND detmethod:\"MI:0018\"",
+              format = "tab25",
+              database = "mentha",
+              file = "./data_files/P74565_2H_interactions_mentha_tab25.tsv")
+
+# Query for interactions of sigma factor SigA in mentha
+queryPSICQUIC(query = "id:P74565",
+              format = "tab25",
+              database = "mentha",
+              file = "./data_files/P74565_2H_interactions_mentha_tab25.tsv")
+
+# Retrieve interaction of any proteins encoded by Beta-adrenergic receptor kinase 1 gene (Entrez GeneID 156) from BioGRID (which recognises only this type of ID)
+queryPSICQUIC(query = "id:156",
+              format = "tab25",
+              database = "BioGrid",
+              file = "./data_files/entrezgene156_interactions_BioGrid_tab25.tsv")
+# The function return the report of how many interaction were found in each database, not the data itself. Reading data into R.
+fread("./data_files/entrezgene156_interactions_BioGrid_tab25.tsv", header = T, stringsAsFactors = F)[1:5]
+```
+
+All the same operations can be done using function queryPSICQUICrlib but with the convienience of automatic tracking of database release date and the exact query text. This function also return the data in object of class RAW_MItab that after cleaned make data ready for use with other tools in the package.
+
+```{r}
+BioGrid_156 = queryPSICQUICrlib(query = "id:156",
+                                format = "tab25",
+                                database = "BioGrid",
+                                directory = "./data_files/")
+# The same protein, but only two-hybrid interactions
+BioGrid_156_2H = queryPSICQUICrlib(query = "id:156 AND detmethod:\"MI:0018\"",
+                                   format = "tab25",
+                                   database = "BioGrid",
+                                   directory = "./data_files/")
+# The data returned by queryPSICQUICrlib constains auxillary information that is not necessary for most analysis. Let's clean the data.
+cleanMITAB(BioGrid_156)[1:5]
+```
+
+# 3. Finding publication (Pubmed) IDs for every protein
+
+There are many ways to find publications for a given protein (all proteins). We will discuss 3 and focus on one (UniProtKB references).  
+
+1. UniProtKB references. Details: https://www.uniprot.org/help/publications_section    
+Quote:  
+"The set of publications fully curated in UniProtKB/Swiss-Prot and publications imported in UniProtKB/TrEMBL is complemented by additional publications that have been computationally mapped from other resources to UniProtKB entries."    
+
+https://www.uniprot.org/help/publications_section#additional_bibliography:  
+"As a comprehensive and high-quality resource of protein sequence and functional information, UniProtKB strives to provide comprehensive literature citations associated with protein sequences and their characterization. Currently about 2 thirds of the UniProtKB PubMed citations are found in UniProtKB/Swiss-Prot, as a result of active integration in the course of manual curation.  
+
+In order to keep up with the explosive growth of literature and to give our users access to additional publications, we decided to integrate additional sources of literature from other annotated databases into UniProtKB. For this purpose we selected a number external databases, e.g. Entrez Gene (GeneRIFs), SGD, MGI, GAD and PDB, and extracted citations that were mapped to UniProtKB entries. This additional protein bibliography information helps our users to better explore the existing knowledge of their proteins of interest."  
+
+2. Europe PMC text-mining efforts yeld multiple identifier-publication associations. Details can be found here: https://europepmc.org/downloads. UniProtKB to pubmedID mapping can be downloaded from ftp: ftp://ftp.ebi.ac.uk/pub/databases/pmc/TextMinedTerms/  
+
+3. NCBI portal: references for entrez geneID. Similar to UniProtKB references, but different ID, documentation about how these links are maintained is provided here: https://www.ncbi.nlm.nih.gov/entrez/query/static/entrezlinks.html#gene. GeneID to pubmedID mapping can be downloaded from NCBI ftp: ftp://ftp.ncbi.nih.gov/gene/DATA/gene2pubmed.gz  
+
+## 3.1 Retrive UniProtKB references using Uniprot REST API
+
+Let's download the list of NCBI PubMed identifiers (PubMed IDs) associated with the UniProtKB entry (human proteins) and computationally mapped to the UniProtKB entry (human proteins).  
+
+```{r}
+# retrieve human interactions (taxonomy:9606) from SwissProt, a manually reviewed part or the UniProt (reviewed:yes)
+url = "https://www.uniprot.org/uniprot/?query=taxonomy:9606&compress=yes&format=tab&columns=id,citation,citationmapping"
+filename.gz = "./data_files/uniprot2pubmed_human.tsv.gz"
+filename = "./data_files/uniprot2pubmed_human.tsv"
+if(!file.exists(filename.gz)) download(url, filename.gz)
+R.utils::gunzip(filename.gz, filename, remove = F, overwrite = T)
+
+# Read into R
+uniprot2pubmed_human = fread(filename, header = T, stringsAsFactors = F)
+
+# We need to do some processing
+## 1. Merge manually associated and computationally mapped publications 
+uniprot2pubmed_human[, PMIDs := paste0(`PubMed ID`,";",`Mapped PubMed ID`)]
+uniprot2pubmed_human[`PubMed ID` == "" & `Mapped PubMed ID` == "", PMIDs := ""]
+uniprot2pubmed_human[`PubMed ID` == "" & `Mapped PubMed ID` != "", PMIDs := `Mapped PubMed ID`]
+uniprot2pubmed_human[`PubMed ID` != "" & `Mapped PubMed ID` == "", PMIDs := `PubMed ID`]
+uniprot2pubmed_human$`PubMed ID` = NULL
+uniprot2pubmed_human$`Mapped PubMed ID` = NULL
+## 2. Split concatenated PubMed IDs and count their number per protein
+uniprot2pubmed_human = uniprot2pubmed_human[, .(N_PMIDs = uniqueN(unlist(tstrsplit(PMIDs,";")))), by = Entry]
+
+# remove objects necessary for the next part, save
+rm(list = ls()[!ls() %in% c("human", "uniprot2pubmed_human", "Vidal_all", "Mann", "human_two_hybrid", "human_AP_MS")])
+save(list = ls(), file = "./RData_steps/study_bias_doc_2.RData")
+```
+
+# 4. Evaluating bias of protein popularity in the literature 
+
+###  Why should you care about the study bias in your network and how to evaluate it 
+
+Back to the presentation, slide 61. Study bias is the phenomenon that causes certain properties of proteins to appear biologically meaningful but actually confounded with how well studies proteins are overall. Study bias may cause certain proteins to appear as hubs in the protein interaction network. This may lead to false conclusions regarding the importance of the protein in the network. Therefore, it is important to estimate and if possible correct the effect of study bias on the property of your interest.
+
+### First, we need to bin proteins by how often they are mentioned in the literature
+
+Let's use the number of UniProt reference as a proxy for how well studied the protein is. We will bin all proteins that have interactions in our network by the number of publications.
+
+```{r}
+load("./RData_steps/study_bias_doc_2.RData")
+uniprot2pubmed_human = uniprot2pubmed_human[order(N_PMIDs, decreasing = T)]
+uniprot2pubmed_human_w = uniprot2pubmed_human[Entry %in% extractInteractors(human)]
+
+# Most proteins have very low number of publications:
+hist(log10(uniprot2pubmed_human_w$N_PMIDs), xlab = "log10(number of publications) per protein")
+
+n_bins = 50
+n_proteins = nrow(uniprot2pubmed_human_w)
+n_proteins_per_bin = round(n_proteins/n_bins)
+bins = rep(1:50, each = n_proteins_per_bin)
+if(n_proteins > length(bins)){
+  bins = c(bins, rep(50, n_proteins - length(bins)))
+} else if(n_proteins < length(bins)){
+  bins = bins[1:n_proteins]
+}
+
+
+uniprot2pubmed_human_w[, bins := bins]
+bin_lists = split(uniprot2pubmed_human_w$Entry, uniprot2pubmed_human_w$bins)
+```
+
+### Second, we need to count interactions within and between bins
+
+This method shows the gist of the problem of study bias but needs further improvement.
+
+```{r}
+unique_interactions = unique(human$data[, .(IDs_interactor_A, IDs_interactor_B)])
+N_interaction_table = lapply(1:length(bin_lists), function(bin_list1_N, unique_interactions, bin_lists){
+    N_interaction_table = lapply(1:length(bin_lists), function(bin_list2_N, bin_list1_N, unique_interactions, bin_lists) {
+      bin_list1 = bin_lists[[bin_list1_N]]
+      bin_list2 = bin_lists[[bin_list2_N]]
+      N_proteins = uniqueN(unique_interactions[(IDs_interactor_A %in% bin_list1 &
+                                     IDs_interactor_B %in% bin_list2) |
+                                     (IDs_interactor_A %in% bin_list2 &
+                                     IDs_interactor_B %in% bin_list1), c(IDs_interactor_A, IDs_interactor_B)])
+      N_interactions = unique_interactions[,sum((IDs_interactor_A %in% bin_list1 &
+                                     IDs_interactor_B %in% bin_list2) |
+                                     (IDs_interactor_A %in% bin_list2 &
+                                     IDs_interactor_B %in% bin_list1))]
+      data.table(N_interactions_per_protein = N_interactions / N_proteins,
+                 x = bin_list1_N, y = bin_list2_N,
+                 N_interactions = N_interactions, N_proteins = N_proteins)
+    }, bin_list1_N, unique_interactions, bin_lists)
+    Reduce(rbind, N_interaction_table)
+}, unique_interactions, bin_lists)
+N_interaction_table = Reduce(rbind, N_interaction_table)
+```
+
+### Third, we need to plot our results
+
+```{r}
+cols = c(colorRampPalette(c("white", "#95cbee", "#0099dc", "#4ab04a", "#ffd73e"), bias = 2)(10), #"#c9e2f6"
+            colorRampPalette(c("#eec73a", "#e29421", "#e29421", "#f05336","#ce472e"))(20))
+ggplot(N_interaction_table, aes(x, y)) +
+ geom_raster(aes(fill = N_interactions_per_protein)) +
+    xlab("rank by number of studies") +
+  ylab("rank by number of studies") +
+  theme_bw() +
+    scale_fill_gradientn(colours=cols,
+                         na.value=rgb(246, 246, 246, max=255),
+                         guide=guide_colourbar(ticks=T, nbin=50,
+                                               barheight=15, label=T))
+```
+
+### Finally, we can write a function to analyse other datasets
+
+First, let's put what we just did into a function.  
+```{r}
+interactionBias = function(ppi_network, uniprot2pubmed, n_bins = 50){
+  uniprot2pubmed = copy(uniprot2pubmed)
+  uniprot2pubmed = uniprot2pubmed[order(N_PMIDs, decreasing = T)]
+  uniprot2pubmed = uniprot2pubmed[Entry %in% extractInteractors(human)]
+  
+  n_proteins = nrow(uniprot2pubmed)
+  n_proteins_per_bin = round(n_proteins/n_bins)
+  bins = rep(1:n_bins, each = n_proteins_per_bin)
+  if(n_proteins > length(bins)){
+    bins = c(bins, rep(n_bins, n_proteins - length(bins)))
+  } else if(n_proteins < length(bins)){
+    bins = bins[1:n_proteins]
+  }
+  
+  uniprot2pubmed[, bins := bins]
+  bin_lists = split(uniprot2pubmed$Entry, uniprot2pubmed$bins)
+  unique_interactions = unique(ppi_network$data[, .(IDs_interactor_A, IDs_interactor_B)])
+  N_interaction_table = lapply(1:length(bin_lists), function(bin_list1_N, unique_interactions, bin_lists){
+    N_interaction_table = lapply(1:length(bin_lists), function(bin_list2_N, bin_list1_N, unique_interactions, bin_lists) {
+      bin_list1 = bin_lists[[bin_list1_N]]
+      bin_list2 = bin_lists[[bin_list2_N]]
+      N_proteins = uniqueN(unique_interactions[(IDs_interactor_A %in% bin_list1 &
+                                                  IDs_interactor_B %in% bin_list2) |
+                                                 (IDs_interactor_A %in% bin_list2 &
+                                                    IDs_interactor_B %in% bin_list1), c(IDs_interactor_A, IDs_interactor_B)])
+      N_interactions = unique_interactions[,sum((IDs_interactor_A %in% bin_list1 &
+                                                   IDs_interactor_B %in% bin_list2) |
+                                                  (IDs_interactor_A %in% bin_list2 &
+                                                     IDs_interactor_B %in% bin_list1))]
+      data.table(N_interactions_per_protein = N_interactions / N_proteins,
+                 x = bin_list1_N, y = bin_list2_N,
+                 N_interactions = N_interactions, N_proteins = N_proteins)
+    }, bin_list1_N, unique_interactions, bin_lists)
+    Reduce(rbind, N_interaction_table)
+  }, unique_interactions, bin_lists)
+  N_interaction_table = Reduce(rbind, N_interaction_table)
+  return(N_interaction_table)
+}
+```
+
+## 4.2 You can see that Marc Vidal two-hybrid and Mattias Mann AP-MS data is substantially less biased by protein popularity among in the literature
+
+```{r fig.width=12, fig.height=13}
+N_interaction_table[, title := "All IntAct data"]
+N_interaction_Mann = interactionBias(ppi_network = Mann, uniprot2pubmed = uniprot2pubmed_human, n_bins = 50)
+N_interaction_Mann[, title := "Mattias Mann unbiased AP-MS dataset"]
+
+N_interaction_Vidal = interactionBias(ppi_network = Vidal_all, uniprot2pubmed = uniprot2pubmed_human, n_bins = 50)
+N_interaction_Vidal[, title := "Marc Vidal unbiased two-hybrid dataset"]
+
+N_interaction_two_hybrid = interactionBias(ppi_network = human_two_hybrid, uniprot2pubmed = uniprot2pubmed_human, n_bins = 50)
+N_interaction_two_hybrid[, title := "all two-hybrid data"]
+
+N_interaction_AP_MS = interactionBias(ppi_network = human_AP_MS, uniprot2pubmed = uniprot2pubmed_human, n_bins = 50)
+N_interaction_AP_MS[, title := "all AP-MS data"]
+
+N_interaction = Reduce(rbind, list(N_interaction_Mann, N_interaction_Vidal,
+                                   N_interaction_two_hybrid, N_interaction_AP_MS, N_interaction_table))
+
+ggplot(N_interaction, aes(x, y)) +
+  geom_raster(aes(fill = N_interactions_per_protein)) +
+  xlab("rank by number of studies") + ylab("rank by number of studies") +
+  facet_wrap( ~ title, ncol = 2) +
+  theme_bw() +
+    scale_fill_gradientn(colours=cols,
+                         na.value=rgb(246, 246, 246, max=255),
+                         guide=guide_colourbar(ticks=T, nbin=50,
+                                               barheight=20, label=T))
+```
+
+
+# R and system details
+
+```{r}
+Sys.Date()
+devtools::session_info()
+```

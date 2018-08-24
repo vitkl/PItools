@@ -278,6 +278,7 @@ select_top_domain = F
 # creating a website
 # Install release version from CRAN
 install.packages("pkgdown")
+setwd("/Users/vk7/Desktop/ebi_projects/MItools/")
 pkgdown::build_site()
 
 
