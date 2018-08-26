@@ -177,6 +177,10 @@ benchmarkMotifs = function(occurence_file = "../viral_project/qslimfinder.Full_I
   }
   # apply motif_pval_cutoff
   occurence = occurence[mcols(occurence[,query_predictor_col])[,1] < motif_pval_cutoff]
+  # add an identifier for motifs
+  mcols(occurence)$unique_position = paste0(GenomicRanges::seqnames(occurence), "_",
+                                            GenomicRanges::start(occurence), "_",
+                                            GenomicRanges::end(occurence))
   #igraph::plot.igraph(overlapping_instances_graph, vertex.size = 1, arrow.mode = "-", vertex.label.cex = 0.6)
 
   if(merge_domain_data){
@@ -210,9 +214,7 @@ benchmarkMotifs = function(occurence_file = "../viral_project/qslimfinder.Full_I
                                      by.y = c("protein_with_motif", "protein_with_domain"))
       # save order
       mcols(occurence)$motif_id_order = 1:length(occurence)
-      mcols(occurence)$unique_position = paste0(GenomicRanges::seqnames(occurence), "_",
-                                                GenomicRanges::start(occurence), "_",
-                                                GenomicRanges::end(occurence))
+
       # extract metadata
       mcol = as.data.table(mcols(occurence))
 

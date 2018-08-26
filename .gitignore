@@ -9,3 +9,6 @@ docs/reference/BioPlex_2.3_interactionList.tsv.gz
 docs/reference/All_UniProt_accessions_release2018_07.txt
 docs/reference/entrezgene156_interactions_BioGrid_tab25.tsv
 .DS_Store
+/vignettes/articles/data_files/
+vignettes/articles/RData_steps/study_bias_doc_1.RData
+vignettes/articles/RData_steps/study_bias_doc_2.RData
