@@ -70,14 +70,17 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   interactionsXY_cols = c(nodes$nodeX, nodes$nodeY)
   interactionsYZ_cols = c(nodes$nodeY, nodes$nodeZ)
   associations_cols = c(nodes$nodeX, nodes$nodeZ)
-  cols = list(interactionsXY_cols = interactionsXY_cols, interactionsYZ_cols = interactionsYZ_cols, associations_cols = associations_cols)
+  cols = list(interactionsXY_cols = interactionsXY_cols,
+              interactionsYZ_cols = interactionsYZ_cols,
+              associations_cols = associations_cols)
   #extract node attributes
   cols = node_attr2colnames(node_attr, cols, nodes)
   # create tables as specified
   interactionsXY = unique(data[, cols$interactionsXY_cols, with = F])
   interactionsYZ = unique(data[, cols$interactionsYZ_cols, with = F])
   associations = unique(data[, cols$associations_cols, with = F])
-  data_list = list(interactionsXY = interactionsXY, interactionsYZ = interactionsYZ, associations = associations)
+  data_list = list(interactionsXY = interactionsXY,
+                   interactionsYZ = interactionsYZ, associations = associations)
   ########################################################################################################################
   # check if select_nodes asks to select nodes based on their attributes as specified in node_attr or (by the node name)
   if(!is.null(select_nodes)) select_nodes = checkSelectNodesList(select_nodes, node_attr, nodes, cols)
@@ -130,8 +133,10 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
       # inner replicate
       temp_inner = replicate(n = inner_N, expr = {
         # calculate statistic using permuted network
-        data_list = MItools:::calcPermutedStatistic(data_list, by_cols, exprs, nodes, nodes_call, includeAssociations, also_permuteYZ)
-        # count how many times observed is lower than permuted giving us the empirical probability of observing value as high or higher by chance
+        data_list = MItools:::calcPermutedStatistic(data_list, by_cols, exprs,
+                                                    nodes, nodes_call,
+                                                    includeAssociations, also_permuteYZ)
+        # count how many times observed statistic is lower than permuted statistic giving us the empirical probability of observing value as high or higher by chance
         data_list_temp = MItools:::observedVSpermuted(data_list, nodes_call, nodes)
       }, simplify = FALSE)
       # end of inner replicate
@@ -169,7 +174,8 @@ permutationPval = function(interactions2permute = nodeX ~ nodeY, associations2te
   temp = aggregatePermutations(temp, nodes, nodes_call)
 
   # calculate P-value
-  temp[, p.value := higher_counts / not_missing]
+  temp[higher_counts > 1, p.value := higher_counts / not_missing]
+  temp[higher_counts <= 1, p.value := 1 / not_missing]
   # merge p-value result to the original "data" data.table
   data_with_pval = temp[data, on = c(nodes$nodeX, nodes$nodeZ)]
   # add observed statistic to the original "data" data.table

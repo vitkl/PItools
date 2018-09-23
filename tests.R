@@ -25,6 +25,40 @@ res = permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interact
 plot(res)
 res
 
+library(lineprof)
+library(MItools)
+library(GenomicRanges)
+library(R.utils)
+data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
+data_num = copy(data)
+data_num[, IDs_interactor_human := as.integer(as.factor(IDs_interactor_human))]
+data_num[, IDs_domain_human := as.integer(as.factor(IDs_domain_human))]
+data_num[, IDs_interactor_viral := as.integer(as.factor(IDs_interactor_viral))]
+l = microbenchmark::microbenchmark({
+  res <<- permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
+                  associations2test = IDs_interactor_viral ~ IDs_domain_human,
+                  node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
+                                   IDs_domain_human ~ domain_count,
+                                   IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
+                  data = data,
+                  statistic = IDs_interactor_viral + IDs_domain_human ~ .N,
+                  select_nodes = IDs_domain_human ~ domain_count >= 1,
+                  N = 10,
+                  cores = 1, seed = 2, clustermq = F)
+}, {
+  res_num <<- permutationPval(interactions2permute = IDs_interactor_viral ~ IDs_interactor_human,
+                  associations2test = IDs_interactor_viral ~ IDs_domain_human,
+                  node_attr = list(IDs_interactor_viral ~ IDs_interactor_viral_degree,
+                                   IDs_domain_human ~ domain_count,
+                                   IDs_interactor_viral + IDs_domain_human ~ domain_frequency_per_IDs_interactor_viral),
+                  data = data_num,
+                  statistic = IDs_interactor_viral + IDs_domain_human ~ .N,
+                  select_nodes = IDs_domain_human ~ domain_count >= 1,
+                  N = 10,
+                  cores = 1, seed = 2, clustermq = F)
+}, times = 12)
+l
+
 microbenchmark::microbenchmark({res <- permutationPval(interactions2permute = IDs_interactor_human_A ~ IDs_interactor_human_B, # first set of interacting pairs (XY) that are to be permuted
                                                        associations2test = IDs_interactor_human_A ~ IDs_domain_human_B, # set of interacting pairs to be tested (XZ), YZ interactions are assumed
                                                        node_attr = list(IDs_interactor_human_A ~ IDs_interactor_human_A_degree,

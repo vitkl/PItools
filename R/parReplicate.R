@@ -2,6 +2,7 @@
 ##' @details arguments as in \code{\link{parSapply}} and \code{\link{replicate}}
 ##' @importFrom BiocGenerics parSapply
 ##' @export parReplicate
-parReplicate <- function(cl, n, expr, simplify=TRUE, USE.NAMES=TRUE)
+parReplicate = function(cl, n, expr, simplify=TRUE, USE.NAMES=TRUE){
   parSapply(cl, integer(n), function(i, ex) eval(ex, envir=.GlobalEnv),
             substitute(expr), simplify=simplify, USE.NAMES=USE.NAMES)
+}
