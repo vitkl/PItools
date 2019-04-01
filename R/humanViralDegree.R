@@ -13,6 +13,7 @@
 ##' @import data.table
 ##' @export humanViralDegree
 ##' @examples
+##' {
 ##' # Load data. This can be done internally by humanViralDegree(),
 ##' # however, it takes time (minutes) so it's recommended to load data separately
 ##' # if it will be used multiple times
@@ -44,6 +45,7 @@
 ##' degree_distributions = humanViralDegree(data = HumanViralPPI,
 ##'   directory = "./data_files/", PMIDs = "26496610",
 ##'   data_name = "Matthias Mann 2015 paper")
+##'   }
 humanViralDegree = function(data = NULL, directory = "./data_files/", Interaction_detection_methods = NULL, Identification_method = NULL, PMIDs = NULL, inverse_filter = F, data_name = ""){
 
   if(is.null(data)){
@@ -134,11 +136,7 @@ loadHumanViralPPI = function(directory = "./data_files/",
   # load ppi data
   IntAct = loadIntActFTP(dir = loadIntActFTP_dir,
                          release = release)
-  # human-viral
-  all_viral_interaction = interSpeciesInteractome(taxid1 = 9606, taxid2 = 10239, database = "IntActFTP", format = "tab27",
-                                                            clean = TRUE, protein_only = TRUE,
-                                                            MITABdata = IntAct, directory = directory,
-                                                            releaseORdate = release)
+
   # human-human
   all_human_interaction = fullInteractome(taxid = 9606, database = "IntActFTP", format = "tab27",
                                           clean = TRUE, protein_only = TRUE,

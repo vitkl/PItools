@@ -35,6 +35,7 @@ object of the same class as \code{MITABdata}, a subset of \code{MITABdata} that 
 filter molecular interaction data by \code{Interaction_detection_methods} and / or participant \code{Identification_method}
 }
 \examples{
+{
 # Download all human interaction data
 full = fullInteractome(taxid = "9606", database = "IntActFTP",
          clean = TRUE, protein_only = TRUE)
@@ -50,6 +51,7 @@ NOT_two_hybrid = subsetMITABbyMethod(MITABdata = full,
 # subset affinity purification - mass spectrometry interactions
 AP_MS = subsetMITABbyMethod(MITABdata = full,
                Interaction_detection_methods = "MI:0004",  Identification_method = "MI:0433")
+}
 }
 \seealso{
 \code{\link[MItools]{subsetMITABbyPMIDs}}), \code{\link[MItools]{subsetMITABbyID}})

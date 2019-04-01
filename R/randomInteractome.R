@@ -16,18 +16,20 @@
 ##' @export randomInteractome
 ##' @export print.clean_MItab25_randomInteractome
 ##' @examples
-##' # retrive the interactome using PSICQIUC servise (or by reading local copy) from IMEx databases for a list of 200 random human (9606) proteins, not specifying their degree distribution
-##' set.seed(1)
-##' random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE)
+##' {
+##' # retrive the interactome using PSICQIUC servise (or by reading local copy) from IntAct databases for a list of 200 random human (9606) proteins, not specifying their degree distribution
+##' #set.seed(1) # commented because too slow
+##' #random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE)
 ##'
 ##' # retrive the interactome from MITABdata for a list of 200 random human (9606) proteins, not specifying their degree_dist distribution
-##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+##' full = fullInteractome(taxid = "9606", database = "IntActFTP", format = "tab25", clean = TRUE, protein_only = TRUE)
 ##' set.seed(1)
 ##' random = randomInteractome(MITABdata = full, n_prot = 200, degree_dist = NULL)
 ##'
-##' # retrive the interactome using PSICQIUC servise (or by reading local copy from a specified directory) from IMEx databases for a list of 200 random human (9606) proteins, not specifying their degree_dist distribution
-##' set.seed(1)
-##' random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE, directory = "./data/")
+##' # retrive the interactome using PSICQIUC servise (or by reading local copy from a specified directory) from IntAct databases for a list of 200 random human (9606) proteins, not specifying their degree_dist distribution
+##' #set.seed(1)
+##' #random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "IntActFTP", protein_only = TRUE, directory = "./data/")
+##' }
 randomInteractome = function(MITABdata = NULL, degree_data = NULL, n_prot, degree_dist = NULL, ...){
   # if MITABdata is NULL retrive the cleaned full Interactome
   if(is.null(MITABdata)) full_interactome_clean = fullInteractome(..., format = "tab25", clean = TRUE)

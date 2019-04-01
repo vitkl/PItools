@@ -10,6 +10,7 @@
 ##' @seealso \code{\link[MItools]{subsetMITABbyMethod}}), \code{\link[MItools]{subsetMITABbyID}})
 ##' @export subsetMITABbyPMIDs
 ##' @examples
+##' {
 ##' # Download all human interaction data
 ##' full = fullInteractome(taxid = "9606", database = "IntActFTP",
 ##'          clean = TRUE, protein_only = TRUE)
@@ -25,6 +26,7 @@
 ##' # subset Mattias Mann 2015 paper data
 ##' Mann = subsetMITABbyPMIDs(MITABdata = full,
 ##'                PMIDs = "26496610")
+##' }
 subsetMITABbyPMIDs = function(MITABdata, PMIDs = NULL, inverse_filter = F) {
   if(!grepl("clean_MItab",class(MITABdata))) stop("MITABdata is not of class clean_MItab27 or related clean_MItab class")
   if(!is.null(PMIDs) | is.character(PMIDs) | is.integer(PMIDs) | is.numeric(PMIDs)) {

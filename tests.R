@@ -313,7 +313,7 @@ select_top_domain = F
 # Install release version from CRAN
 install.packages("pkgdown")
 setwd("/Users/vk7/Desktop/ebi_projects/MItools/")
-pkgdown::build_site()
+
 
 
 ## benchmarking ways to combine p-values for domains
@@ -384,3 +384,4 @@ hist(rbeta(10000, 0.4999 + 100, 0.4999 + 100))
 mean(fit$param[1] / (fit$param[1] + fit$param[2]))
 
 ### draft end
+pkgdown::build_site()

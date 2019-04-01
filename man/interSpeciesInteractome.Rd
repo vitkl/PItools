@@ -52,11 +52,13 @@ Another option is to supply \code{MITABdata} to be cleaned and filtered
 Finally, you can avoid using PSICQUIC service and download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download and is more computationally intensive for processing. As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't. If database "IntActFTP" is chosen only MITAB2.7 is available and \code{format} is ignored
 }
 \examples{
+{
 # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns
-interSpecies = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+interSpecies = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, database = "IntActFTP", format = "tab27", clean = TRUE, protein_only = TRUE)
 
 # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.7 format not using PSICQUIC (using IntAct ftp), clean and select specific columns; save it to the specific directory inside working directory
 interSpecies = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, database = "IntActFTP", format = "tab27", clean = TRUE, protein_only = TRUE, directory = "./data/")
+}
 }
 \seealso{
 \code{\link{fullInteractome}}

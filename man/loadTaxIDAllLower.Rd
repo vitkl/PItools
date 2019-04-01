@@ -16,6 +16,7 @@ loadTaxIDAllLower(taxid, dir, with_description = F)
 \code{loadTaxIDAllLower} loads all load all lower taxonomy ID for a given taxonomy ID
 }
 \examples{
+# Find all human sub-species
 loadTaxIDAllLower(taxid = 9606, dir = "./")
 loadTaxIDAllLower(taxid = 9606, dir = "./", with_description = T)
 }

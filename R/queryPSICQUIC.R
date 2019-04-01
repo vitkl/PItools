@@ -14,22 +14,23 @@
 ##' @import data.table
 ##' @import PSICQUIC
 ##' @export queryPSICQUIC
-##' @examples queryPSICQUIC(query = "id:P74565 AND detmethod:\"MI:0018\"",
+##' @examples
+##' queryPSICQUIC(query = "id:P74565 AND detmethod:\"MI:0018\"",
 ##'                format = "tab27",
 ##'                database = "imex",
 ##'                file = "P74565_2H_interactions_imex_tab27.tsv")
 ##'
-##' @examples queryPSICQUIC(query = "id:P74565 AND detmethod:\"MI:0018\"",
+##' queryPSICQUIC(query = "id:P74565 AND detmethod:\"MI:0018\"",
 ##'                format = "tab25",
 ##'                database = "mentha",
 ##'                file = "P74565_2H_interactions_mentha_tab25.tsv")
 ##'
-##' @examples queryPSICQUIC(query = "id:P74565",
+##' queryPSICQUIC(query = "id:P74565",
 ##'                format = "tab25",
 ##'                database = "mentha",
 ##'                file = "P74565_2H_interactions_mentha_tab25.tsv")
 ##'
-##' @examples queryPSICQUIC(query = "id:156",
+##' queryPSICQUIC(query = "id:156",
 ##'                format = "tab25",
 ##'                database = "BioGrid",
 ##'                file = "entrezgene156_interactions_BioGrid_tab25.tsv")
@@ -81,11 +82,13 @@ queryPSICQUIC = function(query, format, database, file){
     }
   }
 
-  # add informative header for MI-TAB 2.7
-  if(format == "tab27") colnames(SPECIES_ID_interactome) = unlist(strsplit(readLines("ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/intact.txt",  n = 1), "\t"))
-
-  # write results to table
-  if(nrow(SPECIES_ID_interactome) > 0) fwrite(SPECIES_ID_interactome, file, sep = "\t") else message("no interactions matching your query")
+  # if any results found
+  if(nrow(SPECIES_ID_interactome) > 0) {
+    # add informative header for MI-TAB 2.7
+    if(format == "tab27") colnames(SPECIES_ID_interactome) = unlist(strsplit(readLines("ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/intact.txt",  n = 1), "\t"))
+    # write results to table
+    fwrite(SPECIES_ID_interactome, file, sep = "\t")
+  } else message("no interactions matching your query")
 
   # returns the query settings, how many interactions per database retrieved and which databases are inactive
   res_summary = data.table(query = query,

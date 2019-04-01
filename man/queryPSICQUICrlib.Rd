@@ -31,7 +31,9 @@ saves PSIQUIC search results to the local R library or to the directory specifie
 \code{queryPSICQUICrlib} queries IMEx databases using PSICQUIC if the local copy of the query result is not available or if there is a new IntAct release. The functions will still work for non-IMEx databases but it will check the IntAct release date and that is not meaningful for tracking updates of other resources.
 }
 \examples{
+{
 queryPSICQUICrlib(query = "id:P74565 AND detmethod:\\"MI:0018\\"", format = "tab27", database = "imex")
+}
 }
 \author{
 Vitalii Kleshchevnikov

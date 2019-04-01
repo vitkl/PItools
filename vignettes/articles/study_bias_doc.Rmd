@@ -83,19 +83,65 @@ human = fullInteractome(taxid = 9606, database = "IntActFTP", # 9606 - human tax
                         releaseORdate = NULL) # useful to keep track of the release date e.g. 2018Aug7, but for the first download set to NULL 
 ```
 
-### Load all human-viral interactions
+### Load all human-viral interactions from IntAct, BioGRID, VirHostNet
 
 10239 is the top viral clade identifier. 
 
 ```{r}
-# read all data (filter later)
+# read all IntAct data (filter later)
 IntAct = loadIntActFTP(dir = "./data_files/IntActRelease_2018Aug7/")
 # filter for viral-human interaction
-human_viral = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239,
-                                      database = "IntActFTP", MITABdata = IntAct,
+human_viral = interSpeciesInteractome(MITABdata = IntAct,
+                                      taxid1 = 9606,  taxid2 = 10239,
+                                      database = "IntActFTP",
                                       clean = TRUE, protein_only = TRUE, 
                                       directory = "./data_files/",
                         releaseORdate = "2018Aug7")
+uniqueNinteractions(human_viral)
+uniqueNinteractors(human_viral, taxid = 9606)
+uniqueNinteractors(human_viral, taxid = 9606, inverse_filter = T)
+
+
+# read all BioGRID data
+#download.file("https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-3.5.166/BIOGRID-ALL-3.5.166.mitab.zip",
+#              "./data_files/BIOGRID-ALL-3.5.166.mitab.zip")
+#unzip("./data_files/BIOGRID-ALL-3.5.166.mitab.zip")
+#biogrid = fread("./data_files/BIOGRID-ALL-3.5.166.mitab.txt")
+#setnames(biogrid, colnames(biogrid),
+#         colnames(IntAct$data)[1:15])
+#biogrid = list(data = biogrid, metadata = "full_biogrid_18_nov_2018")
+#class(biogrid) = "RAW_MItab25"
+#biogrid_vir = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, 
+#                                      MITABdata = biogrid,
+#                                      clean = TRUE, protein_only = FALSE, 
+#                                      directory = "./data_files/")
+
+#uniqueNinteractions(biogrid_vir)
+#uniqueNinteractors(biogrid_vir, taxid = 9606)
+#uniqueNinteractors(biogrid_vir, taxid = 9606, inverse_filter = T)
+
+# retrieve all VirHostNet data 
+# which does not understand taxonomy hierarhy so interSpeciesInteractome() will not work
+VirHostNet_raw = queryPSICQUICrlib(query = "taxid:9606",
+                                   format = "tab27", database = "VirHostNet",
+                                   directory = "./data_files/",
+                                   releaseORdate = NULL)
+
+VirHostNet = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, 
+                                     MITABdata = VirHostNet_raw,
+                                     clean = TRUE, protein_only = TRUE, 
+                                     directory = "./data_files/")
+# filter out human-human and viral-viral interactions 
+VirHostNet$data = VirHostNet$data[!Taxid_interactor_A == Taxid_interactor_B]
+uniqueNinteractions(VirHostNet)
+uniqueNinteractors(VirHostNet, taxid = 9606)
+uniqueNinteractors(VirHostNet, taxid = 9606, inverse_filter = T)
+
+# Find which interactions are uniquely present in VirHostNet (not IntAct)
+VirHostNet$data = VirHostNet$data[!pair_id %in% human_viral$data$pair_id]
+uniqueNinteractions(VirHostNet)
+uniqueNinteractors(VirHostNet, taxid = 9606)
+uniqueNinteractors(VirHostNet, taxid = 9606, inverse_filter = T)
 ```
 
 ### Load all human-mouse interactions

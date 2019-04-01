@@ -12,7 +12,6 @@
 ##' @return data.table containing fold enrichment or frequency for each domain - protein pair. Columns: IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_set or fold_enrichment
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
-##' @export foldEnrichment
 
 foldEnrichment = function(net, protein_annot, frequency = T){
   if(ncol(net) != 3 | mean(c("IDs_interactor_viral", "IDs_interactor_human", "IDs_interactor_viral_degree") %in% colnames(net)) != 1) stop("net contains more or less columns than required or wrong colnames")

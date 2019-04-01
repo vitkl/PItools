@@ -21,23 +21,29 @@
 ##' @export print.clean_MItab25_interSpeciesInteractome
 ##' @export print.clean_MItab27_interSpeciesInteractome
 ##' @examples
+##' {
 ##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns
-##' interSpecies = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+##' interSpecies = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, database = "IntActFTP", format = "tab27", clean = TRUE, protein_only = TRUE)
 ##'
 ##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.7 format not using PSICQUIC (using IntAct ftp), clean and select specific columns; save it to the specific directory inside working directory
 ##' interSpecies = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, database = "IntActFTP", format = "tab27", clean = TRUE, protein_only = TRUE, directory = "./data/")
-interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 10239, database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL, releaseORdate = NULL, remove_obsolete_id = F){
+##' }
+interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 10239,
+                                   database = "imex", format = "tab25",
+                                   clean = TRUE, protein_only = TRUE,
+                                   directory = NULL, releaseORdate = NULL,
+                                   remove_obsolete_id = F){
   # if the interaction data for species taxid and from database is not saved in the library - queryPSICQUIC for interaction data for taxid interactions in the database and in MITAB2.5 format, save results to the library
+  if(is.null(directory)){
+    pkg_dir = paste0(.libPaths(), "/MItools", "/data/")[1]
+    # create data directory in /default.library/queryPSICQUIC/ if it doesn't exist
+    if(!dir.exists(pkg_dir)) dir.create(pkg_dir)
+    # find out last release date if the database is IntActFTP and releaseORdate = NULL, generate dir_last_release
+    dir_last_release = generateDirName(database, releaseORdate, pkg_dir)
+  } else {
+    dir_last_release = generateDirName(database, releaseORdate, directory)
+  }
   if(database == "IntActFTP"){
-    if(is.null(directory)){
-      pkg_dir = paste0(.libPaths(), "/MItools", "/data/")[1]
-      # create data directory in /default.library/queryPSICQUIC/ if it doesn't exist
-      if(!dir.exists(pkg_dir)) dir.create(pkg_dir)
-      # find out last release date if the database is IntActFTP and releaseORdate = NULL, generate dir_last_release
-      dir_last_release = generateDirName(database, releaseORdate, pkg_dir)
-    } else {
-      dir_last_release = generateDirName(database, releaseORdate, directory)
-    }
     # create directory for the last release date
     if(is.null(releaseORdate)) {
       if(!dir.exists(dir_last_release)) dir.create(dir_last_release)

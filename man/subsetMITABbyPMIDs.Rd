@@ -20,6 +20,7 @@ return only interactions reported by \code{PMIDs}
 filter molecular interaction data by Pubmed ID of publications
 }
 \examples{
+{
 # Download all human interaction data
 full = fullInteractome(taxid = "9606", database = "IntActFTP",
          clean = TRUE, protein_only = TRUE)
@@ -35,6 +36,7 @@ Vidal_all = subsetMITABbyPMIDs(MITABdata = full,
 # subset Mattias Mann 2015 paper data
 Mann = subsetMITABbyPMIDs(MITABdata = full,
                PMIDs = "26496610")
+}
 }
 \seealso{
 \code{\link[MItools]{subsetMITABbyMethod}}), \code{\link[MItools]{subsetMITABbyID}})

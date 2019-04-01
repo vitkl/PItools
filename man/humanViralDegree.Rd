@@ -30,6 +30,7 @@ data.table to be ggplotted to compare viral and human protein degree distributio
 subset molecular interaction data (cleaned MITAB format in a data.table object) with a list of interactors
 }
 \examples{
+{
 # Load data. This can be done internally by humanViralDegree(),
 # however, it takes time (minutes) so it's recommended to load data separately
 # if it will be used multiple times
@@ -61,6 +62,7 @@ degree_distributions = humanViralDegree(data = HumanViralPPI,
 degree_distributions = humanViralDegree(data = HumanViralPPI,
   directory = "./data_files/", PMIDs = "26496610",
   data_name = "Matthias Mann 2015 paper")
+  }
 }
 \author{
 Vitalii Kleshchevnikov

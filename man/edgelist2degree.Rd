@@ -5,8 +5,7 @@
 \alias{edgelist2degree_slow}
 \title{find the degree for each protein given cleaned molecular interaction data}
 \usage{
-edgelist2degree(mitab)
-edgelist2degree_slow(mitab, sep = "\\|")
+edgelist2degree_slow(mitab, sep = "\\\\|", order_by_degree = T)
 }
 \arguments{
 \item{mitab}{data.table containing molecular interaction data, including "IDs_interactor_A" and "IDs_interactor_B" or "pair_id"}
@@ -29,10 +28,11 @@ edgelist = data.table(pair_id = paste0(rep(c("P", "Q", "R"), each = 30),
                       "|",
                       sample(rep(c("Z", "X", "F"), each = 30)), 1:90))
 edgelist2degree_slow(edgelist)
-
+{
 # download full human interactome (clean = TRUE is necessary to produce the right input for edgelist2degree)
 full = fullInteractome(taxid = "9606", database = "IntActFTP", format = "tab25", clean = TRUE, protein_only = TRUE)
 degree = edgelist2degree(full$data)
+}
 }
 \author{
 Vitalii Kleshchevnikov

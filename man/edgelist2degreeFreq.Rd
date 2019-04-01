@@ -20,8 +20,9 @@ Find the degree distribution given edgelist (pair_id) and a list of proteins whi
 unique pair_id is the unique identifier of the undirected interaction: ordered alphabetically and concatenated interacting molecule IDs \code{\link{cleanMITAB}}
 }
 \examples{
+if(F) {
 # download full human interactome (clean = TRUE is necessary to produce the right input for edgelist2degree)
-full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+full = fullInteractome(taxid = "9606", database = "IntActFTP", format = "tab25", clean = TRUE, protein_only = TRUE)
 degree_freq = edgelist2degreeFreq(full)
 plot(degree_freq$N, degree_freq$degree_freq,
      log = "xy",
@@ -29,6 +30,7 @@ plot(degree_freq$N, degree_freq$degree_freq,
      ylab = "degree frequency, log-scale",
      xlab = "degree, log-scale",
      las=1)
+}
 }
 \author{
 Vitalii Kleshchevnikov

@@ -28,13 +28,16 @@
 ##' @export print.clean_MItab25_fullInteractome
 ##' @export print.clean_MItab27_fullInteractome
 ##' @examples
-##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns
-##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+##' {
+##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns (commented because takes a lot of time compared to IntActFTP)
+##' # full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+##'
 ##' # Do the same using IntAct ftp instead of the PSICQUIC webservice, except that, IntAct ftp option always outputs tab27 format
 ##' full = fullInteractome(taxid = "9606", database = "IntActFTP", clean = TRUE, protein_only = TRUE)
 ##'
 ##' # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns; save it to the specific directory inside working directory
-##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
+##' # full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
+##' }
 fullInteractome = function(MITABdata = NULL, taxid = 9606, database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = NULL, releaseORdate = NULL, remove_obsolete_id = F, within_species = T){
   # if the interaction data for species taxid and from database is not saved in the library - queryPSICQUIC for interaction data for taxid interactions in the database and in MITAB2.5 format, save results to the library
   if(database == "IntActFTP"){

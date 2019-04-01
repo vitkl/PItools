@@ -4,20 +4,46 @@
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 cleanMITAB25 = function(mitab){
-  # cleaning Taxid "taxid:9606(human)|taxid:9606(Homo sapiens)" to 9606
-  mitab[, Taxid_interactor_A := gsub("taxid:|\\(.*$","",V10)]
-  mitab[, Taxid_interactor_B := gsub("taxid:|\\(.*$","",V11)]
-  # saving identifier types and cleaning interactor ids
-  mitab[, interactor_IDs_databases_A := gsub(":.*$","",V1)]
-  mitab[, interactor_IDs_databases_B := gsub(":.*$","",V2)]
-  mitab[, IDs_interactor_A := gsub("^.*:","",V1)]
-  mitab[, IDs_interactor_B := gsub("^.*:","",V2)]
-  # isoform "-1" is a canonical sequence, IntAct uses isoform "-1" when it's clear that the isoform is "-1" and a canonical identifier if it's not clear which isoform was used in the experiment. Removing isoform sign "-1":
-  mitab[, IDs_interactor_A := gsub("-1$", "", IDs_interactor_A)]
-  mitab[, IDs_interactor_B := gsub("-1$", "", IDs_interactor_B)]
-  # cleaning other information
-  mitab[, Publication_Identifiers := gsub("^.*pubmed:|\\|.*$","",V9)]
-  mitab[, Confidence_values := gsub(".*intact-miscore:","",V15)]
+
+  # if columns have no names
+  if(mean(colnames(mitab) %in% paste0("V", seq_len(15))) == 1){
+
+    # cleaning Taxid "taxid:9606(human)|taxid:9606(Homo sapiens)" to 9606
+    mitab[, Taxid_interactor_A := gsub("taxid:|\\(.*$","",V10)]
+    mitab[, Taxid_interactor_B := gsub("taxid:|\\(.*$","",V11)]
+    # saving identifier types and cleaning interactor ids
+    mitab[, interactor_IDs_databases_A := gsub(":.*$","",V1)]
+    mitab[, interactor_IDs_databases_B := gsub(":.*$","",V2)]
+    mitab[, IDs_interactor_A := gsub("^.*:","",V1)]
+    mitab[, IDs_interactor_B := gsub("^.*:","",V2)]
+    # isoform "-1" is a canonical sequence, IntAct uses isoform "-1" when it's clear that the isoform is "-1" and a canonical identifier if it's not clear which isoform was used in the experiment. Removing isoform sign "-1":
+    mitab[, IDs_interactor_A := gsub("-1$", "", IDs_interactor_A)]
+    mitab[, IDs_interactor_B := gsub("-1$", "", IDs_interactor_B)]
+    # cleaning other information
+    mitab[, Publication_Identifiers := gsub("^.*pubmed:|\\|.*$","",V9)]
+    mitab[, Confidence_values := gsub(".*intact-miscore:","",V15)]
+
+  } else {
+    # rename columns to be data.table compatible
+    colnames(mitab) = gsub(" ", "_", colnames(mitab))
+    colnames(mitab) = gsub("\\(|\\)", "", colnames(mitab))
+    colnames(mitab) = gsub("#", "", colnames(mitab))
+
+    # cleaning Taxid "taxid:9606(human)|taxid:9606(Homo sapiens)" to 9606
+    mitab[, Taxid_interactor_A := gsub("taxid:|\\(.*$","",Taxid_interactor_A)]
+    mitab[, Taxid_interactor_B := gsub("taxid:|\\(.*$","",Taxid_interactor_B)]
+    # saving identifier types and cleaning interactor ids
+    mitab[, interactor_IDs_databases_A := gsub(":.*$","",IDs_interactor_A)]
+    mitab[, interactor_IDs_databases_B := gsub(":.*$","",IDs_interactor_B)]
+    mitab[, IDs_interactor_A := gsub("^.*:","",IDs_interactor_A)]
+    mitab[, IDs_interactor_B := gsub("^.*:","",IDs_interactor_B)]
+    # isoform "-1" is a canonical sequence, IntAct uses isoform "-1" when it's clear that the isoform is "-1" and a canonical identifier if it's not clear which isoform was used in the experiment. Removing isoform sign "-1":
+    mitab[, IDs_interactor_A := gsub("-1$", "", IDs_interactor_A)]
+    mitab[, IDs_interactor_B := gsub("-1$", "", IDs_interactor_B)]
+    # cleaning other information
+    mitab[, Publication_Identifiers := gsub("^.*pubmed:|\\|.*$","",Publication_Identifiers)]
+    mitab[, Confidence_values := gsub(".*intact-miscore:","",Confidence_values)]
+  }
   mitab[, Confidence_values := gsub("-","NA",Confidence_values)]
   # supress expected warning (NA introduced by coersion to numeric) to avoid confusion
   suppressWarnings({mitab[, Confidence_values := as.numeric(Confidence_values)]})
@@ -52,10 +78,10 @@ reorderMITAB25 = function(mitab){
               Taxid_interactor_B, Taxid_interactor_A)]
 
     mitab = unique(mitab[,.(IDs_interactor_A, IDs_interactor_B,
-                     interactor_IDs_databases_A, interactor_IDs_databases_B,
-                     Taxid_interactor_A, Taxid_interactor_B,
-                     Publication_Identifiers, Confidence_values,
-                     pair_id)])
-  return(mitab)
-    }
+                            interactor_IDs_databases_A, interactor_IDs_databases_B,
+                            Taxid_interactor_A, Taxid_interactor_B,
+                            Publication_Identifiers, Confidence_values,
+                            pair_id)])
+    return(mitab)
+  }
 }

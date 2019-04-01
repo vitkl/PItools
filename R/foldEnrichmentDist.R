@@ -17,8 +17,8 @@
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 ##' @import BiocGenerics
-##' @export foldEnrichmentDist
 ##' @usage
+##' {
 ##' library(data.table)
 ##' data = fread("https://raw.githubusercontent.com/vitkl/viral_project/master/processed_data_files/viral_human_net_w_domains")
 ##' # generate minimal information tables
@@ -26,6 +26,7 @@
 ##' protein_annot = unique(data[,.(IDs_interactor_human, IDs_domain_human, domain_frequency)])
 ##' viral_human_net_w_domains = unique(data[,.(IDs_interactor_viral, IDs_interactor_human, IDs_domain_human, domain_frequency_per_IDs_interactor_viral, fold_enrichment)])
 ##' foldEnrichmentDist(net, protein_annot, N = 10, cores = NULL, seed = 1, frequency = T)
+##' }
 foldEnrichmentDist = function(net, protein_annot, N = 1000, cores = NULL, seed = 1, frequency = T){
 
   # set up parallel processing

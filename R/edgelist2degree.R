@@ -9,18 +9,16 @@
 ##' @import data.table
 ##' @export edgelist2degree
 ##' @export edgelist2degree_slow
-##' @usage
-##' edgelist2degree(mitab)
-##' edgelist2degree_slow(mitab, sep = "\\|")
 ##' @examples
 ##' edgelist = data.table(pair_id = paste0(rep(c("P", "Q", "R"), each = 30),
 ##'                       "|",
 ##'                       sample(rep(c("Z", "X", "F"), each = 30)), 1:90))
 ##' edgelist2degree_slow(edgelist)
-##'
+##' {
 ##' # download full human interactome (clean = TRUE is necessary to produce the right input for edgelist2degree)
 ##' full = fullInteractome(taxid = "9606", database = "IntActFTP", format = "tab25", clean = TRUE, protein_only = TRUE)
 ##' degree = edgelist2degree(full$data)
+##' }
 edgelist2degree_slow = function(mitab, sep = "\\|", order_by_degree = T){
   if("pair_id" %in% colnames(mitab)){
     mitab_t = unique(copy(mitab[,.(pair_id)]))

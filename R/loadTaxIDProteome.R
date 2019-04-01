@@ -12,9 +12,9 @@
 ##' @examples #loadTaxIDProteins(taxid = 9606, dir = "./")
 ##' @author Vitalii Kleshchevnikov
 loadTaxIDProteins = function(taxid, dir){
-  uniprot_release = httr::headers(httr::GET("http://www.uniprot.org/"))$`x-uniprot-release`
+  uniprot_release = httr::headers(httr::GET("https://www.uniprot.org/"))$`x-uniprot-release`
   filename = paste0(dir, "UniProt_accessions_taxid",taxid,"_release",uniprot_release)
-  if(!file.exists(filename)) download(paste0("http://www.uniprot.org/uniprot/?query=taxonomy:",taxid,"&format=tab&columns=id"), filename)
+  if(!file.exists(filename)) download(paste0("https://www.uniprot.org/uniprot/?query=taxonomy:",taxid,"&format=tab&columns=id"), filename)
   proteins = unlist(fread(filename)[,1])
   names(proteins) = NULL
   list(proteins = proteins, taxid = taxid)
@@ -31,13 +31,15 @@ loadTaxIDProteins = function(taxid, dir){
 ##' @importFrom httr headers
 ##' @importFrom downloader download
 ##' @export loadTaxIDAllLower
-##' @examples loadTaxIDAllLower(taxid = 9606, dir = "./")
+##' @examples
+##' # Find all human sub-species
+##' loadTaxIDAllLower(taxid = 9606, dir = "./")
 ##' loadTaxIDAllLower(taxid = 9606, dir = "./", with_description = T)
 ##' @author Vitalii Kleshchevnikov
 loadTaxIDAllLower = function(taxid, dir, with_description = F){
-  uniprot_release = httr::headers(httr::GET("http://www.uniprot.org/"))$`x-uniprot-release`
+  uniprot_release = httr::headers(httr::GET("https://www.uniprot.org/"))$`x-uniprot-release`
   filename = paste0(dir,"AllLowerTaxID_taxid",taxid,"_release",uniprot_release)
-  if(!file.exists(filename)) download(paste0("http://www.uniprot.org/taxonomy/?query=ancestor:",taxid,"&format=tab"), filename)
+  if(!file.exists(filename)) download(paste0("https://www.uniprot.org/taxonomy/?query=ancestor:",taxid,"&format=tab"), filename)
   if(file.size(filename) == 0) taxids = NULL else {
     taxids = unlist(fread(filename)[,1])
     names(taxids) = NULL
@@ -61,16 +63,15 @@ loadTaxIDAllLower = function(taxid, dir, with_description = F){
 ##' @importFrom httr headers
 ##' @importFrom downloader download
 ##' @export loadAllIDProteins
-##' @examples #loadAllIDProteins(dir = "./")
 ##' @author Vitalii Kleshchevnikov
 loadAllIDProteins = function(dir){
-  uniprot_release = httr::headers(httr::GET("http://www.uniprot.org/uniprot/?query=*"))$`x-uniprot-release`
-  total_results = as.numeric(httr::headers(httr::GET("http://www.uniprot.org/uniprot/?query=*"))$`x-total-results`)
+  uniprot_release = httr::headers(httr::GET("https://www.uniprot.org/uniprot/?query=*"))$`x-uniprot-release`
+  total_results = as.numeric(httr::headers(httr::GET("https://www.uniprot.org/uniprot/?query=*"))$`x-total-results`)
   filename = paste0(dir, "All_UniProt_accessions_release",uniprot_release, ".txt")
   if(!file.exists(filename) | file.size(filename) == 0){
     system(paste0("touch ", filename))
     for (i in seq(1, total_results, 1e6)) {
-      query = paste0("http://www.uniprot.org/uniprot/?format=list&limit=1000000&offset=",i)
+      query = paste0("https://www.uniprot.org/uniprot/?format=list&limit=1000000&offset=",i)
       temp_file = paste0(tempdir(), "All_UniProt_accessions",i, ".txt")
       download.file(query, temp_file)
       system(paste0("cat ",temp_file," >> ",filename))

@@ -14,7 +14,10 @@
 ##' @export queryPSICQUICrlib
 ##' @export print.RAW_MItab25
 ##' @export print.RAW_MItab27
-##' @examples queryPSICQUICrlib(query = "id:P74565 AND detmethod:\"MI:0018\"", format = "tab27", database = "imex")
+##' @examples
+##' {
+##' queryPSICQUICrlib(query = "id:P74565 AND detmethod:\"MI:0018\"", format = "tab27", database = "imex")
+##' }
 
 queryPSICQUICrlib = function(..., directory = NULL, releaseORdate = NULL, just_list_releases = F){
   # to just list available releases for this query

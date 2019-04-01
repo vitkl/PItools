@@ -11,8 +11,11 @@
 ##' @param text_lab logical: label domains (features) on the plot, or not
 ##' @param frequency fold enrichment or frequency in a set (if TRUE - frequency)
 ##' @return data.table containing pvalue for each protein-feature pair in the network (4 columns: proteinID, IDs_interactor_human, featureID, foldEnrichment (or domain_frequency_per_IDs_interactor_viral) and Pval)
-##' @usage foldEnrichmentPval(fold_enrichment_dist, data, cores = NULL, frequency = T)
+##' @examples
+##' {
+##' foldEnrichmentPval(fold_enrichment_dist, data, cores = NULL, frequency = T)
 ##' plotFoldEnrichmentDist(proteinID, fold_enrichment_dist, data, main = NULL, text_lab = T, frequency = T)
+##' }
 ##' @author Vitalii Kleshchevnikov
 ##' @import data.table
 ##' @import BiocGenerics
@@ -28,8 +31,6 @@
 ##' @importFrom ggplot2 geom_text
 ##' @importFrom ggplot2 facet_wrap
 ##' @importFrom ggplot2 geom_label
-##' @export foldEnrichmentPval
-##' @export plotFoldEnrichmentDist
 foldEnrichmentPval = function(fold_enrichment_dist, data, cores = NULL, frequency = T){
   # subset data
   if(frequency) data = unique(data[,.(IDs_interactor_viral, IDs_domain_human, domain_frequency_per_IDs_interactor_viral)])
@@ -84,17 +85,17 @@ plotFoldEnrichmentDist = function(proteinID, fold_enrichment_dist, data, main = 
     # different plot titles based on frequency vs fold enrichment
     if(frequency) main = paste0("distribution of domain frequency per viral protein (sampled using network permutations)")
     if(!frequency) main = paste0("distribution of fold enrichment per viral protein (sampled using network permutations)")
-    }
+  }
 
   data2 = unique(merged[,.(IDs_interactor_viral, IDs_domain_human, fold_enrichment, Pval)])[order(fold_enrichment),]
   # generate histogram
   if(frequency) {
     plot = ggplot(merged, aes(x = sampled_domain_frequency_per_set)) +
-    geom_histogram() +
-    ggtitle(main) + xlab("domain_frequency_per_IDs_interactor_viral") + theme_light() +
-    geom_vline(aes(xintercept = domain_frequency_per_IDs_interactor_viral, color = "red")) +
-    theme(legend.position = "none") +
-    facet_wrap( ~ IDs_interactor_viral, scales = "free")
+      geom_histogram() +
+      ggtitle(main) + xlab("domain_frequency_per_IDs_interactor_viral") + theme_light() +
+      geom_vline(aes(xintercept = domain_frequency_per_IDs_interactor_viral, color = "red")) +
+      theme(legend.position = "none") +
+      facet_wrap( ~ IDs_interactor_viral, scales = "free")
   }
   if(!frequency) {
     plot = ggplot(merged, aes(x = sampled_fold_enrichment)) +

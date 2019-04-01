@@ -15,6 +15,7 @@
 ##' @seealso \code{\link[MItools]{subsetMITABbyPMIDs}}), \code{\link[MItools]{subsetMITABbyID}})
 ##' @export subsetMITABbyMethod
 ##' @examples
+##' {
 ##' # Download all human interaction data
 ##' full = fullInteractome(taxid = "9606", database = "IntActFTP",
 ##'          clean = TRUE, protein_only = TRUE)
@@ -30,6 +31,7 @@
 ##' # subset affinity purification - mass spectrometry interactions
 ##' AP_MS = subsetMITABbyMethod(MITABdata = full,
 ##'                Interaction_detection_methods = "MI:0004",  Identification_method = "MI:0433")
+##' }
 subsetMITABbyMethod = function(MITABdata, Interaction_detection_methods = NULL, Identification_method = NULL, Identification_method_participant_A = NULL, Identification_method_participant_B = NULL, ontology_directory = "./", ontology_date = NULL, inverse_filter = F) {
   if(!grepl("clean_MItab",class(MITABdata))) stop("MITABdata is not of class clean_MItab27 or related clean_MItab class")
 

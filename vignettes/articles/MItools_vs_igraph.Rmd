@@ -20,7 +20,7 @@ This article shows how to download protein interaction data using MItools, impor
 ## Download full human interactome as a data.table using MItools
 
 ```{r}
-human_interactome = fullInteractome(taxid = "9606", database = "imex",
+human_interactome = fullInteractome(taxid = "9606", database = "IntActFTP",
                                     format = "tab27", clean = T, protein_only = TRUE)
 ```
 

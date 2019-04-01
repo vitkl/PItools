@@ -52,13 +52,16 @@ Another option is to supply \code{MITABdata} to be cleaned and filtered
 Finally, you can avoid using PSICQUIC service and download data from IntAct ftp by selecting database argument "IntActFTP". This is much faster but larger requires larger download (>3Gb) and is more computationally intensive for processing (clean = T). As of 7.09.2017 "IntActFTP" provides access to DIP data, while "imex" doesn't.
 }
 \examples{
-# retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns
-full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+{
+# retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns (commented because takes a lot of time compared to IntActFTP)
+# full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+
 # Do the same using IntAct ftp instead of the PSICQUIC webservice, except that, IntAct ftp option always outputs tab27 format
 full = fullInteractome(taxid = "9606", database = "IntActFTP", clean = TRUE, protein_only = TRUE)
 
 # retrive a full set of human (9606) protein-protein interactions from IMEx databases in MITAB2.5 format, clean and select specific columns; save it to the specific directory inside working directory
-full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
+# full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE, directory = "./data/")
+}
 }
 \seealso{
 \code{\link{interSpeciesInteractome}}

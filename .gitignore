@@ -12,3 +12,6 @@ docs/reference/entrezgene156_interactions_BioGrid_tab25.tsv
 /vignettes/articles/data_files/
 vignettes/articles/RData_steps/study_bias_doc_1.RData
 vignettes/articles/RData_steps/study_bias_doc_2.RData
+docs/reference/data/IntActRelease_2019Mar23/intact2019Mar23.txt.gz
+docs/reference/data/IntActRelease_2019Mar23/AllLowerTaxID_taxid9606_release2019_02
+docs/reference/intact2019Mar23.txt.gz

@@ -26,7 +26,6 @@
 ##' @importFrom ggplot2 ggtitle
 ##' @importFrom ggplot2 theme_light
 ##' @importFrom ggplot2 xlim
-##' @export domainEnrichment
 domainEnrichment = function(backgr_domain_count, all.data, net, protein_annot, data, N = 1000, cores = NULL, seed = 1, frequency = T, proteinID = sample(unique(net$IDs_interactor_viral), 6), pValPlot = "Pval", remove_zeros = F, calculate_qval = F){
 
   # filter out domains with lower background domain count than backgr_domain_count

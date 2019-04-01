@@ -8,8 +8,9 @@
 ##' @import data.table
 ##' @export edgelist2degreeFreq
 ##' @examples
+##' if(F) {
 ##' # download full human interactome (clean = TRUE is necessary to produce the right input for edgelist2degree)
-##' full = fullInteractome(taxid = "9606", database = "imex", format = "tab25", clean = TRUE, protein_only = TRUE)
+##' full = fullInteractome(taxid = "9606", database = "IntActFTP", format = "tab25", clean = TRUE, protein_only = TRUE)
 ##' degree_freq = edgelist2degreeFreq(full)
 ##' plot(degree_freq$N, degree_freq$degree_freq,
 ##'      log = "xy",
@@ -17,6 +18,7 @@
 ##'      ylab = "degree frequency, log-scale",
 ##'      xlab = "degree, log-scale",
 ##'      las=1)
+##' }
 edgelist2degreeFreq = function(mitab, prots = NULL){
   if(!(is.data.table(mitab) & c("IDs_interactor_A", "IDs_interactor_B") %in% colnames(mitab))) stop("mitab table (edge list) is not data.table or doesn't contain IDs_interactor_A and IDs_interactor_B columns")
   # use all proteins in mitab if no protein list supplied
