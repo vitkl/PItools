@@ -65,7 +65,7 @@ The PowerPoint presentation for this lecture can be found in the project folder 
 # 2. Getting PPI data into R (from IntAct, using PSICQUIC)  
 
 You can download protein-protein interaction data directly from IntAct or using PSICQUIC and PSICQUIC client implemented in PSICQUIC R package. Both ways are implemented in MItools package. Downloading data from IntAct gets you all data from all IMEx consortium databases. PSICQUIC route allows to query non-IMEx databases and construct complex search queries.  
-As implemented in MItools, PSICQUIC route is slow to download (limit of 2500 interactions per second to lower the load on servers). IntAct route is faster but requires a large download (3GB, all data) and memory intensive processing locally.
+As implemented in MItools, PSICQUIC route is slow to download (limit of 2500 interactions per second to lower the load on servers). IntAct route is faster but requires memory intensive processing locally (3 GB table).
 
 First, let's focus on the IntAct route. Later we will download molecular interactions from a large non-IMEx database called BioGRID. 
 

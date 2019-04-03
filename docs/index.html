@@ -5,13 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Molecular interaction data tools, retrieving data using PSICQUIC service • MItools</title>
+<title>Molecular interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service • MItools</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Molecular interaction data tools, retrieving data using PSICQUIC service">
-<meta property="og:description" content="Package contains high-level functions for retrieving molecular interaction data from IntAct database, using PSICQUIC web service and manipulating that data. Useful options include: retrieve full interactome of a given species, query molecular interaction databases using MIQL, retrieve PPI for a random set of proteins.
-             Builds upon Bioconductor PSICQUIC package and uses data.table.">
+<script src="pkgdown.js"></script><meta property="og:title" content="Molecular interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service">
+<meta property="og:description" content="Package contains high-level functions for retrieving molecular interaction data from most public databases using PSICQUIC service (http://www.ebi.ac.uk/Tools/webservices/psicquic/view/main.xhtml) and manipulating that data. Useful features include: retrieve full interactome of a given species, retrieve all interactions between two taxonomy groups (taxonomy structure-aware search), query molecular interaction databases using MIQL, subset interaction data by list of protein/gene identifiers, interaction detection method, publication (PMIDs). Depends on PSICQUIC, data.table.">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -31,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">MItools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.40</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.41</span>
       </span>
     </div>
 
@@ -79,20 +78,45 @@
 <div id="r-package---mitools" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#r-package---mitools" class="anchor"></a>R Package - MItools</h1></div>
-<div id="molecular-interaction-data-tools-retrieving-data-from-intact-and-other-databases-using-psicquic-service" class="section level2">
+<div id="molecular-interaction-data-tools-retrieving-data-from-intact-and-most-other-databases-using-psicquic-service" class="section level2">
 <h2 class="hasAnchor">
-<a href="#molecular-interaction-data-tools-retrieving-data-from-intact-and-other-databases-using-psicquic-service" class="anchor"></a>Molecular interaction data tools, retrieving data from IntAct and other databases using PSICQUIC service</h2>
-<p>Package contains high-level functions for retrieving molecular interaction data using PSICQUIC service and manipulating that data. Useful options include: query molecular interaction databases using MIQL, retrieve full interactome of a given species, retrieve all interactions between two taxonomy groups, subset interaction data by identifier list, detection method, PMIDs, download protein sequences (FASTA) for canonical, isoform, post-processed chain id. This package also includes functions specific to my research project at Petsalaki group at EMBL-EBI. Depends on PSICQUIC, data.table, Biostrings.</p>
-<p>Vitalii Kleshchevnikov <a href="mailto:vk7@sanger.ac.uk">vk7@sanger.ac.uk</a></p>
+<a href="#molecular-interaction-data-tools-retrieving-data-from-intact-and-most-other-databases-using-psicquic-service" class="anchor"></a>Molecular interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service</h2>
+<p>Package contains high-level functions for retrieving molecular interaction data from most public databases using PSICQUIC service (<a href="http://www.ebi.ac.uk/Tools/webservices/psicquic/view/main.xhtml" class="uri">http://www.ebi.ac.uk/Tools/webservices/psicquic/view/main.xhtml</a>) and manipulating that data. Useful features include: retrieve full interactome of a given species, retrieve all interactions between two taxonomy groups (taxonomy structure-aware search), query molecular interaction databases using MIQL, subset interaction data by list of protein/gene identifiers, interaction detection method, publication (PMIDs). Depends on PSICQUIC, data.table.</p>
+</div>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Install R MItools package</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"BiocManager"</span>) <span class="co"># for installing BioConductor dependencies</span>
+BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">install</a></span>(<span class="st">"vitkl/MItools"</span>, <span class="dt">dependencies =</span> T)</code></pre></div>
+</div>
+<div id="basic-use" class="section level2">
+<h2 class="hasAnchor">
+<a href="#basic-use" class="anchor"></a>Basic use</h2>
+<p>Load all interactions between human proteins.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">human =<span class="st"> </span><span class="kw"><a href="reference/fullInteractome.html">fullInteractome</a></span>(<span class="dt">taxid =</span> <span class="dv">9606</span>, <span class="dt">database =</span> <span class="st">"IntActFTP"</span>,
+                        <span class="dt">format =</span> <span class="st">"tab27"</span>, <span class="dt">clean =</span> <span class="ot">TRUE</span>,
+                        <span class="dt">protein_only =</span> <span class="ot">TRUE</span>,
+                        <span class="dt">directory =</span> <span class="ot">NULL</span>) <span class="co"># keep data files inside R library, </span>
+                                          <span class="co"># or specify your directory </span></code></pre></div>
+<p>Follow this <a href="https://vitkl.github.io/MItools/articles/articles/Full_interactomes_interspecies.html">example</a> for more details.</p>
+<p>Beware of <a href="https://vitkl.github.io/MItools/articles/articles/study_bias_doc.html">study bias</a> (ascertainment bias): in aggregated data better studied proteins have more interactions (not a problem for unbiased proteome-wide interaction screens).</p>
 </div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <div class="license">
+    <div class="links">
+<h2>Links</h2>
+<ul class="list-unstyled">
+<li>Report a bug at <br><a href="https://github.com/vitkl/MItools/issues">https://​github.com/​vitkl/​MItools/​issues</a>
+</li>
+</ul>
+</div>
+<div class="license">
 <h2>License</h2>
 <ul class="list-unstyled">
-<li>GNU GPLv3</li>
+<li>Apache License 2.0</li>
 </ul>
 </div>
 <div class="developers">

@@ -1,15 +1,15 @@
 Package: MItools
 Type: Package
-Title: Molecular interaction data tools, retrieving data using PSICQUIC service
-Version: 0.1.40
+Title: Molecular interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service
+Version: 0.1.41
 Author: Vitalii Kleshchevnikov
 Maintainer: Vitalii Kleshchevnikov <vk7@sanger.ac.uk>
 Authors@R: c(person("Vitalii", "Kleshchevnikov",, "vk7@sanger.ac.uk", role = c("aut", "cre")))
-Description: Package contains high-level functions for retrieving molecular interaction data from IntAct database, using PSICQUIC web service and manipulating that data. Useful options include: retrieve full interactome of a given species, query molecular interaction databases using MIQL, retrieve PPI for a random set of proteins.
-             Builds upon Bioconductor PSICQUIC package and uses data.table.
-License: GNU GPLv3
+Description: Package contains high-level functions for retrieving molecular interaction data from most public databases using PSICQUIC service (http://www.ebi.ac.uk/Tools/webservices/psicquic/view/main.xhtml) and manipulating that data. Useful features include: retrieve full interactome of a given species, retrieve all interactions between two taxonomy groups (taxonomy structure-aware search), query molecular interaction databases using MIQL, subset interaction data by list of protein/gene identifiers, interaction detection method, publication (PMIDs). Depends on PSICQUIC, data.table.
+License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Depends: PSICQUIC, data.table
-Imports: BiocGenerics, Biostrings, ROCR, ontologyIndex, qvalue, R.utils, downloader, ggplot2, gsubfn, httr, jsonlite, progress, clustermq
+Depends: PSICQUIC, BiocGenerics, data.table, ontologyIndex, R.utils, downloader, gsubfn, jsonlite
+URL: https://vitkl.github.io/MItools/
+BugReports: https://github.com/vitkl/MItools/issues

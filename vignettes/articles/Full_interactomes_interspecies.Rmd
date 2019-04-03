@@ -17,20 +17,22 @@ This article shows how to install MItools package and download protein interacti
 
 ```{r}
 if(!"MItools" %in% installed.packages()){
-  devtools::install_github("vitkl/MItools", dependencies = TRUE)
+  # Install R MItools package
+  install.packages("BiocManager") # for installing BioConductor dependencies
+  BiocManager::install("vitkl/MItools", dependencies = T)
 }
 suppressPackageStartupMessages({
   library(MItools)
 })
 ```
 
-## Load full human-human interactome
+## Load all interactions between human protein
 
 Interactome search by species is taxonomy-hierarchy aware.
 
 ```{r}
 human = fullInteractome(taxid = 9606, database = "IntActFTP",
-                        format = "tab25", clean = TRUE,
+                        format = "tab27", clean = TRUE,
                         protein_only = TRUE,
                         directory = NULL) # keep data files inside R library - default
 ```
@@ -41,7 +43,7 @@ human = fullInteractome(taxid = 9606, database = "IntActFTP",
 
 ```{r}
 human_viral = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239,
-                                      database = "IntActFTP", format = "tab25",
+                                      database = "IntActFTP", format = "tab27",
                                       clean = TRUE, protein_only = TRUE)
 ```
 
@@ -49,7 +51,7 @@ human_viral = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239,
 
 ```{r}
 human_mouse = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10090,
-                                      database = "IntActFTP", format = "tab25",
+                                      database = "IntActFTP", format = "tab27",
                                       clean = TRUE, protein_only = TRUE)
 ```
 
