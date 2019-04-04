@@ -116,7 +116,7 @@
                         <span class="dt">directory =</span> <span class="ot">NULL</span>) <span class="co"># keep data files inside R library - default</span></code></pre></div>
 <pre><code>## ... looking for the date of the latest IntAct release ...
 ## ... looking for the date of the latest IntAct release ...</code></pre>
-<pre><code>## ... dowloading from IntAct ftp ...</code></pre>
+<pre><code>## ... loading local copy ...</code></pre>
 <pre><code>## Warning in fread(file_name, header = T, stringsAsFactors = F): Found
 ## and resolved improper quoting out-of-sample. First healed line 25383:
 ## &lt;&lt;uniprotkb:P16054 uniprotkb:Q05769 intact:EBI-298451 intact:EBI-298933|
@@ -273,13 +273,181 @@ mediator_complex =<span class="st"> </span><span class="kw"><a href="../../refer
 <pre><code>## [1] 179</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../../reference/extractInteractors.html">uniqueNinteractors</a></span>(mediator_complex_interactions)</code></pre></div>
 <pre><code>## [1] 179</code></pre>
+<div id="advanced-search" class="section level2">
+<h2 class="hasAnchor">
+<a href="#advanced-search" class="anchor"></a>2.3 Advanced search</h2>
+<p>This can be useful in you need interactions for a small number of proteins or if you want to query non-IMEx databases. Note that queryPSICQUIC doesn’t keep track of database version data, while queryPSICQUICrlib does.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Query for interactions of bacterial RNA polymerase sigma factor SigA identified using two-hybrid methods in all imex databases</span>
+<span class="kw"><a href="../../reference/queryPSICQUIC.html">queryPSICQUIC</a></span>(<span class="dt">query =</span> <span class="st">"id:P74565 AND detmethod:</span><span class="ch">\"</span><span class="st">MI:0018</span><span class="ch">\"</span><span class="st">"</span>,
+              <span class="dt">format =</span> <span class="st">"tab27"</span>,
+              <span class="dt">database =</span> <span class="st">"imex"</span>,
+              <span class="dt">file =</span> <span class="st">"./P74565_2H_interactions_imex_tab27.tsv"</span>)</code></pre></div>
+<pre><code>## Warning in if (N_interactions &gt; 0) {: the condition has length &gt; 1 and only
+## the first element will be used</code></pre>
+<pre><code>## Warning in N_SPECIES_ID_interactome[indices] &lt;- N_interactions: number of
+## items to replace is not a multiple of replacement length</code></pre>
+<pre><code>##                                     query
+##  1: id:P74565 AND detmethod:%22MI:0018%22
+##  2: id:P74565 AND detmethod:%22MI:0018%22
+##  3: id:P74565 AND detmethod:%22MI:0018%22
+##  4: id:P74565 AND detmethod:%22MI:0018%22
+##  5: id:P74565 AND detmethod:%22MI:0018%22
+##  6: id:P74565 AND detmethod:%22MI:0018%22
+##  7: id:P74565 AND detmethod:%22MI:0018%22
+##  8: id:P74565 AND detmethod:%22MI:0018%22
+##  9: id:P74565 AND detmethod:%22MI:0018%22
+## 10: id:P74565 AND detmethod:%22MI:0018%22
+## 11: id:P74565 AND detmethod:%22MI:0018%22
+##                                        file format all.databases
+##  1: ./P74565_2H_interactions_imex_tab27.tsv  tab27        IntAct
+##  2: ./P74565_2H_interactions_imex_tab27.tsv  tab27          MINT
+##  3: ./P74565_2H_interactions_imex_tab27.tsv  tab27       bhf-ucl
+##  4: ./P74565_2H_interactions_imex_tab27.tsv  tab27         MPIDB
+##  5: ./P74565_2H_interactions_imex_tab27.tsv  tab27      MatrixDB
+##  6: ./P74565_2H_interactions_imex_tab27.tsv  tab27         HPIDb
+##  7: ./P74565_2H_interactions_imex_tab27.tsv  tab27      I2D-IMEx
+##  8: ./P74565_2H_interactions_imex_tab27.tsv  tab27 InnateDB-IMEx
+##  9: ./P74565_2H_interactions_imex_tab27.tsv  tab27        MolCon
+## 10: ./P74565_2H_interactions_imex_tab27.tsv  tab27       UniProt
+## 11: ./P74565_2H_interactions_imex_tab27.tsv  tab27        MBInfo
+##     n.interactions.in.database database.not.active
+##  1:                         44                    
+##  2:                          0                    
+##  3:                          0                    
+##  4:                          0                    
+##  5:                     &lt;html&gt;                    
+##  6:                          0                    
+##  7:                                       I2D-IMEx
+##  8:                                  InnateDB-IMEx
+##  9:                                         MolCon
+## 10:                          0                    
+## 11:                          0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Query for interactions of sigma factor SigA identified using two-hybrid methods in mentha (a database that aggregates data from all primary databases, but does no interaction predition)</span>
+<span class="kw"><a href="../../reference/queryPSICQUIC.html">queryPSICQUIC</a></span>(<span class="dt">query =</span> <span class="st">"id:P74565 AND detmethod:</span><span class="ch">\"</span><span class="st">MI:0018</span><span class="ch">\"</span><span class="st">"</span>,
+              <span class="dt">format =</span> <span class="st">"tab25"</span>,
+              <span class="dt">database =</span> <span class="st">"mentha"</span>,
+              <span class="dt">file =</span> <span class="st">"./P74565_2H_interactions_mentha_tab25.tsv"</span>)</code></pre></div>
+<pre><code>##                                    query
+## 1: id:P74565 AND detmethod:%22MI:0018%22
+##                                         file format all.databases
+## 1: ./P74565_2H_interactions_mentha_tab25.tsv  tab25        mentha
+##    n.interactions.in.database database.not.active
+## 1:                         44</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Query for interactions of sigma factor SigA in mentha</span>
+<span class="kw"><a href="../../reference/queryPSICQUIC.html">queryPSICQUIC</a></span>(<span class="dt">query =</span> <span class="st">"id:P74565"</span>,
+              <span class="dt">format =</span> <span class="st">"tab25"</span>,
+              <span class="dt">database =</span> <span class="st">"mentha"</span>,
+              <span class="dt">file =</span> <span class="st">"./P74565_2H_interactions_mentha_tab25.tsv"</span>)</code></pre></div>
+<pre><code>##        query                                      file format
+## 1: id:P74565 ./P74565_2H_interactions_mentha_tab25.tsv  tab25
+##    all.databases n.interactions.in.database database.not.active
+## 1:        mentha                         44</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Retrieve interaction of any proteins encoded by Beta-adrenergic receptor kinase 1 gene (Entrez GeneID 156) from BioGRID (which recognises only this type of ID)</span>
+<span class="kw"><a href="../../reference/queryPSICQUIC.html">queryPSICQUIC</a></span>(<span class="dt">query =</span> <span class="st">"id:156"</span>,
+              <span class="dt">format =</span> <span class="st">"tab25"</span>,
+              <span class="dt">database =</span> <span class="st">"BioGrid"</span>,
+              <span class="dt">file =</span> <span class="st">"./entrezgene156_interactions_BioGrid_tab25.tsv"</span>)</code></pre></div>
+<pre><code>##     query                                           file format
+## 1: id:156 ./entrezgene156_interactions_BioGrid_tab25.tsv  tab25
+##    all.databases n.interactions.in.database database.not.active
+## 1:       BioGrid                         82</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The function return the report of how many interaction were found in each database, not the data itself. Reading data into R.</span>
+<span class="kw">fread</span>(<span class="st">"./entrezgene156_interactions_BioGrid_tab25.tsv"</span>, <span class="dt">header =</span> T, <span class="dt">stringsAsFactors =</span> F)[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>]</code></pre></div>
+<pre><code>##                            V1                         V2
+## 1:  entrez gene/locuslink:156 entrez gene/locuslink:5579
+## 2:  entrez gene/locuslink:156 entrez gene/locuslink:5148
+## 3:  entrez gene/locuslink:156 entrez gene/locuslink:6714
+## 4: entrez gene/locuslink:6714  entrez gene/locuslink:156
+## 5: entrez gene/locuslink:5148  entrez gene/locuslink:156
+##                                                                             V3
+## 1:                                 biogrid:106665|entrez gene/locuslink:ADRBK1
+## 2:                                 biogrid:106665|entrez gene/locuslink:ADRBK1
+## 3:                                 biogrid:106665|entrez gene/locuslink:ADRBK1
+## 4: biogrid:112592|entrez gene/locuslink:SRC|entrez gene/locuslink:RP5-823N20.1
+## 5:                                  biogrid:111174|entrez gene/locuslink:PDE6G
+##                                                                             V4
+## 1:                                  biogrid:111565|entrez gene/locuslink:PRKCB
+## 2:                                  biogrid:111174|entrez gene/locuslink:PDE6G
+## 3: biogrid:112592|entrez gene/locuslink:SRC|entrez gene/locuslink:RP5-823N20.1
+## 4:                                 biogrid:106665|entrez gene/locuslink:ADRBK1
+## 5:                                 biogrid:106665|entrez gene/locuslink:ADRBK1
+##                                                                                                                                                                                            V5
+## 1:                                            entrez gene/locuslink:BARK1(gene name synonym)|entrez gene/locuslink:BETA-ARK1(gene name synonym)|entrez gene/locuslink:GRK2(gene name synonym)
+## 2:                                            entrez gene/locuslink:BARK1(gene name synonym)|entrez gene/locuslink:BETA-ARK1(gene name synonym)|entrez gene/locuslink:GRK2(gene name synonym)
+## 3:                                            entrez gene/locuslink:BARK1(gene name synonym)|entrez gene/locuslink:BETA-ARK1(gene name synonym)|entrez gene/locuslink:GRK2(gene name synonym)
+## 4: entrez gene/locuslink:ASV(gene name synonym)|entrez gene/locuslink:SRC1(gene name synonym)|entrez gene/locuslink:c-SRC(gene name synonym)|entrez gene/locuslink:p60-Src(gene name synonym)
+## 5:                                                                                                entrez gene/locuslink:PDEG(gene name synonym)|entrez gene/locuslink:RP57(gene name synonym)
+##                                                                                                                                                                                                 V6
+## 1: entrez gene/locuslink:PKC-beta(gene name synonym)|entrez gene/locuslink:PKCB(gene name synonym)|entrez gene/locuslink:PRKCB1(gene name synonym)|entrez gene/locuslink:PRKCB2(gene name synonym)
+## 2:                                                                                                     entrez gene/locuslink:PDEG(gene name synonym)|entrez gene/locuslink:RP57(gene name synonym)
+## 3:      entrez gene/locuslink:ASV(gene name synonym)|entrez gene/locuslink:SRC1(gene name synonym)|entrez gene/locuslink:c-SRC(gene name synonym)|entrez gene/locuslink:p60-Src(gene name synonym)
+## 4:                                                 entrez gene/locuslink:BARK1(gene name synonym)|entrez gene/locuslink:BETA-ARK1(gene name synonym)|entrez gene/locuslink:GRK2(gene name synonym)
+## 5:                                                 entrez gene/locuslink:BARK1(gene name synonym)|entrez gene/locuslink:BETA-ARK1(gene name synonym)|entrez gene/locuslink:GRK2(gene name synonym)
+##                                                    V7             V8
+## 1: psi-mi:MI:0004(affinity chromatography technology) Yang XL (2003)
+## 2: psi-mi:MI:0004(affinity chromatography technology)  Wan KF (2003)
+## 3: psi-mi:MI:0004(affinity chromatography technology)  Wan KF (2003)
+## 4: psi-mi:MI:0004(affinity chromatography technology)  Wan KF (2003)
+## 5: psi-mi:MI:0004(affinity chromatography technology)  Wan KF (2003)
+##                 V9        V10        V11
+## 1: pubmed:12679936 taxid:9606 taxid:9606
+## 2: pubmed:12624098 taxid:9606 taxid:9606
+## 3: pubmed:12624098 taxid:9606 taxid:9606
+## 4: pubmed:12624098 taxid:9606 taxid:9606
+## 5: pubmed:12624098 taxid:9606 taxid:9606
+##                                     V12                     V13
+## 1: psi-mi:MI:0915(physical association) psi-mi:MI:0463(biogrid)
+## 2: psi-mi:MI:0915(physical association) psi-mi:MI:0463(biogrid)
+## 3: psi-mi:MI:0915(physical association) psi-mi:MI:0463(biogrid)
+## 4: psi-mi:MI:0915(physical association) psi-mi:MI:0463(biogrid)
+## 5: psi-mi:MI:0915(physical association) psi-mi:MI:0463(biogrid)
+##               V14 V15
+## 1: biogrid:259364   -
+## 2: biogrid:259971   -
+## 3: biogrid:259972   -
+## 4: biogrid:259974   -
+## 5: biogrid:259977   -</code></pre>
+<p>All the same operations can be done using function queryPSICQUICrlib but with the convienience of automatic tracking of database release date and the exact query text. This function also return the data in object of class RAW_MItab that after cleaned make data ready for use with other tools in the package.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">BioGrid_<span class="dv">156</span> =<span class="st"> </span><span class="kw"><a href="../../reference/queryPSICQUICrlib.html">queryPSICQUICrlib</a></span>(<span class="dt">query =</span> <span class="st">"id:156"</span>,
+                                <span class="dt">format =</span> <span class="st">"tab25"</span>,
+                                <span class="dt">database =</span> <span class="st">"BioGrid"</span>,
+                                <span class="dt">directory =</span> <span class="st">"./"</span>)</code></pre></div>
+<pre><code>## found local copy of the data from the latest release ... reading into R</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The same protein, but only two-hybrid interactions</span>
+BioGrid_156_2H =<span class="st"> </span><span class="kw"><a href="../../reference/queryPSICQUICrlib.html">queryPSICQUICrlib</a></span>(<span class="dt">query =</span> <span class="st">"id:156 AND detmethod:</span><span class="ch">\"</span><span class="st">MI:0018</span><span class="ch">\"</span><span class="st">"</span>,
+                                   <span class="dt">format =</span> <span class="st">"tab25"</span>,
+                                   <span class="dt">database =</span> <span class="st">"BioGrid"</span>,
+                                   <span class="dt">directory =</span> <span class="st">"./"</span>)</code></pre></div>
+<pre><code>## found local copy of the data from the latest release ... reading into R</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The data returned by queryPSICQUICrlib constains auxillary information that is not necessary for most analysis. Let's clean the data.</span>
+BioGrid_<span class="dv">156</span> =<span class="st"> </span><span class="kw"><a href="../../reference/cleanMITAB.html">cleanMITAB</a></span>(BioGrid_<span class="dv">156</span>)
+BioGrid_<span class="dv">156</span><span class="op">$</span>data[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>]</code></pre></div>
+<pre><code>##    IDs_interactor_A IDs_interactor_B interactor_IDs_databases_A
+## 1:              156             5579      entrez gene/locuslink
+## 2:              156             5148      entrez gene/locuslink
+## 3:              156             6714      entrez gene/locuslink
+## 4:              156             2776      entrez gene/locuslink
+## 5:              156             2769      entrez gene/locuslink
+##    interactor_IDs_databases_B Taxid_interactor_A Taxid_interactor_B
+## 1:      entrez gene/locuslink               9606               9606
+## 2:      entrez gene/locuslink               9606               9606
+## 3:      entrez gene/locuslink               9606               9606
+## 4:      entrez gene/locuslink               9606               9606
+## 5:      entrez gene/locuslink               9606               9606
+##    Publication_Identifiers Confidence_values  pair_id
+## 1:                12679936                NA 156|5579
+## 2:                12624098                NA 156|5148
+## 3:                12624098                NA 156|6714
+## 4:                12885252                NA 156|2776
+## 5:                12885252                NA 156|2769</code></pre>
+</div>
 </div>
 <div id="date-and-packages-used" class="section level1">
 <h1 class="hasAnchor">
 <a href="#date-and-packages-used" class="anchor"></a>Date and packages used</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Sys.Date. =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.time">Sys.Date</a></span>()
 Sys.Date.</code></pre></div>
-<pre><code>## [1] "2019-04-03"</code></pre>
+<pre><code>## [1] "2019-04-04"</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">session_info. =<span class="st"> </span>devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">session_info</a></span>()
 session_info.</code></pre></div>
 <pre><code>## ─ Session info ──────────────────────────────────────────────────────────
@@ -292,7 +460,7 @@ session_info.</code></pre></div>
 ##  collate  en_GB.UTF-8                 
 ##  ctype    en_GB.UTF-8                 
 ##  tz       Europe/London               
-##  date     2019-04-03                  
+##  date     2019-04-04                  
 ## 
 ## ─ Packages ──────────────────────────────────────────────────────────────
 ##  package       * version   date       lib source        
@@ -319,7 +487,7 @@ session_info.</code></pre></div>
 ##  digest          0.6.18    2018-10-10 [1] CRAN (R 3.5.0)
 ##  downloader    * 0.4       2015-07-09 [1] CRAN (R 3.5.0)
 ##  evaluate        0.13      2019-02-12 [1] CRAN (R 3.5.2)
-##  fs              1.2.6     2018-08-23 [1] CRAN (R 3.5.0)
+##  fs              1.2.7     2019-03-19 [1] CRAN (R 3.5.2)
 ##  glue            1.3.1     2019-03-12 [1] CRAN (R 3.5.2)
 ##  gsubfn        * 0.7       2018-03-16 [1] CRAN (R 3.5.0)
 ##  hms             0.4.2     2018-03-10 [1] CRAN (R 3.5.0)
@@ -352,11 +520,11 @@ session_info.</code></pre></div>
 ##  RCurl           1.95-4.12 2019-03-04 [1] CRAN (R 3.5.2)
 ##  remotes         2.0.2     2018-10-30 [1] CRAN (R 3.5.0)
 ##  rlang           0.3.1     2019-01-08 [1] CRAN (R 3.5.2)
-##  rmarkdown       1.11      2018-12-08 [1] CRAN (R 3.5.1)
+##  rmarkdown       1.12      2019-03-14 [1] CRAN (R 3.5.2)
 ##  roxygen2        6.1.1     2018-11-07 [1] CRAN (R 3.5.0)
 ##  rprojroot       1.3-2     2018-01-03 [1] CRAN (R 3.5.0)
 ##  RSQLite         2.1.1     2018-05-06 [1] CRAN (R 3.5.0)
-##  rstudioapi      0.9.0     2019-01-09 [1] CRAN (R 3.5.2)
+##  rstudioapi      0.10      2019-03-19 [1] CRAN (R 3.5.2)
 ##  S4Vectors     * 0.20.1    2018-11-09 [1] Bioconductor  
 ##  sessioninfo     1.1.1     2018-11-05 [1] CRAN (R 3.5.0)
 ##  stringi         1.4.3     2019-03-12 [1] CRAN (R 3.5.2)
@@ -364,7 +532,7 @@ session_info.</code></pre></div>
 ##  testthat        2.0.1     2018-10-13 [1] CRAN (R 3.5.1)
 ##  usethis         1.4.0     2018-08-14 [1] CRAN (R 3.5.0)
 ##  withr           2.1.2     2018-03-15 [1] CRAN (R 3.5.0)
-##  xfun            0.5       2019-02-20 [1] CRAN (R 3.5.2)
+##  xfun            0.6       2019-04-02 [1] CRAN (R 3.5.1)
 ##  XML             3.98-1.19 2019-03-06 [1] CRAN (R 3.5.2)
 ##  xml2            1.2.0     2018-01-24 [1] CRAN (R 3.5.0)
 ##  XVector         0.22.0    2018-10-30 [1] Bioconductor  
@@ -389,7 +557,11 @@ session_info.</code></pre></div>
       <li><a href="#filter-human-human-data-by-detection-method-and-recount-interactors-and-interactions">filter human-human data by detection method and recount interactors and interactions</a></li>
       <li><a href="#filter-human-human-data-by-pmid-and-recount-interactors-and-interactions">filter human-human data by PMID and recount interactors and interactions</a></li>
       <li><a href="#find-interactions-between-components-of-the-mediator-complex-in-the-vidal-dataset">Find interactions between components of the mediator complex in the Vidal dataset</a></li>
-      <li><a href="#find-interactions-of-the-components-of-the-mediator-complex-with-other-proteins">Find interactions of the components of the mediator complex with other proteins</a></li>
+      <li>
+<a href="#find-interactions-of-the-components-of-the-mediator-complex-with-other-proteins">Find interactions of the components of the mediator complex with other proteins</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#advanced-search">2.3 Advanced search</a></li>
+      </ul>
+</li>
       <li><a href="#date-and-packages-used">Date and packages used</a></li>
       </ul>
 </div>

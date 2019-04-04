@@ -111,7 +111,7 @@ You can get help and more details on these functions (for example, how to find w
 # Find interactions between components of the mediator complex in the Vidal dataset
 
 ```{r}
-mediator_complex_proteins = fread("http://www.uniprot.org/uniprot/?query=GO:0016592%20AND%20taxonomy:9606&format=tab&columns=id")
+mediator_complex_proteins = fread("https://www.uniprot.org/uniprot/?query=GO:0016592%20AND%20taxonomy:9606&format=tab&columns=id")
 mediator_complex = subsetMITABbyID(Vidal_all,
                                    ID_seed = mediator_complex_proteins$Entry,
                                    within_seed = T, only_seed2nonseed = F)
@@ -127,6 +127,55 @@ mediator_complex_interactions = subsetMITABbyID(Vidal_all,
                                    within_seed = F, only_seed2nonseed = T)
 uniqueNinteractions(mediator_complex_interactions)
 uniqueNinteractors(mediator_complex_interactions)
+```
+
+## 2.3 Advanced search
+
+This can be useful in you need interactions for a small number of proteins or if you want to query non-IMEx databases. Note that queryPSICQUIC doesn't keep track of database version data, while queryPSICQUICrlib does.
+
+```{r}
+# Query for interactions of bacterial RNA polymerase sigma factor SigA identified using two-hybrid methods in all imex databases
+queryPSICQUIC(query = "id:P74565 AND detmethod:\"MI:0018\"",
+              format = "tab27",
+              database = "imex",
+              file = "./P74565_2H_interactions_imex_tab27.tsv")
+
+# Query for interactions of sigma factor SigA identified using two-hybrid methods in mentha (a database that aggregates data from all primary databases, but does no interaction predition)
+queryPSICQUIC(query = "id:P74565 AND detmethod:\"MI:0018\"",
+              format = "tab25",
+              database = "mentha",
+              file = "./P74565_2H_interactions_mentha_tab25.tsv")
+
+# Query for interactions of sigma factor SigA in mentha
+queryPSICQUIC(query = "id:P74565",
+              format = "tab25",
+              database = "mentha",
+              file = "./P74565_2H_interactions_mentha_tab25.tsv")
+
+# Retrieve interaction of any proteins encoded by Beta-adrenergic receptor kinase 1 gene (Entrez GeneID 156) from BioGRID (which recognises only this type of ID)
+queryPSICQUIC(query = "id:156",
+              format = "tab25",
+              database = "BioGrid",
+              file = "./entrezgene156_interactions_BioGrid_tab25.tsv")
+# The function return the report of how many interaction were found in each database, not the data itself. Reading data into R.
+fread("./entrezgene156_interactions_BioGrid_tab25.tsv", header = T, stringsAsFactors = F)[1:5]
+```
+
+All the same operations can be done using function queryPSICQUICrlib but with the convienience of automatic tracking of database release date and the exact query text. This function also return the data in object of class RAW_MItab that after cleaned make data ready for use with other tools in the package.
+
+```{r}
+BioGrid_156 = queryPSICQUICrlib(query = "id:156",
+                                format = "tab25",
+                                database = "BioGrid",
+                                directory = "./")
+# The same protein, but only two-hybrid interactions
+BioGrid_156_2H = queryPSICQUICrlib(query = "id:156 AND detmethod:\"MI:0018\"",
+                                   format = "tab25",
+                                   database = "BioGrid",
+                                   directory = "./")
+# The data returned by queryPSICQUICrlib constains auxillary information that is not necessary for most analysis. Let's clean the data.
+BioGrid_156 = cleanMITAB(BioGrid_156)
+BioGrid_156$data[1:5]
 ```
 
 # Date and packages used

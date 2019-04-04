@@ -93,13 +93,40 @@ BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocu
 <div id="basic-use" class="section level2">
 <h2 class="hasAnchor">
 <a href="#basic-use" class="anchor"></a>Basic use</h2>
-<p>Load all interactions between human proteins.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">human =<span class="st"> </span><span class="kw"><a href="reference/fullInteractome.html">fullInteractome</a></span>(<span class="dt">taxid =</span> <span class="dv">9606</span>, <span class="dt">database =</span> <span class="st">"IntActFTP"</span>,
-                        <span class="dt">format =</span> <span class="st">"tab27"</span>, <span class="dt">clean =</span> <span class="ot">TRUE</span>,
-                        <span class="dt">protein_only =</span> <span class="ot">TRUE</span>,
+<p>Load all interactions between human proteins in IntAct database.</p>
+<p>Follow this <a href="https://vitkl.github.io/MItools/articles/articles/Full_interactomes_interspecies.html">example</a> for more details.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># load package</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(MItools)
+
+<span class="co"># load all interactions from IntAct FTP storage (https://www.ebi.ac.uk/intact/downloads)</span>
+human =<span class="st"> </span><span class="kw"><a href="reference/fullInteractome.html">fullInteractome</a></span>(<span class="dt">taxid =</span> <span class="dv">9606</span>, <span class="dt">database =</span> <span class="st">"IntActFTP"</span>,
+                        <span class="dt">format =</span> <span class="st">"tab27"</span>,
+                        <span class="dt">clean =</span> <span class="ot">TRUE</span>, <span class="co"># parse into usable format (takes 5-10 minutes)</span>
+                        <span class="dt">protein_only =</span> <span class="ot">TRUE</span>, <span class="co"># filter protein interactions</span>
                         <span class="dt">directory =</span> <span class="ot">NULL</span>) <span class="co"># keep data files inside R library, </span>
                                           <span class="co"># or specify your directory </span></code></pre></div>
-<p>Follow this <a href="https://vitkl.github.io/MItools/articles/articles/Full_interactomes_interspecies.html">example</a> for more details.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># protein interactions lack directionality &amp; are detected in multiple studies</span>
+<span class="co"># so find the number of unique interactions</span>
+<span class="kw"><a href="reference/extractInteractors.html">uniqueNinteractions</a></span>(human)
+<span class="kw"><a href="reference/extractInteractors.html">uniqueNinteractors</a></span>(human)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># subset by a list of proteins</span>
+mediator_complex_proteins =<span class="st"> </span><span class="kw">fread</span>(<span class="st">"https://www.uniprot.org/uniprot/?query=GO:0016592%20AND%20taxonomy:9606&amp;format=tab&amp;columns=id"</span>)
+mediator_complex =<span class="st"> </span><span class="kw"><a href="reference/subsetMITABbyID.html">subsetMITABbyID</a></span>(human, <span class="dt">ID_seed =</span> mediator_complex_proteins<span class="op">$</span>Entry,
+                                   <span class="dt">within_seed =</span> T, <span class="dt">only_seed2nonseed =</span> F)
+<span class="kw"><a href="reference/extractInteractors.html">uniqueNinteractions</a></span>(mediator_complex)
+<span class="kw"><a href="reference/extractInteractors.html">uniqueNinteractors</a></span>(mediator_complex)</code></pre></div>
+<p>Load interactions for one protein identified with a specific method.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Query for interactions of bacterial RNA polymerase sigma factor SigA </span>
+<span class="co"># identified using two-hybrid methods inall imex databases </span>
+<span class="co"># (result identical to IntActFTP but only requested interactions are downloaded)</span>
+inter =<span class="st"> </span><span class="kw"><a href="reference/queryPSICQUICrlib.html">queryPSICQUICrlib</a></span>(<span class="dt">query =</span> <span class="st">"id:P74565 AND detmethod:</span><span class="ch">\"</span><span class="st">MI:0018</span><span class="ch">\"</span><span class="st">"</span>,
+                  <span class="dt">format =</span> <span class="st">"tab25"</span>,
+                  <span class="dt">database =</span> <span class="st">"imex"</span>,
+                  <span class="dt">directory =</span> <span class="st">"./data_files/"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The data returned by queryPSICQUICrlib constains auxillary information </span>
+<span class="co"># that is not necessary for most analysis. Let's clean the data.</span>
+inter =<span class="st"> </span><span class="kw"><a href="reference/cleanMITAB.html">cleanMITAB</a></span>(inter)
+inter<span class="op">$</span>data[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>]</code></pre></div>
 <p>Beware of <a href="https://vitkl.github.io/MItools/articles/articles/study_bias_doc.html">study bias</a> (ascertainment bias): in aggregated data better studied proteins have more interactions (not a problem for unbiased proteome-wide interaction screens).</p>
 </div>
 </div>
