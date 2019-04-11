@@ -12,7 +12,7 @@ subsetMITABbyMethod(MITABdata, Interaction_detection_methods = NULL,
   inverse_filter = F)
 }
 \arguments{
-\item{MITABdata}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[MItools]{MITABdata}})}
+\item{MITABdata}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[PItools]{MITABdata}})}
 
 \item{Interaction_detection_methods}{character or character vector, Molecular Interaction ontology code for Interaction detection method, such as "MI:0018", default option results in no filtering by Interaction detection method. Details \link{http://purl.obolibrary.org/obo/MI_0001}}
 
@@ -54,7 +54,7 @@ AP_MS = subsetMITABbyMethod(MITABdata = full,
 }
 }
 \seealso{
-\code{\link[MItools]{subsetMITABbyPMIDs}}), \code{\link[MItools]{subsetMITABbyID}})
+\code{\link[PItools]{subsetMITABbyPMIDs}}), \code{\link[PItools]{subsetMITABbyID}})
 }
 \author{
 Vitalii Kleshchevnikov

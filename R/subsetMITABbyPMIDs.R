@@ -2,12 +2,12 @@
 ##' @name subsetMITABbyPMIDs
 ##' @author Vitalii Kleshchevnikov
 ##' @description filter molecular interaction data by Pubmed ID of publications
-##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[MItools]{cleanMITAB}})
+##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[PItools]{cleanMITAB}})
 ##' @param PMIDs character or character vector, return only interactions reported by these Pubmed IDs
 ##' @param inverse_filter logical, inverse filtering criteria
 ##' @return return only interactions reported by \code{PMIDs}
 ##' @import data.table
-##' @seealso \code{\link[MItools]{subsetMITABbyMethod}}), \code{\link[MItools]{subsetMITABbyID}})
+##' @seealso \code{\link[PItools]{subsetMITABbyMethod}}), \code{\link[PItools]{subsetMITABbyID}})
 ##' @export subsetMITABbyPMIDs
 ##' @examples
 ##' {

@@ -13,7 +13,7 @@ uniqueNinteractions(cleanMITAB)
 uniqueNinteractors(cleanMITAB, taxid = NULL, inverse_filter = F)
 }
 \arguments{
-\item{cleanMITAB}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[MItools]{cleanMITAB}})}
+\item{cleanMITAB}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[PItools]{cleanMITAB}})}
 
 \item{taxid}{filter \code{cleanMITAB} using this list of taxonomy IDs}
 

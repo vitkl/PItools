@@ -35,7 +35,7 @@ interSpeciesInteractome = function(MITABdata = NULL, taxid1 = 9606, taxid2 = 102
                                    remove_obsolete_id = F){
   # if the interaction data for species taxid and from database is not saved in the library - queryPSICQUIC for interaction data for taxid interactions in the database and in MITAB2.5 format, save results to the library
   if(is.null(directory)){
-    pkg_dir = paste0(.libPaths(), "/MItools", "/data/")[1]
+    pkg_dir = paste0(.libPaths(), "/PItools", "/data/")[1]
     # create data directory in /default.library/queryPSICQUIC/ if it doesn't exist
     if(!dir.exists(pkg_dir)) dir.create(pkg_dir)
     # find out last release date if the database is IntActFTP and releaseORdate = NULL, generate dir_last_release

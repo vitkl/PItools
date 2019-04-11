@@ -9,16 +9,16 @@ loadHumanViralPPI(directory = "./data_files/",
   release = "2017Nov13")
 }
 \arguments{
-\item{directory}{to find / keep PPI data (arg for \code{\link[MItools]{fullInteractome}}, \code{\link[MItools]{interSpeciesInteractome}}))}
+\item{directory}{to find / keep PPI data (arg for \code{\link[PItools]{fullInteractome}}, \code{\link[PItools]{interSpeciesInteractome}}))}
 
-\item{loadIntActFTP_dir}{where to find specific release (arg for \code{\link[MItools]{loadIntActFTP}})}
+\item{loadIntActFTP_dir}{where to find specific release (arg for \code{\link[PItools]{loadIntActFTP}})}
 
 \item{release}{release date}
 }
 \description{
-use \code{\link[MItools]{interSpeciesInteractome}} and \code{\link[MItools]{fullInteractome}} to retrieve and load human-human, human-viral and viral-viral PPI data from IntActFTP
+use \code{\link[PItools]{interSpeciesInteractome}} and \code{\link[PItools]{fullInteractome}} to retrieve and load human-human, human-viral and viral-viral PPI data from IntActFTP
 
-to be used with \code{\link[MItools]{humanViralDegree}}
+to be used with \code{\link[PItools]{humanViralDegree}}
 }
 \author{
 Vitalii Kleshchevnikov

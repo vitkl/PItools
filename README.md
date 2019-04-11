@@ -1,4 +1,4 @@
-# R Package - MItools
+# R Package - PItools
 ## Molecular interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service
 
 Package contains high-level functions for retrieving molecular interaction data from most public databases using PSICQUIC service (http://www.ebi.ac.uk/Tools/webservices/psicquic/view/main.xhtml) and manipulating that data. Useful features include: retrieve full interactome of a given species, retrieve all interactions between two taxonomy groups (taxonomy structure-aware search), query molecular interaction databases using MIQL, subset interaction data by list of protein/gene identifiers, interaction detection method, publication (PMIDs).
@@ -7,20 +7,20 @@ Package contains high-level functions for retrieving molecular interaction data 
 ## Installation
 
 ```r
-# Install R MItools package
+# Install R PItools package
 install.packages("BiocManager") # for installing BioConductor dependencies
-BiocManager::install("vitkl/MItools", dependencies = T)
+BiocManager::install("vitkl/PItools", dependencies = T)
 ```
 
 ## Basic use
 
 Load all interactions between human proteins in IntAct database.
 
-Follow this [example](https://vitkl.github.io/MItools/articles/articles/Full_interactomes_interspecies.html) for more details.  
+Follow this [example](https://vitkl.github.io/PItools/articles/articles/Full_interactomes_interspecies.html) for more details.  
 
 ```r
 # load package
-library(MItools)
+library(PItools)
 
 # load all interactions from IntAct FTP storage (https://www.ebi.ac.uk/intact/downloads)
 human = fullInteractome(taxid = 9606, database = "IntActFTP",
@@ -63,4 +63,4 @@ inter = cleanMITAB(inter)
 inter$data[1:5]
 ```
 
-Beware of [study bias](https://vitkl.github.io/MItools/articles/articles/study_bias_doc.html) (ascertainment bias): in aggregated data better studied proteins have more interactions (not a problem for unbiased proteome-wide interaction screens).  
+Beware of [study bias](https://vitkl.github.io/PItools/articles/articles/study_bias_doc.html) (ascertainment bias): in aggregated data better studied proteins have more interactions (not a problem for unbiased proteome-wide interaction screens).  

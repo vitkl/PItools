@@ -7,7 +7,7 @@
 subsetMITABbyPMIDs(MITABdata, PMIDs = NULL, inverse_filter = F)
 }
 \arguments{
-\item{MITABdata}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[MItools]{cleanMITAB}})}
+\item{MITABdata}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[PItools]{cleanMITAB}})}
 
 \item{PMIDs}{character or character vector, return only interactions reported by these Pubmed IDs}
 
@@ -39,7 +39,7 @@ Mann = subsetMITABbyPMIDs(MITABdata = full,
 }
 }
 \seealso{
-\code{\link[MItools]{subsetMITABbyMethod}}), \code{\link[MItools]{subsetMITABbyID}})
+\code{\link[PItools]{subsetMITABbyMethod}}), \code{\link[PItools]{subsetMITABbyID}})
 }
 \author{
 Vitalii Kleshchevnikov

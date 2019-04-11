@@ -11,18 +11,18 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-This article shows how to install MItools package and download protein interaction data for one species (for example, human), 2 species/taxomony groups (for example, human and viruses) and how to filter this data by interaction detection method, publication ID (PMID) or list of protein IDs (UniprotKB).  
+This article shows how to install PItools package and download protein interaction data for one species (for example, human), 2 species/taxomony groups (for example, human and viruses) and how to filter this data by interaction detection method, publication ID (PMID) or list of protein IDs (UniprotKB).  
 
-## Install MItools
+## Install PItools
 
 ```{r}
-if(!"MItools" %in% installed.packages()){
-  # Install R MItools package
+if(!"PItools" %in% installed.packages()){
+  # Install R PItools package
   install.packages("BiocManager") # for installing BioConductor dependencies
-  BiocManager::install("vitkl/MItools", dependencies = T)
+  BiocManager::install("vitkl/PItools", dependencies = T)
 }
 suppressPackageStartupMessages({
-  library(MItools)
+  library(PItools)
 })
 ```
 

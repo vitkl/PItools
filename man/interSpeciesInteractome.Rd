@@ -24,7 +24,7 @@ interSpeciesInteractome(MITABdata = NULL, taxid1 = 9606,
 
 \item{protein_only}{logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE}
 
-\item{directory}{directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data}
+\item{directory}{directory where to store the data, if NULL the data is stored in <R-package-library>/PItools/data}
 
 \item{releaseORdate}{character, if data has already been downloaded: which IntAct release or download date to read}
 

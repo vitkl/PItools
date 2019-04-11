@@ -13,7 +13,7 @@
 ##' @param format character (1L), argument for \code{\link{queryPSICQUIC}}, default is "tab25"
 ##' @param clean logical (1L), if TRUE extract specific information using \code{\link{cleanMITAB}}, default is TRUE
 ##' @param protein_only logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE
-##' @param directory directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data
+##' @param directory directory where to store the data, if NULL the data is stored in <R-package-library>/PItools/data
 ##' @param releaseORdate character, if data has already been downloaded: which IntAct release or download date to read
 ##' @param remove_obsolete_id logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID), not implemented properly: will never finish.
 ##' @param within_species logical (1L), return interactions only between proteins of \code{taxid}. If FALSE returns interactions for \code{taxid} proteins both within \code{taxid} and with proteins from other species
@@ -42,7 +42,7 @@ fullInteractome = function(MITABdata = NULL, taxid = 9606, database = "imex", fo
   # if the interaction data for species taxid and from database is not saved in the library - queryPSICQUIC for interaction data for taxid interactions in the database and in MITAB2.5 format, save results to the library
   if(database == "IntActFTP"){
     if(is.null(directory)){
-      pkg_dir = paste0(.libPaths(), "/MItools", "/data/")[1]
+      pkg_dir = paste0(.libPaths(), "/PItools", "/data/")[1]
       # create /data/ directory in /default.library/queryPSICQUIC/ if it doesn't exist
       if(!dir.exists(pkg_dir)) dir.create(pkg_dir)
       # find out last release date if the database is IntActFTP and releaseORdate = NULL, generate dir_last_release

@@ -85,7 +85,7 @@ loadAllIDProteins = function(dir){
 ##' @name removeInteractionObsoleteID
 ##' @author Vitalii Kleshchevnikov
 ##' @description filter molecular interaction data by Pubmed ID of publications
-##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[MItools]{cleanMITAB}})
+##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[PItools]{cleanMITAB}})
 ##' @param dir directory where to save/look for the local copy
 ##' @import data.table
 ##' @export removeInteractionObsoleteID
@@ -110,7 +110,7 @@ removeInteractionObsoleteID = function(MITABdata, dir = "./"){
 ##' @name removeInteractionNoFASTA
 ##' @author Vitalii Kleshchevnikov
 ##' @description filter molecular interaction data by the list of FASTA sequences in AAStringSet
-##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[MItools]{cleanMITAB}})
+##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[PItools]{cleanMITAB}})
 ##' @param fasta AAStringSet, names are UniProtKB accessions
 ##' @import data.table
 ##' @import Biostrings

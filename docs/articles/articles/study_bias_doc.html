@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Study bias in the protein network • MItools</title>
+<title>Study bias in the protein network • PItools</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
@@ -29,8 +29,8 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../../index.html">MItools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.40</span>
+        <a class="navbar-link" href="../../index.html">PItools</a>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.41</span>
       </span>
     </div>
 
@@ -56,7 +56,7 @@
       <a href="../../articles/articles/Full_interactomes_interspecies.html">Getting started: full interactomes and interspecies interactions</a>
     </li>
     <li>
-      <a href="../../articles/articles/MItools_vs_igraph.html">MItools vs igraph: calculating degree of a protein</a>
+      <a href="../../articles/articles/PItools_vs_igraph.html">PItools vs igraph: calculating degree of a protein</a>
     </li>
     <li>
       <a href="../../articles/articles/study_bias_doc.html">Study bias in the protein network</a>
@@ -115,8 +115,8 @@
 <div id="getting-ppi-data-into-r-from-intact-using-psicquic" class="section level1">
 <h1 class="hasAnchor">
 <a href="#getting-ppi-data-into-r-from-intact-using-psicquic" class="anchor"></a>2. Getting PPI data into R (from IntAct, using PSICQUIC)</h1>
-<p>You can download protein-protein interaction data directly from IntAct or using PSICQUIC and PSICQUIC client implemented in PSICQUIC R package. Both ways are implemented in MItools package. Downloading data from IntAct gets you all data from all IMEx consortium databases. PSICQUIC route allows to query non-IMEx databases and construct complex search queries.<br>
-As implemented in MItools, PSICQUIC route is slow to download (limit of 2500 interactions per second to lower the load on servers). IntAct route is faster but requires a large download (3GB, all data) and memory intensive processing locally.</p>
+<p>You can download protein-protein interaction data directly from IntAct or using PSICQUIC and PSICQUIC client implemented in PSICQUIC R package. Both ways are implemented in PItools package. Downloading data from IntAct gets you all data from all IMEx consortium databases. PSICQUIC route allows to query non-IMEx databases and construct complex search queries.<br>
+As implemented in PItools, PSICQUIC route is slow to download (limit of 2500 interactions per second to lower the load on servers). IntAct route is faster but requires memory intensive processing locally (3 GB table).</p>
 <p>First, let’s focus on the IntAct route. Later we will download molecular interactions from a large non-IMEx database called BioGRID.</p>
 <div id="getting-ppi-data-into-r-from-intact" class="section level2">
 <h2 class="hasAnchor">
@@ -130,7 +130,7 @@ human =<span class="st"> </span><span class="kw"><a href="../../reference/fullIn
                         <span class="dt">clean =</span> <span class="ot">TRUE</span>,
                         <span class="dt">protein_only =</span> <span class="ot">TRUE</span>,
                         <span class="dt">directory =</span> <span class="st">"./data_files/"</span>, <span class="co"># NULL to keep data files inside R library - default</span>
-                        <span class="dt">releaseORdate =</span> <span class="ot">NULL</span>) <span class="co"># useful to keep track of the release date e.g. 2018Aug7, but for the first download set to NULL </span></code></pre></div>
+                        <span class="dt">releaseORdate =</span> <span class="ot">NULL</span>) <span class="co"># useful to keep track of the release date e.g. 2019Mar23, but for the first download set to NULL </span></code></pre></div>
 <pre><code>## ... looking for the date of the latest IntAct release ...
 ## ... looking for the date of the latest IntAct release ...</code></pre>
 <pre><code>## ... loading local copy ...</code></pre>
@@ -152,7 +152,7 @@ human =<span class="st"> </span><span class="kw"><a href="../../reference/fullIn
 <a href="#load-all-human-viral-interactions-from-intact-biogrid-virhostnet" class="anchor"></a>Load all human-viral interactions from IntAct, BioGRID, VirHostNet</h3>
 <p>10239 is the top viral clade identifier.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># read all IntAct data (filter later)</span>
-IntAct =<span class="st"> </span><span class="kw"><a href="../../reference/loadIntActFTP.html">loadIntActFTP</a></span>(<span class="dt">dir =</span> <span class="st">"./data_files/IntActRelease_2018Aug7/"</span>)</code></pre></div>
+IntAct =<span class="st"> </span><span class="kw"><a href="../../reference/loadIntActFTP.html">loadIntActFTP</a></span>(<span class="dt">dir =</span> <span class="st">"./data_files/IntActRelease_2019Mar23/"</span>)</code></pre></div>
 <pre><code>## ... looking for the date of the latest IntAct release ...</code></pre>
 <pre><code>## ... loading local copy ...</code></pre>
 <pre><code>## Warning in fread(file_name, header = T, stringsAsFactors = F): Found
@@ -173,44 +173,26 @@ human_viral =<span class="st"> </span><span class="kw"><a href="../../reference/
                                       <span class="dt">database =</span> <span class="st">"IntActFTP"</span>,
                                       <span class="dt">clean =</span> <span class="ot">TRUE</span>, <span class="dt">protein_only =</span> <span class="ot">TRUE</span>, 
                                       <span class="dt">directory =</span> <span class="st">"./data_files/"</span>,
-                        <span class="dt">releaseORdate =</span> <span class="st">"2018Aug7"</span>)</code></pre></div>
+                        <span class="dt">releaseORdate =</span> <span class="st">"2019Mar23"</span>)</code></pre></div>
 <pre><code>## Warning in fread(filename): Found and resolved improper quoting out-of-
-## sample. First healed line 13569: &lt;&lt;1857845 Spo1virus "SPO1-like viruses";
-## SP01-like viruses; SPO1-like viruses; Spounalikevirus Genus Viruses; dsDNA
-## viruses, no RNA stage; Caudovirales; Myoviridae; Spounavirinae 857473 &gt;&gt;.
-## If the fields are not quoted (e.g. field separator does not appear within
-## any field), try quote="" to avoid this warning.</code></pre>
+## sample. First healed line 5839: &lt;&lt;542959 Bpp1virus "BPP-1-like viruses";
+## BPP-1-like phages; Bpp-1-like viruses; Bppunalikevirus Genus Viruses; dsDNA
+## viruses, no RNA stage; Caudovirales; Podoviridae 10744 &gt;&gt;. If the fields
+## are not quoted (e.g. field separator does not appear within any field), try
+## quote="" to avoid this warning.</code></pre>
 <pre><code>## Warning in fread(filename): Found and resolved improper quoting out-of-
-## sample. First healed line 13569: &lt;&lt;1857845 Spo1virus "SPO1-like viruses";
-## SP01-like viruses; SPO1-like viruses; Spounalikevirus Genus Viruses; dsDNA
-## viruses, no RNA stage; Caudovirales; Myoviridae; Spounavirinae 857473 &gt;&gt;.
-## If the fields are not quoted (e.g. field separator does not appear within
-## any field), try quote="" to avoid this warning.</code></pre>
+## sample. First healed line 5839: &lt;&lt;542959 Bpp1virus "BPP-1-like viruses";
+## BPP-1-like phages; Bpp-1-like viruses; Bppunalikevirus Genus Viruses; dsDNA
+## viruses, no RNA stage; Caudovirales; Podoviridae 10744 &gt;&gt;. If the fields
+## are not quoted (e.g. field separator does not appear within any field), try
+## quote="" to avoid this warning.</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../../reference/extractInteractors.html">uniqueNinteractions</a></span>(human_viral)</code></pre></div>
 <pre><code>## [1] 15003</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../../reference/extractInteractors.html">uniqueNinteractors</a></span>(human_viral, <span class="dt">taxid =</span> <span class="dv">9606</span>)</code></pre></div>
 <pre><code>## [1] 4644</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../../reference/extractInteractors.html">uniqueNinteractors</a></span>(human_viral, <span class="dt">taxid =</span> <span class="dv">9606</span>, <span class="dt">inverse_filter =</span> T)</code></pre></div>
 <pre><code>## [1] 894</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># read all BioGRID data</span>
-<span class="co">#download.file("https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-3.5.166/BIOGRID-ALL-3.5.166.mitab.zip",</span>
-<span class="co">#              "./data_files/BIOGRID-ALL-3.5.166.mitab.zip")</span>
-<span class="co">#unzip("./data_files/BIOGRID-ALL-3.5.166.mitab.zip")</span>
-<span class="co">#biogrid = fread("./data_files/BIOGRID-ALL-3.5.166.mitab.txt")</span>
-<span class="co">#setnames(biogrid, colnames(biogrid),</span>
-<span class="co">#         colnames(IntAct$data)[1:15])</span>
-<span class="co">#biogrid = list(data = biogrid, metadata = "full_biogrid_18_nov_2018")</span>
-<span class="co">#class(biogrid) = "RAW_MItab25"</span>
-<span class="co">#biogrid_vir = interSpeciesInteractome(taxid1 = 9606,  taxid2 = 10239, </span>
-<span class="co">#                                      MITABdata = biogrid,</span>
-<span class="co">#                                      clean = TRUE, protein_only = FALSE, </span>
-<span class="co">#                                      directory = "./data_files/")</span>
-
-<span class="co">#uniqueNinteractions(biogrid_vir)</span>
-<span class="co">#uniqueNinteractors(biogrid_vir, taxid = 9606)</span>
-<span class="co">#uniqueNinteractors(biogrid_vir, taxid = 9606, inverse_filter = T)</span>
-
-<span class="co"># retrieve all VirHostNet data </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># retrieve all VirHostNet data </span>
 <span class="co"># which does not understand taxonomy hierarhy so interSpeciesInteractome() will not work</span>
 VirHostNet_raw =<span class="st"> </span><span class="kw"><a href="../../reference/queryPSICQUICrlib.html">queryPSICQUICrlib</a></span>(<span class="dt">query =</span> <span class="st">"taxid:9606"</span>,
                                    <span class="dt">format =</span> <span class="st">"tab27"</span>, <span class="dt">database =</span> <span class="st">"VirHostNet"</span>,
@@ -223,18 +205,18 @@ VirHostNet_raw =<span class="st"> </span><span class="kw"><a href="../../referen
                                      <span class="dt">directory =</span> <span class="st">"./data_files/"</span>)</code></pre></div>
 <pre><code>## ... looking for the date of the latest IntAct release ...</code></pre>
 <pre><code>## Warning in fread(filename): Found and resolved improper quoting out-of-
-## sample. First healed line 13569: &lt;&lt;1857845 Spo1virus "SPO1-like viruses";
-## SP01-like viruses; SPO1-like viruses; Spounalikevirus Genus Viruses; dsDNA
-## viruses, no RNA stage; Caudovirales; Myoviridae; Spounavirinae 857473 &gt;&gt;.
-## If the fields are not quoted (e.g. field separator does not appear within
-## any field), try quote="" to avoid this warning.
+## sample. First healed line 5839: &lt;&lt;542959 Bpp1virus "BPP-1-like viruses";
+## BPP-1-like phages; Bpp-1-like viruses; Bppunalikevirus Genus Viruses; dsDNA
+## viruses, no RNA stage; Caudovirales; Podoviridae 10744 &gt;&gt;. If the fields
+## are not quoted (e.g. field separator does not appear within any field), try
+## quote="" to avoid this warning.
 
 ## Warning in fread(filename): Found and resolved improper quoting out-of-
-## sample. First healed line 13569: &lt;&lt;1857845 Spo1virus "SPO1-like viruses";
-## SP01-like viruses; SPO1-like viruses; Spounalikevirus Genus Viruses; dsDNA
-## viruses, no RNA stage; Caudovirales; Myoviridae; Spounavirinae 857473 &gt;&gt;.
-## If the fields are not quoted (e.g. field separator does not appear within
-## any field), try quote="" to avoid this warning.</code></pre>
+## sample. First healed line 5839: &lt;&lt;542959 Bpp1virus "BPP-1-like viruses";
+## BPP-1-like phages; Bpp-1-like viruses; Bppunalikevirus Genus Viruses; dsDNA
+## viruses, no RNA stage; Caudovirales; Podoviridae 10744 &gt;&gt;. If the fields
+## are not quoted (e.g. field separator does not appear within any field), try
+## quote="" to avoid this warning.</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># filter out human-human and viral-viral interactions </span>
 VirHostNet<span class="op">$</span>data =<span class="st"> </span>VirHostNet<span class="op">$</span>data[<span class="op">!</span>Taxid_interactor_A <span class="op">==</span><span class="st"> </span>Taxid_interactor_B]
 <span class="kw"><a href="../../reference/extractInteractors.html">uniqueNinteractions</a></span>(VirHostNet)</code></pre></div>
@@ -260,7 +242,7 @@ human_mouse =<span class="st"> </span><span class="kw"><a href="../../reference/
                                       <span class="dt">database =</span> <span class="st">"IntActFTP"</span>, <span class="dt">MITABdata =</span> IntAct,
                                       <span class="dt">clean =</span> <span class="ot">TRUE</span>, <span class="dt">protein_only =</span> <span class="ot">TRUE</span>,
                                       <span class="dt">directory =</span> <span class="st">"./data_files/"</span>,
-                        <span class="dt">releaseORdate =</span> <span class="st">"2018Aug7"</span>)
+                        <span class="dt">releaseORdate =</span> <span class="st">"2019Mar23"</span>)
 <span class="co"># save RData file to save time processing this data if you want to proceed to later sections immediately</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rm">rm</a></span>(IntAct)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/save">save</a></span>(<span class="dt">list =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ls">ls</a></span>(), <span class="dt">file =</span> <span class="st">"./RData_steps/study_bias_doc_1.RData"</span>)</code></pre></div>
@@ -740,7 +722,7 @@ BioGrid_156_2H =<span class="st"> </span><span class="kw"><a href="../../referen
 ## 
 ## $metadata
 ##     query                                                            file
-## 1: id:156 ./data_files/DownloadDate_20190401/query_id.156tab25BioGrid.tsv
+## 1: id:156 ./data_files/DownloadDate_20190411/query_id.156tab25BioGrid.tsv
 ##    format all.databases n.interactions.in.database database.not.active
 ## 1:  tab25       BioGrid                         82                    
 ##    date_time
@@ -954,7 +936,7 @@ N_interaction =<span class="st"> </span><span class="kw"><a href="https://www.rd
 <h1 class="hasAnchor">
 <a href="#r-and-system-details" class="anchor"></a>R and system details</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.time">Sys.Date</a></span>()</code></pre></div>
-<pre><code>## [1] "2019-04-01"</code></pre>
+<pre><code>## [1] "2019-04-11"</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">session_info</a></span>()</code></pre></div>
 <pre><code>## ─ Session info ──────────────────────────────────────────────────────────
 ##  setting  value                       
@@ -966,7 +948,7 @@ N_interaction =<span class="st"> </span><span class="kw"><a href="https://www.rd
 ##  collate  en_GB.UTF-8                 
 ##  ctype    en_GB.UTF-8                 
 ##  tz       Europe/London               
-##  date     2019-04-01                  
+##  date     2019-04-11                  
 ## 
 ## ─ Packages ──────────────────────────────────────────────────────────────
 ##  package       * version   date       lib source        
@@ -995,26 +977,26 @@ N_interaction =<span class="st"> </span><span class="kw"><a href="https://www.rd
 ##  downloader    * 0.4       2015-07-09 [1] CRAN (R 3.5.0)
 ##  dplyr           0.8.0.1   2019-02-15 [1] CRAN (R 3.5.2)
 ##  evaluate        0.13      2019-02-12 [1] CRAN (R 3.5.2)
-##  fs              1.2.6     2018-08-23 [1] CRAN (R 3.5.0)
-##  ggplot2       * 3.1.0     2018-10-25 [1] CRAN (R 3.5.1)
+##  fs              1.2.7     2019-03-19 [1] CRAN (R 3.5.2)
+##  ggplot2       * 3.1.1     2019-04-07 [1] CRAN (R 3.5.1)
 ##  glue            1.3.1     2019-03-12 [1] CRAN (R 3.5.2)
-##  gsubfn          0.7       2018-03-16 [1] CRAN (R 3.5.0)
+##  gsubfn        * 0.7       2018-03-16 [1] CRAN (R 3.5.0)
 ##  gtable          0.3.0     2019-03-25 [1] CRAN (R 3.5.1)
 ##  hms             0.4.2     2018-03-10 [1] CRAN (R 3.5.0)
 ##  htmltools       0.3.6     2017-04-28 [1] CRAN (R 3.5.0)
 ##  httr          * 1.4.0     2018-12-11 [1] CRAN (R 3.5.0)
 ##  IRanges       * 2.16.0    2018-10-30 [1] Bioconductor  
-##  jsonlite        1.6       2018-12-07 [1] CRAN (R 3.5.0)
+##  jsonlite      * 1.6       2018-12-07 [1] CRAN (R 3.5.0)
 ##  knitr           1.22      2019-03-08 [1] CRAN (R 3.5.1)
 ##  labeling        0.3       2014-08-23 [1] CRAN (R 3.5.0)
 ##  lazyeval        0.2.2     2019-03-15 [1] CRAN (R 3.5.2)
 ##  magrittr        1.5       2014-11-22 [1] CRAN (R 3.5.0)
 ##  MASS            7.3-50    2018-04-30 [2] CRAN (R 3.5.1)
 ##  memoise         1.1.0     2017-04-21 [1] CRAN (R 3.5.0)
-##  MItools       * 0.1.40    2018-11-20 [1] local         
 ##  munsell         0.5.0     2018-06-12 [1] CRAN (R 3.5.0)
-##  ontologyIndex   2.5       2019-01-08 [1] CRAN (R 3.5.2)
+##  ontologyIndex * 2.5       2019-01-08 [1] CRAN (R 3.5.2)
 ##  pillar          1.3.1     2018-12-15 [1] CRAN (R 3.5.0)
+##  PItools       * 0.1.41    2019-04-11 [1] local         
 ##  pkgbuild        1.0.3     2019-03-20 [1] CRAN (R 3.5.1)
 ##  pkgconfig       2.0.2     2018-08-16 [1] CRAN (R 3.5.0)
 ##  pkgdown         1.3.0     2018-12-07 [1] CRAN (R 3.5.0)
@@ -1023,25 +1005,23 @@ N_interaction =<span class="st"> </span><span class="kw"><a href="https://www.rd
 ##  prettyunits     1.0.2     2015-07-13 [1] CRAN (R 3.5.0)
 ##  processx        3.3.0     2019-03-10 [1] CRAN (R 3.5.2)
 ##  progress        1.2.0     2018-06-14 [1] CRAN (R 3.5.0)
-##  proto           1.0.0     2016-10-29 [1] CRAN (R 3.5.0)
+##  proto         * 1.0.0     2016-10-29 [1] CRAN (R 3.5.0)
 ##  ps              1.3.0     2018-12-21 [1] CRAN (R 3.5.0)
 ##  PSICQUIC      * 1.20.0    2018-10-30 [1] Bioconductor  
 ##  purrr           0.3.2     2019-03-15 [1] CRAN (R 3.5.2)
-##  qvalue          2.14.1    2019-01-10 [1] Bioconductor  
-##  R.methodsS3     1.7.1     2016-02-16 [1] CRAN (R 3.5.0)
-##  R.oo            1.22.0    2018-04-22 [1] CRAN (R 3.5.0)
-##  R.utils         2.8.0     2019-02-14 [1] CRAN (R 3.5.2)
+##  R.methodsS3   * 1.7.1     2016-02-16 [1] CRAN (R 3.5.0)
+##  R.oo          * 1.22.0    2018-04-22 [1] CRAN (R 3.5.0)
+##  R.utils       * 2.8.0     2019-02-14 [1] CRAN (R 3.5.2)
 ##  R6              2.4.0     2019-02-14 [1] CRAN (R 3.5.2)
 ##  Rcpp            1.0.1     2019-03-17 [1] CRAN (R 3.5.2)
 ##  RCurl           1.95-4.12 2019-03-04 [1] CRAN (R 3.5.2)
 ##  remotes         2.0.2     2018-10-30 [1] CRAN (R 3.5.0)
-##  reshape2        1.4.3     2017-12-11 [1] CRAN (R 3.5.0)
 ##  rlang           0.3.1     2019-01-08 [1] CRAN (R 3.5.2)
-##  rmarkdown       1.11      2018-12-08 [1] CRAN (R 3.5.1)
+##  rmarkdown       1.12      2019-03-14 [1] CRAN (R 3.5.2)
 ##  roxygen2        6.1.1     2018-11-07 [1] CRAN (R 3.5.0)
 ##  rprojroot       1.3-2     2018-01-03 [1] CRAN (R 3.5.0)
 ##  RSQLite         2.1.1     2018-05-06 [1] CRAN (R 3.5.0)
-##  rstudioapi      0.9.0     2019-01-09 [1] CRAN (R 3.5.2)
+##  rstudioapi      0.10      2019-03-19 [1] CRAN (R 3.5.2)
 ##  S4Vectors     * 0.20.1    2018-11-09 [1] Bioconductor  
 ##  scales          1.0.0     2018-08-09 [1] CRAN (R 3.5.0)
 ##  sessioninfo     1.1.1     2018-11-05 [1] CRAN (R 3.5.0)
@@ -1050,9 +1030,9 @@ N_interaction =<span class="st"> </span><span class="kw"><a href="https://www.rd
 ##  testthat        2.0.1     2018-10-13 [1] CRAN (R 3.5.1)
 ##  tibble          2.1.1     2019-03-16 [1] CRAN (R 3.5.2)
 ##  tidyselect      0.2.5     2018-10-11 [1] CRAN (R 3.5.0)
-##  usethis         1.4.0     2018-08-14 [1] CRAN (R 3.5.0)
+##  usethis         1.5.0     2019-04-07 [1] CRAN (R 3.5.1)
 ##  withr           2.1.2     2018-03-15 [1] CRAN (R 3.5.0)
-##  xfun            0.5       2019-02-20 [1] CRAN (R 3.5.2)
+##  xfun            0.6       2019-04-02 [1] CRAN (R 3.5.1)
 ##  XML             3.98-1.19 2019-03-06 [1] CRAN (R 3.5.2)
 ##  xml2            1.2.0     2018-01-24 [1] CRAN (R 3.5.0)
 ##  XVector         0.22.0    2018-10-30 [1] Bioconductor  

@@ -3,7 +3,7 @@
 ##' @name extractInteractors
 ##' @author Vitalii Kleshchevnikov
 ##' @description subset molecular interaction data (cleaned MITAB format in a data.table object) with a list of interactors
-##' @param cleanMITAB object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[MItools]{cleanMITAB}})
+##' @param cleanMITAB object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[PItools]{cleanMITAB}})
 ##' @param taxid filter \code{cleanMITAB} using this list of taxonomy IDs
 ##' @param inverse_filter logical, inverse filtering criteria
 ##' @return character vector of interactor IDs or an integer count of interactions or interactors

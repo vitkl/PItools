@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Getting started: full interactomes and interspecies interactions • MItools</title>
+<title>Getting started: full interactomes and interspecies interactions • PItools</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../../pkgdown.css" rel="stylesheet">
@@ -29,7 +29,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../../index.html">MItools</a>
+        <a class="navbar-link" href="../../index.html">PItools</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.41</span>
       </span>
     </div>
@@ -56,7 +56,7 @@
       <a href="../../articles/articles/Full_interactomes_interspecies.html">Getting started: full interactomes and interspecies interactions</a>
     </li>
     <li>
-      <a href="../../articles/articles/MItools_vs_igraph.html">MItools vs igraph: calculating degree of a protein</a>
+      <a href="../../articles/articles/PItools_vs_igraph.html">PItools vs igraph: calculating degree of a protein</a>
     </li>
     <li>
       <a href="../../articles/articles/study_bias_doc.html">Study bias in the protein network</a>
@@ -88,17 +88,17 @@
 
     
     
-<p>This article shows how to install MItools package and download protein interaction data for one species (for example, human), 2 species/taxomony groups (for example, human and viruses) and how to filter this data by interaction detection method, publication ID (PMID) or list of protein IDs (UniprotKB).</p>
-<div id="install-mitools" class="section level2">
+<p>This article shows how to install PItools package and download protein interaction data for one species (for example, human), 2 species/taxomony groups (for example, human and viruses) and how to filter this data by interaction detection method, publication ID (PMID) or list of protein IDs (UniprotKB).</p>
+<div id="install-pitools" class="section level2">
 <h2 class="hasAnchor">
-<a href="#install-mitools" class="anchor"></a>Install MItools</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span>(<span class="op">!</span><span class="st">"MItools"</span> <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/installed.packages">installed.packages</a></span>()){
-  <span class="co"># Install R MItools package</span>
+<a href="#install-pitools" class="anchor"></a>Install PItools</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span>(<span class="op">!</span><span class="st">"PItools"</span> <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/installed.packages">installed.packages</a></span>()){
+  <span class="co"># Install R PItools package</span>
   <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"BiocManager"</span>) <span class="co"># for installing BioConductor dependencies</span>
-  BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">install</a></span>(<span class="st">"vitkl/MItools"</span>, <span class="dt">dependencies =</span> T)
+  BiocManager<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/BiocManager/topics/install">install</a></span>(<span class="st">"vitkl/PItools"</span>, <span class="dt">dependencies =</span> T)
 }
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/message">suppressPackageStartupMessages</a></span>({
-  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(MItools)
+  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(PItools)
 })</code></pre></div>
 <pre><code>## Warning: replacing previous import 'IRanges::desc' by 'plyr::desc' when
 ## loading 'PSICQUIC'</code></pre>
@@ -153,18 +153,18 @@
 ## separator does not appear within any field), try quote="" to avoid this
 ## warning.</code></pre>
 <pre><code>## Warning in fread(filename): Found and resolved improper quoting out-of-
-## sample. First healed line 13569: &lt;&lt;1857845 Spo1virus "SPO1-like viruses";
-## SP01-like viruses; SPO1-like viruses; Spounalikevirus Genus Viruses; dsDNA
-## viruses, no RNA stage; Caudovirales; Myoviridae; Spounavirinae 857473 &gt;&gt;.
-## If the fields are not quoted (e.g. field separator does not appear within
-## any field), try quote="" to avoid this warning.
+## sample. First healed line 5839: &lt;&lt;542959 Bpp1virus "BPP-1-like viruses";
+## BPP-1-like phages; Bpp-1-like viruses; Bppunalikevirus Genus Viruses; dsDNA
+## viruses, no RNA stage; Caudovirales; Podoviridae 10744 &gt;&gt;. If the fields
+## are not quoted (e.g. field separator does not appear within any field), try
+## quote="" to avoid this warning.
 
 ## Warning in fread(filename): Found and resolved improper quoting out-of-
-## sample. First healed line 13569: &lt;&lt;1857845 Spo1virus "SPO1-like viruses";
-## SP01-like viruses; SPO1-like viruses; Spounalikevirus Genus Viruses; dsDNA
-## viruses, no RNA stage; Caudovirales; Myoviridae; Spounavirinae 857473 &gt;&gt;.
-## If the fields are not quoted (e.g. field separator does not appear within
-## any field), try quote="" to avoid this warning.</code></pre>
+## sample. First healed line 5839: &lt;&lt;542959 Bpp1virus "BPP-1-like viruses";
+## BPP-1-like phages; Bpp-1-like viruses; Bppunalikevirus Genus Viruses; dsDNA
+## viruses, no RNA stage; Caudovirales; Podoviridae 10744 &gt;&gt;. If the fields
+## are not quoted (e.g. field separator does not appear within any field), try
+## quote="" to avoid this warning.</code></pre>
 </div>
 <div id="load-all-human-mouse-interactions" class="section level2">
 <h2 class="hasAnchor">
@@ -210,7 +210,7 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># subset two-hybrid interactions</span>
 human_two_hybrid =<span class="st"> </span><span class="kw"><a href="../../reference/subsetMITABbyMethod.html">subsetMITABbyMethod</a></span>(<span class="dt">MITABdata =</span> human,
                <span class="dt">Interaction_detection_methods =</span> <span class="st">"MI:0018"</span>)</code></pre></div>
-<pre><code>## loading local copy of MI ontology</code></pre>
+<pre><code>## downloading MI ontology from http://purl.obolibrary.org/obo/mi.obo</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../../reference/extractInteractors.html">uniqueNinteractions</a></span>(human_two_hybrid)</code></pre></div>
 <pre><code>## [1] 83919</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../../reference/extractInteractors.html">uniqueNinteractors</a></span>(human_two_hybrid)</code></pre></div>
@@ -254,7 +254,7 @@ Mann =<span class="st"> </span><span class="kw"><a href="../../reference/subsetM
 <div id="find-interactions-between-components-of-the-mediator-complex-in-the-vidal-dataset" class="section level1">
 <h1 class="hasAnchor">
 <a href="#find-interactions-between-components-of-the-mediator-complex-in-the-vidal-dataset" class="anchor"></a>Find interactions between components of the mediator complex in the Vidal dataset</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mediator_complex_proteins =<span class="st"> </span><span class="kw">fread</span>(<span class="st">"http://www.uniprot.org/uniprot/?query=GO:0016592%20AND%20taxonomy:9606&amp;format=tab&amp;columns=id"</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mediator_complex_proteins =<span class="st"> </span><span class="kw">fread</span>(<span class="st">"https://www.uniprot.org/uniprot/?query=GO:0016592%20AND%20taxonomy:9606&amp;format=tab&amp;columns=id"</span>)
 mediator_complex =<span class="st"> </span><span class="kw"><a href="../../reference/subsetMITABbyID.html">subsetMITABbyID</a></span>(Vidal_all,
                                    <span class="dt">ID_seed =</span> mediator_complex_proteins<span class="op">$</span>Entry,
                                    <span class="dt">within_seed =</span> T, <span class="dt">only_seed2nonseed =</span> F)
@@ -412,13 +412,13 @@ mediator_complex =<span class="st"> </span><span class="kw"><a href="../../refer
                                 <span class="dt">format =</span> <span class="st">"tab25"</span>,
                                 <span class="dt">database =</span> <span class="st">"BioGrid"</span>,
                                 <span class="dt">directory =</span> <span class="st">"./"</span>)</code></pre></div>
-<pre><code>## found local copy of the data from the latest release ... reading into R</code></pre>
+<pre><code>## downloading using PSICQUIC</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The same protein, but only two-hybrid interactions</span>
 BioGrid_156_2H =<span class="st"> </span><span class="kw"><a href="../../reference/queryPSICQUICrlib.html">queryPSICQUICrlib</a></span>(<span class="dt">query =</span> <span class="st">"id:156 AND detmethod:</span><span class="ch">\"</span><span class="st">MI:0018</span><span class="ch">\"</span><span class="st">"</span>,
                                    <span class="dt">format =</span> <span class="st">"tab25"</span>,
                                    <span class="dt">database =</span> <span class="st">"BioGrid"</span>,
                                    <span class="dt">directory =</span> <span class="st">"./"</span>)</code></pre></div>
-<pre><code>## found local copy of the data from the latest release ... reading into R</code></pre>
+<pre><code>## downloading using PSICQUIC</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The data returned by queryPSICQUICrlib constains auxillary information that is not necessary for most analysis. Let's clean the data.</span>
 BioGrid_<span class="dv">156</span> =<span class="st"> </span><span class="kw"><a href="../../reference/cleanMITAB.html">cleanMITAB</a></span>(BioGrid_<span class="dv">156</span>)
 BioGrid_<span class="dv">156</span><span class="op">$</span>data[<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>]</code></pre></div>
@@ -447,7 +447,7 @@ BioGrid_<span class="dv">156</span><span class="op">$</span>data[<span class="dv
 <a href="#date-and-packages-used" class="anchor"></a>Date and packages used</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Sys.Date. =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.time">Sys.Date</a></span>()
 Sys.Date.</code></pre></div>
-<pre><code>## [1] "2019-04-04"</code></pre>
+<pre><code>## [1] "2019-04-11"</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">session_info. =<span class="st"> </span>devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">session_info</a></span>()
 session_info.</code></pre></div>
 <pre><code>## ─ Session info ──────────────────────────────────────────────────────────
@@ -460,7 +460,7 @@ session_info.</code></pre></div>
 ##  collate  en_GB.UTF-8                 
 ##  ctype    en_GB.UTF-8                 
 ##  tz       Europe/London               
-##  date     2019-04-04                  
+##  date     2019-04-11                  
 ## 
 ## ─ Packages ──────────────────────────────────────────────────────────────
 ##  package       * version   date       lib source        
@@ -499,8 +499,8 @@ session_info.</code></pre></div>
 ##  magrittr        1.5       2014-11-22 [1] CRAN (R 3.5.0)
 ##  MASS            7.3-50    2018-04-30 [2] CRAN (R 3.5.1)
 ##  memoise         1.1.0     2017-04-21 [1] CRAN (R 3.5.0)
-##  MItools       * 0.1.41    2019-04-03 [1] local         
 ##  ontologyIndex * 2.5       2019-01-08 [1] CRAN (R 3.5.2)
+##  PItools       * 0.1.41    2019-04-11 [1] local         
 ##  pkgbuild        1.0.3     2019-03-20 [1] CRAN (R 3.5.1)
 ##  pkgconfig       2.0.2     2018-08-16 [1] CRAN (R 3.5.0)
 ##  pkgdown         1.3.0     2018-12-07 [1] CRAN (R 3.5.0)
@@ -530,7 +530,7 @@ session_info.</code></pre></div>
 ##  stringi         1.4.3     2019-03-12 [1] CRAN (R 3.5.2)
 ##  stringr         1.4.0     2019-02-10 [1] CRAN (R 3.5.2)
 ##  testthat        2.0.1     2018-10-13 [1] CRAN (R 3.5.1)
-##  usethis         1.4.0     2018-08-14 [1] CRAN (R 3.5.0)
+##  usethis         1.5.0     2019-04-07 [1] CRAN (R 3.5.1)
 ##  withr           2.1.2     2018-03-15 [1] CRAN (R 3.5.0)
 ##  xfun            0.6       2019-04-02 [1] CRAN (R 3.5.1)
 ##  XML             3.98-1.19 2019-03-06 [1] CRAN (R 3.5.2)
@@ -549,7 +549,7 @@ session_info.</code></pre></div>
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#install-mitools">Install MItools</a></li>
+<li><a href="#install-pitools">Install PItools</a></li>
       <li><a href="#load-all-interactions-between-human-protein">Load all interactions between human protein</a></li>
       <li><a href="#load-all-human-viral-interactions">Load all human-viral interactions</a></li>
       <li><a href="#load-all-human-mouse-interactions">Load all human-mouse interactions</a></li>

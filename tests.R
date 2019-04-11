@@ -3,7 +3,7 @@ library(devtools)
 document()
 install()
 
-library(MItools)
+library(PItools)
 library(GenomicRanges)
 library(R.utils)
 data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
@@ -26,7 +26,7 @@ plot(res)
 res
 
 library(lineprof)
-library(MItools)
+library(PItools)
 library(GenomicRanges)
 library(R.utils)
 data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
@@ -156,7 +156,7 @@ qplot(x = res$data_with_pval[p.value < 0.01, IDs_interactor_viral_degree], y = r
 # 38.02992 38.33805 38.7546 38.73306 38.86937 39.60011    10
 
 
-library(MItools)
+library(PItools)
 library(rtracklayer)
 library(ggplot2)
 data = fread("../viral_project/processed_data_files/viral_human_net_w_domains", sep = "\t", stringsAsFactors = F)
@@ -312,7 +312,7 @@ select_top_domain = F
 # creating a website
 # Install release version from CRAN
 install.packages("pkgdown")
-setwd("/Users/vk7/Desktop/ebi_projects/MItools/")
+setwd("/Users/vk7/Desktop/ebi_projects/PItools/")
 
 
 

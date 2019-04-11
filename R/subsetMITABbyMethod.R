@@ -2,7 +2,7 @@
 ##' @name subsetMITABbyMethod
 ##' @author Vitalii Kleshchevnikov
 ##' @description filter molecular interaction data by \code{Interaction_detection_methods} and / or participant \code{Identification_method}
-##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[MItools]{MITABdata}})
+##' @param MITABdata object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by  \code{\link[PItools]{MITABdata}})
 ##' @param Interaction_detection_methods character or character vector, Molecular Interaction ontology code for Interaction detection method, such as "MI:0018", default option results in no filtering by Interaction detection method. Details \link{http://purl.obolibrary.org/obo/MI_0001}
 ##' @param Identification_method character or character vector, Molecular Interaction ontology code for Identification method, such as "MI:0433". Applies the same Identification method filter to both participant_A and participant_B. Default option results in no filtering by Identification method. Details \link{http://purl.obolibrary.org/obo/MI_0002}
 ##' @param Identification_method_participant_A character or character vector, Molecular Interaction ontology code for Identification method for participant A, such as "MI:0433", default option results in no filtering by Interaction detection method for this participant. Parameter is ignored if \code{Identification_method} specified. Details \link{http://purl.obolibrary.org/obo/MI_0002}
@@ -12,7 +12,7 @@
 ##' @param inverse_filter logical, inverse filtering criteria
 ##' @return object of the same class as \code{MITABdata}, a subset of \code{MITABdata} that contains interactions for \code{Interaction_detection_methods} and / or participant \code{Identification_method}
 ##' @import data.table
-##' @seealso \code{\link[MItools]{subsetMITABbyPMIDs}}), \code{\link[MItools]{subsetMITABbyID}})
+##' @seealso \code{\link[PItools]{subsetMITABbyPMIDs}}), \code{\link[PItools]{subsetMITABbyID}})
 ##' @export subsetMITABbyMethod
 ##' @examples
 ##' {

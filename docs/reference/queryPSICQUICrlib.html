@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>download PSICQUIC query search result (only IMEx databases) to R library - queryPSICQUIC package - data directory — queryPSICQUICrlib • MItools</title>
+<title>download PSICQUIC query search result (only IMEx databases) to R library - queryPSICQUIC package - data directory — queryPSICQUICrlib • PItools</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -62,8 +62,8 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">MItools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.40</span>
+        <a class="navbar-link" href="../index.html">PItools</a>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.41</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
       <a href="../articles/articles/Full_interactomes_interspecies.html">Getting started: full interactomes and interspecies interactions</a>
     </li>
     <li>
-      <a href="../articles/articles/MItools_vs_igraph.html">MItools vs igraph: calculating degree of a protein</a>
+      <a href="../articles/articles/PItools_vs_igraph.html">PItools vs igraph: calculating degree of a protein</a>
     </li>
     <li>
       <a href="../articles/articles/study_bias_doc.html">Study bias in the protein network</a>
@@ -139,7 +139,7 @@
     </tr>
     <tr>
       <th>directory</th>
-      <td><p>character, directory (non-existing directory will be created) where to store the result. The default is to store the result in R library inside the MItools package</p></td>
+      <td><p>character, directory (non-existing directory will be created) where to store the result. The default is to store the result in R library inside the PItools package</p></td>
     </tr>
     <tr>
       <th>releaseORdate</th>
@@ -163,7 +163,7 @@
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>{
 <span class='fu'>queryPSICQUICrlib</span>(<span class='kw'>query</span> <span class='kw'>=</span> <span class='st'>"id:P74565 AND detmethod:\"MI:0018\""</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='st'>"tab27"</span>, <span class='kw'>database</span> <span class='kw'>=</span> <span class='st'>"imex"</span>)
-}</div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>found local copy of the data from the latest release ... reading into R</span></div><div class='output co'>#&gt; 
+}</div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>downloading using PSICQUIC</span></div><div class='output co'>#&gt; <span class='warning'>Warning: the condition has length &gt; 1 and only the first element will be used</span></div><div class='output co'>#&gt; <span class='warning'>Warning: number of items to replace is not a multiple of replacement length</span></div><div class='output co'>#&gt; 
 #&gt; ` Object of class RAW_MItab27, for query, file, format, databases, date: `
 #&gt;                                     query
 #&gt;  1: id:P74565 AND detmethod:%22MI:0018%22
@@ -178,17 +178,17 @@
 #&gt; 10: id:P74565 AND detmethod:%22MI:0018%22
 #&gt; 11: id:P74565 AND detmethod:%22MI:0018%22
 #&gt;                                                                                                                           file
-#&gt;  1: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt;  2: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt;  3: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt;  4: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt;  5: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt;  6: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt;  7: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt;  8: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt;  9: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt; 10: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
-#&gt; 11: /Users/vk7/Library/R/3.5/library/MItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt;  1: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt;  2: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt;  3: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt;  4: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt;  5: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt;  6: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt;  7: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt;  8: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt;  9: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt; 10: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
+#&gt; 11: /Users/vk7/Library/R/3.5/library/PItools/data/IntActRelease_2019Mar23/query_id.P74565.AND.detmethod..MI.0018.tab27imex.tsv
 #&gt;     format all.databases n.interactions.in.database database.not.active
 #&gt;  1:  tab27        IntAct                         44                    
 #&gt;  2:  tab27          MINT                          0                    

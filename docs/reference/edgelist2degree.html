@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>find the degree for each protein given cleaned molecular interaction data — edgelist2degree • MItools</title>
+<title>find the degree for each protein given cleaned molecular interaction data — edgelist2degree • PItools</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -62,8 +62,8 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">MItools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.40</span>
+        <a class="navbar-link" href="../index.html">PItools</a>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.41</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
       <a href="../articles/articles/Full_interactomes_interspecies.html">Getting started: full interactomes and interspecies interactions</a>
     </li>
     <li>
-      <a href="../articles/articles/MItools_vs_igraph.html">MItools vs igraph: calculating degree of a protein</a>
+      <a href="../articles/articles/PItools_vs_igraph.html">PItools vs igraph: calculating degree of a protein</a>
     </li>
     <li>
       <a href="../articles/articles/study_bias_doc.html">Study bias in the protein network</a>
@@ -250,7 +250,7 @@
 <span class='co'># download full human interactome (clean = TRUE is necessary to produce the right input for edgelist2degree)</span>
 <span class='no'>full</span> <span class='kw'>=</span> <span class='fu'><a href='fullInteractome.html'>fullInteractome</a></span>(<span class='kw'>taxid</span> <span class='kw'>=</span> <span class='st'>"9606"</span>, <span class='kw'>database</span> <span class='kw'>=</span> <span class='st'>"IntActFTP"</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='st'>"tab25"</span>, <span class='kw'>clean</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>protein_only</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 <span class='no'>degree</span> <span class='kw'>=</span> <span class='fu'>edgelist2degree</span>(<span class='no'>full</span>$<span class='no'>data</span>)
-}</div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... loading local copy ...</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Found and resolved improper quoting out-of-sample. First healed line 25383: &lt;&lt;uniprotkb:P16054	uniprotkb:Q05769	intact:EBI-298451	intact:EBI-298933|uniprotkb:Q543K3	psi-mi:kpce_mouse(display_long)|uniprotkb:Prkce(gene name)|psi-mi:Prkce(display_short)|uniprotkb:Pkce(gene name synonym)|uniprotkb:Pkcea(gene name synonym)|uniprotkb:nPKC-epsilon(gene name synonym)	psi-mi:pgh2_mouse(display_long)|uniprotkb:Ptgs2(gene name)|psi-mi:Ptgs2(display_short)|uniprotkb:Cox-2(gene name synonym)|uniprotkb:Cox2(gene name synonym)|uniprotkb:Pghs-b(gene name synonym)|uniprotkb:Tis10(gene na&gt;&gt;. If the fields are not quoted (e.g. field separator does not appear within any field), try quote="" to avoid this warning.</span></div></pre>
+}</div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... dowloading from IntAct ftp ...</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Found and resolved improper quoting out-of-sample. First healed line 25383: &lt;&lt;uniprotkb:P16054	uniprotkb:Q05769	intact:EBI-298451	intact:EBI-298933|uniprotkb:Q543K3	psi-mi:kpce_mouse(display_long)|uniprotkb:Prkce(gene name)|psi-mi:Prkce(display_short)|uniprotkb:Pkce(gene name synonym)|uniprotkb:Pkcea(gene name synonym)|uniprotkb:nPKC-epsilon(gene name synonym)	psi-mi:pgh2_mouse(display_long)|uniprotkb:Ptgs2(gene name)|psi-mi:Ptgs2(display_short)|uniprotkb:Cox-2(gene name synonym)|uniprotkb:Cox2(gene name synonym)|uniprotkb:Pghs-b(gene name synonym)|uniprotkb:Tis10(gene na&gt;&gt;. If the fields are not quoted (e.g. field separator does not appear within any field), try quote="" to avoid this warning.</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

@@ -7,7 +7,7 @@
 removeInteractionNoFASTA(MITABdata, fasta)
 }
 \arguments{
-\item{MITABdata}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[MItools]{cleanMITAB}})}
+\item{MITABdata}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[PItools]{cleanMITAB}})}
 
 \item{fasta}{AAStringSet, names are UniProtKB accessions}
 }

@@ -7,7 +7,7 @@
 ##' @param within_seed logical, should \code{subsetMITABbyID} return only interactions between molecules in \code{ID_seed} (TRUE) or any interactions molecules in \code{ID_seed} have in \code{MITABdata}
 ##' @return molecular interaction data, object of class `class of MITABdata`_subset (for example, clean_MItab27_subset, basically list), a subset of \code{MITABdata} that contains interactions for \code{ID_seed} molecules, and additionally includes the ID_seed and within_seed
 ##' @import data.table
-##' @seealso \code{\link[MItools]{subsetMITABbyMethod}}), \code{\link[MItools]{subsetMITABbyPMIDs}})
+##' @seealso \code{\link[PItools]{subsetMITABbyMethod}}), \code{\link[PItools]{subsetMITABbyPMIDs}})
 ##' @export subsetMITABbyID
 ##' @export print.clean_MItab25_subset
 ##' @export print.clean_MItab27_subset

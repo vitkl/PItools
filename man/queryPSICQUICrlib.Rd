@@ -15,7 +15,7 @@ queryPSICQUICrlib(..., directory = NULL, releaseORdate = NULL,
   \item{database}{PSICQUIC service (full list: \url{http://www.ebi.ac.uk/Tools/webservices/psicquic/registry/registry?action=STATUS}), use "imex" shorthand to choose all IMEx databases}
 }}
 
-\item{directory}{character, directory (non-existing directory will be created) where to store the result. The default is to store the result in R library inside the MItools package}
+\item{directory}{character, directory (non-existing directory will be created) where to store the result. The default is to store the result in R library inside the PItools package}
 
 \item{releaseORdate}{character, if data has already been downloaded: which IntAct release or download date to read}
 

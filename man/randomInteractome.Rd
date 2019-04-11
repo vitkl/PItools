@@ -20,7 +20,7 @@ randomInteractome(MITABdata = NULL, degree_data = NULL, n_prot,
   \item{taxid}{character (1L), taxonomy id of the species which interaction participants should belong to, default is "9606" (which is human)}
   \item{database}{character (1L), argument for \code{\link{queryPSICQUIC}}, PSICQUIC-compliant database to query for interactions. The default is "imex" alternative to which is "IntActFTP"}
   \item{protein_only}{logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE}
-  \item{directory}{directory where to store the data, if NULL the data is stored in <R-package-library>/MItools/data}
+  \item{directory}{directory where to store the data, if NULL the data is stored in <R-package-library>/PItools/data}
   \item{releaseORdate}{character, if data has already been downloaded: which IntAct release or download date to read}
   \item{remove_obsolete_id}{logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID), not implemented properly: will never finish.}
   \item{within_species}{logical (1L), return interactions only between proteins of \code{taxid}. If FALSE returns interactions for \code{taxid} proteins both within \code{taxid} and with proteins from other species}

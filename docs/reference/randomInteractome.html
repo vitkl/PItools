@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Retrieve molecular interactions for the random set of proteins (of a particular taxon) — randomInteractome • MItools</title>
+<title>Retrieve molecular interactions for the random set of proteins (of a particular taxon) — randomInteractome • PItools</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -62,8 +62,8 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">MItools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.40</span>
+        <a class="navbar-link" href="../index.html">PItools</a>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.41</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
       <a href="../articles/articles/Full_interactomes_interspecies.html">Getting started: full interactomes and interspecies interactions</a>
     </li>
     <li>
-      <a href="../articles/articles/MItools_vs_igraph.html">MItools vs igraph: calculating degree of a protein</a>
+      <a href="../articles/articles/PItools_vs_igraph.html">PItools vs igraph: calculating degree of a protein</a>
     </li>
     <li>
       <a href="../articles/articles/study_bias_doc.html">Study bias in the protein network</a>
@@ -148,7 +148,7 @@
   <dt>taxid</dt><dd><p>character (1L), taxonomy id of the species which interaction participants should belong to, default is "9606" (which is human)</p></dd>
   <dt>database</dt><dd><p>character (1L), argument for <code><a href='queryPSICQUIC.html'>queryPSICQUIC</a></code>, PSICQUIC-compliant database to query for interactions. The default is "imex" alternative to which is "IntActFTP"</p></dd>
   <dt>protein_only</dt><dd><p>logical (1L), if TRUE the interaction participants are restricted to proteins (exclude other types of molecules such as RNA or small molecules), default is TRUE</p></dd>
-  <dt>directory</dt><dd><p>directory where to store the data, if NULL the data is stored in &lt;R-package-library&gt;/MItools/data</p></dd>
+  <dt>directory</dt><dd><p>directory where to store the data, if NULL the data is stored in &lt;R-package-library&gt;/PItools/data</p></dd>
   <dt>releaseORdate</dt><dd><p>character, if data has already been downloaded: which IntAct release or download date to read</p></dd>
   <dt>remove_obsolete_id</dt><dd><p>logical (1L), remove interactions in which one of the partners is encoded as obsolete UniProtKB accession (ID), not implemented properly: will never finish.</p></dd>
   <dt>within_species</dt><dd><p>logical (1L), return interactions only between proteins of <code>taxid</code>. If FALSE returns interactions for <code>taxid</code> proteins both within <code>taxid</code> and with proteins from other species</p></dd>
@@ -173,8 +173,8 @@
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>{
 <span class='co'># retrive the interactome using PSICQIUC servise (or by reading local copy) from IntAct databases for a list of 200 random human (9606) proteins, not specifying their degree distribution</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>)
-<span class='no'>random</span> <span class='kw'>=</span> <span class='fu'>randomInteractome</span>(<span class='kw'>n_prot</span> <span class='kw'>=</span> <span class='fl'>200</span>, <span class='kw'>degree_dist</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>taxid</span> <span class='kw'>=</span> <span class='st'>"9606"</span>, <span class='kw'>database</span> <span class='kw'>=</span> <span class='st'>"IntActFTP"</span>, <span class='kw'>protein_only</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='co'>#set.seed(1) # commented because too slow</span>
+<span class='co'>#random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "imex", protein_only = TRUE)</span>
 
 <span class='co'># retrive the interactome from MITABdata for a list of 200 random human (9606) proteins, not specifying their degree_dist distribution</span>
 <span class='no'>full</span> <span class='kw'>=</span> <span class='fu'><a href='fullInteractome.html'>fullInteractome</a></span>(<span class='kw'>taxid</span> <span class='kw'>=</span> <span class='st'>"9606"</span>, <span class='kw'>database</span> <span class='kw'>=</span> <span class='st'>"IntActFTP"</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='st'>"tab25"</span>, <span class='kw'>clean</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>protein_only</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
@@ -182,9 +182,9 @@
 <span class='no'>random</span> <span class='kw'>=</span> <span class='fu'>randomInteractome</span>(<span class='kw'>MITABdata</span> <span class='kw'>=</span> <span class='no'>full</span>, <span class='kw'>n_prot</span> <span class='kw'>=</span> <span class='fl'>200</span>, <span class='kw'>degree_dist</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='co'># retrive the interactome using PSICQIUC servise (or by reading local copy from a specified directory) from IntAct databases for a list of 200 random human (9606) proteins, not specifying their degree_dist distribution</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Random'>set.seed</a></span>(<span class='fl'>1</span>)
-<span class='no'>random</span> <span class='kw'>=</span> <span class='fu'>randomInteractome</span>(<span class='kw'>n_prot</span> <span class='kw'>=</span> <span class='fl'>200</span>, <span class='kw'>degree_dist</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>taxid</span> <span class='kw'>=</span> <span class='st'>"9606"</span>, <span class='kw'>database</span> <span class='kw'>=</span> <span class='st'>"IntActFTP"</span>, <span class='kw'>protein_only</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>directory</span> <span class='kw'>=</span> <span class='st'>"./data/"</span>)
-}</div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... loading local copy ...</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Found and resolved improper quoting out-of-sample. First healed line 25383: &lt;&lt;uniprotkb:P16054	uniprotkb:Q05769	intact:EBI-298451	intact:EBI-298933|uniprotkb:Q543K3	psi-mi:kpce_mouse(display_long)|uniprotkb:Prkce(gene name)|psi-mi:Prkce(display_short)|uniprotkb:Pkce(gene name synonym)|uniprotkb:Pkcea(gene name synonym)|uniprotkb:nPKC-epsilon(gene name synonym)	psi-mi:pgh2_mouse(display_long)|uniprotkb:Ptgs2(gene name)|psi-mi:Ptgs2(display_short)|uniprotkb:Cox-2(gene name synonym)|uniprotkb:Cox2(gene name synonym)|uniprotkb:Pghs-b(gene name synonym)|uniprotkb:Tis10(gene na&gt;&gt;. If the fields are not quoted (e.g. field separator does not appear within any field), try quote="" to avoid this warning.</span></div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... loading local copy ...</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Found and resolved improper quoting out-of-sample. First healed line 25383: &lt;&lt;uniprotkb:P16054	uniprotkb:Q05769	intact:EBI-298451	intact:EBI-298933|uniprotkb:Q543K3	psi-mi:kpce_mouse(display_long)|uniprotkb:Prkce(gene name)|psi-mi:Prkce(display_short)|uniprotkb:Pkce(gene name synonym)|uniprotkb:Pkcea(gene name synonym)|uniprotkb:nPKC-epsilon(gene name synonym)	psi-mi:pgh2_mouse(display_long)|uniprotkb:Ptgs2(gene name)|psi-mi:Ptgs2(display_short)|uniprotkb:Cox-2(gene name synonym)|uniprotkb:Cox2(gene name synonym)|uniprotkb:Pghs-b(gene name synonym)|uniprotkb:Tis10(gene na&gt;&gt;. If the fields are not quoted (e.g. field separator does not appear within any field), try quote="" to avoid this warning.</span></div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... dowloading from IntAct ftp ...</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Found and resolved improper quoting out-of-sample. First healed line 25383: &lt;&lt;uniprotkb:P16054	uniprotkb:Q05769	intact:EBI-298451	intact:EBI-298933|uniprotkb:Q543K3	psi-mi:kpce_mouse(display_long)|uniprotkb:Prkce(gene name)|psi-mi:Prkce(display_short)|uniprotkb:Pkce(gene name synonym)|uniprotkb:Pkcea(gene name synonym)|uniprotkb:nPKC-epsilon(gene name synonym)	psi-mi:pgh2_mouse(display_long)|uniprotkb:Ptgs2(gene name)|psi-mi:Ptgs2(display_short)|uniprotkb:Cox-2(gene name synonym)|uniprotkb:Cox2(gene name synonym)|uniprotkb:Pghs-b(gene name synonym)|uniprotkb:Tis10(gene na&gt;&gt;. If the fields are not quoted (e.g. field separator does not appear within any field), try quote="" to avoid this warning.</span></div></pre>
+<span class='co'>#set.seed(1)</span>
+<span class='co'>#random = randomInteractome(n_prot = 200, degree_dist = NULL, taxid = "9606", database = "IntActFTP", protein_only = TRUE, directory = "./data/")</span>
+}</div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... looking for the date of the latest IntAct release ...</span></div><div class='output co'>#&gt; <span class='message'>... loading local copy ...</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Found and resolved improper quoting out-of-sample. First healed line 25383: &lt;&lt;uniprotkb:P16054	uniprotkb:Q05769	intact:EBI-298451	intact:EBI-298933|uniprotkb:Q543K3	psi-mi:kpce_mouse(display_long)|uniprotkb:Prkce(gene name)|psi-mi:Prkce(display_short)|uniprotkb:Pkce(gene name synonym)|uniprotkb:Pkcea(gene name synonym)|uniprotkb:nPKC-epsilon(gene name synonym)	psi-mi:pgh2_mouse(display_long)|uniprotkb:Ptgs2(gene name)|psi-mi:Ptgs2(display_short)|uniprotkb:Cox-2(gene name synonym)|uniprotkb:Cox2(gene name synonym)|uniprotkb:Pghs-b(gene name synonym)|uniprotkb:Tis10(gene na&gt;&gt;. If the fields are not quoted (e.g. field separator does not appear within any field), try quote="" to avoid this warning.</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

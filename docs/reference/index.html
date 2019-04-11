@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • MItools</title>
+<title>Function reference • PItools</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -59,8 +59,8 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">MItools</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.40</span>
+        <a class="navbar-link" href="../index.html">PItools</a>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.41</span>
       </span>
     </div>
 
@@ -86,7 +86,7 @@
       <a href="../articles/articles/Full_interactomes_interspecies.html">Getting started: full interactomes and interspecies interactions</a>
     </li>
     <li>
-      <a href="../articles/articles/MItools_vs_igraph.html">MItools vs igraph: calculating degree of a protein</a>
+      <a href="../articles/articles/PItools_vs_igraph.html">PItools vs igraph: calculating degree of a protein</a>
     </li>
     <li>
       <a href="../articles/articles/study_bias_doc.html">Study bias in the protein network</a>
@@ -160,12 +160,6 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="domainEnrichment.html">domainEnrichment()</a></code> </p>
-        </td>
-        <td><p>domainEnrichment: filter domains by background domain count =&gt; foldEnrichmentDist =&gt; foldEnrichmentPval =&gt; pval correction =&gt; plot pvals =&gt; plot the distribution for a set of random proteins</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="edgelist2degree.html">edgelist2degree_slow()</a></code> </p>
         </td>
         <td><p>find the degree for each protein given cleaned molecular interaction data</p></td>
@@ -181,24 +175,6 @@
           <p><code><a href="extractInteractors.html">extractInteractors()</a></code> <code><a href="extractInteractors.html">uniqueNinteractions()</a></code> <code><a href="extractInteractors.html">uniqueNinteractors()</a></code> </p>
         </td>
         <td><p>Subset MITAB to retrieve interactors, the number of interactions ot interactors</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="foldEnrichment.html">foldEnrichment()</a></code> </p>
-        </td>
-        <td><p><code>foldEnrichment</code> calculates fold enrichment of a domain (or other feature) among interacting partners of a protein</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="foldEnrichmentDist.html">`{`()</a></code> </p>
-        </td>
-        <td><p>find fold_enrichment distribution (in any domain or other feature) for each protein in the network</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="foldEnrichmentPval.html">foldEnrichmentPval()</a></code> </p>
-        </td>
-        <td><p>Find pvalue for each protein-feature pair in the network</p></td>
       </tr><tr>
         
         <td>

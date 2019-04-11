@@ -21,7 +21,7 @@ molecular interaction data, object of class `class of MITABdata`_subset (for exa
 subset molecular interaction data with a list of interactors
 }
 \seealso{
-\code{\link[MItools]{subsetMITABbyMethod}}), \code{\link[MItools]{subsetMITABbyPMIDs}})
+\code{\link[PItools]{subsetMITABbyMethod}}), \code{\link[PItools]{subsetMITABbyPMIDs}})
 }
 \author{
 Vitalii Kleshchevnikov

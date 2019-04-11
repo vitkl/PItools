@@ -1,7 +1,7 @@
-Package: MItools
+Package: PItools
 Type: Package
 Title: Molecular interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service
-Version: 0.1.41
+Version: 0.1.42
 Author: Vitalii Kleshchevnikov
 Maintainer: Vitalii Kleshchevnikov <vk7@sanger.ac.uk>
 Authors@R: c(person("Vitalii", "Kleshchevnikov",, "vk7@sanger.ac.uk", role = c("aut", "cre")))
@@ -11,5 +11,5 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 Depends: PSICQUIC, BiocGenerics, data.table, ontologyIndex, R.utils, downloader, gsubfn, jsonlite
-URL: https://vitkl.github.io/MItools/
-BugReports: https://github.com/vitkl/MItools/issues
+URL: https://vitkl.github.io/PItools/
+BugReports: https://github.com/vitkl/PItools/issues

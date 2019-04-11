@@ -4,7 +4,7 @@
 ##' @description saves PSIQUIC search results to the local R library or to the directory specified
 ##' @details \code{queryPSICQUICrlib} queries IMEx databases using PSICQUIC if the local copy of the query result is not available or if there is a new IntAct release. The functions will still work for non-IMEx databases but it will check the IntAct release date and that is not meaningful for tracking updates of other resources.
 ##' @inheritDotParams queryPSICQUIC -file
-##' @param directory character, directory (non-existing directory will be created) where to store the result. The default is to store the result in R library inside the MItools package
+##' @param directory character, directory (non-existing directory will be created) where to store the result. The default is to store the result in R library inside the PItools package
 ##' @param releaseORdate character, if data has already been downloaded: which IntAct release or download date to read
 ##' @param just_list_releases logical, just list IntAct releases or download dates that are locally available for this query (format: try 2017Jul12 (IntAct release) or 20170712 (download date))
 ##' @return object of class "RAW_MItab25" or "RAW_MItab27" (list) containing 2 elements: data which is the query result (data.table) and metadata, a data.table which contains the query, the filepath, the format, the date or the IntAct release date, and the number of interactions per database
@@ -28,7 +28,7 @@ queryPSICQUICrlib = function(..., directory = NULL, releaseORdate = NULL, just_l
     filename = gsub("\"",".", filename)
     filename = gsub(" ",".", filename)
     if(is.null(directory)){
-      pkg_dir = paste0(.libPaths(), "/MItools", "/data/")[1]
+      pkg_dir = paste0(.libPaths(), "/PItools", "/data/")[1]
       release_list = listReleases(pkg_dir, filename, query)
       print(release_list)
     } else {
@@ -41,7 +41,7 @@ queryPSICQUICrlib = function(..., directory = NULL, releaseORdate = NULL, just_l
     args = list(...)
     database = args$database
     if(is.null(directory)){
-      pkg_dir = paste0(.libPaths(), "/MItools", "/data/")[1]
+      pkg_dir = paste0(.libPaths(), "/PItools", "/data/")[1]
       # create data directory in /default.library/queryPSICQUIC/ if it doesn't exist
       if(!dir.exists(pkg_dir)) dir.create(pkg_dir)
       # find out last release date if the database is IntAct or imex, use query date if else, generate DirName

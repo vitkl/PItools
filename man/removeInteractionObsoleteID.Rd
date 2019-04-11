@@ -7,7 +7,7 @@
 removeInteractionObsoleteID(MITABdata, dir = "./")
 }
 \arguments{
-\item{MITABdata}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[MItools]{cleanMITAB}})}
+\item{MITABdata}{object of any clean_MItab class (the class that contains "clean_MItab" in it's name and is initially produced by \code{\link[PItools]{cleanMITAB}})}
 
 \item{dir}{directory where to save/look for the local copy}
 }

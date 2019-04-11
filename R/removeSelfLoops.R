@@ -5,7 +5,7 @@
 ##' @param MITABdata molecular interaction data, object of class "clean_MItab" (or any other object which names starts from "clean_MItab")
 ##' @return molecular interaction data with the self interactions removed
 ##' @import data.table
-##' @seealso \code{\link[MItools]{subsetMITABbyMethod}}), \code{\link[MItools]{subsetMITABbyPMIDs}})
+##' @seealso \code{\link[PItools]{subsetMITABbyMethod}}), \code{\link[PItools]{subsetMITABbyPMIDs}})
 ##' @export removeSelfLoops
 ##'
 removeSelfLoops = function(MITABdata){
