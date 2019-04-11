@@ -1,5 +1,5 @@
 # R Package - PItools
-## Molecular interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service
+## Protein interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service
 
 Package contains high-level functions for retrieving molecular interaction data from most public databases using PSICQUIC service (http://www.ebi.ac.uk/Tools/webservices/psicquic/view/main.xhtml) and manipulating that data. Useful features include: retrieve full interactome of a given species, retrieve all interactions between two taxonomy groups (taxonomy structure-aware search), query molecular interaction databases using MIQL, subset interaction data by list of protein/gene identifiers, interaction detection method, publication (PMIDs).
     Depends on PSICQUIC, data.table.  

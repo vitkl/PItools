@@ -1,6 +1,6 @@
 Package: PItools
 Type: Package
-Title: Molecular interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service
+Title: Protein interaction data tools: retrieving data from IntAct and most other databases using PSICQUIC service
 Version: 0.1.42
 Author: Vitalii Kleshchevnikov
 Maintainer: Vitalii Kleshchevnikov <vk7@sanger.ac.uk>
