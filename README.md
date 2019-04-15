@@ -9,6 +9,7 @@ Package contains high-level functions for retrieving molecular interaction data 
 ```r
 # Install R PItools package
 install.packages("BiocManager") # for installing BioConductor dependencies
+BiocManager::install("Biostrings", "remotes") # dependency for PSICQUIC & for installing from github
 BiocManager::install("vitkl/PItools", dependencies = T)
 ```
 
