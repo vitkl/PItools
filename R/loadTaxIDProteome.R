@@ -37,7 +37,13 @@ loadTaxIDProteins = function(taxid, dir){
 ##' loadTaxIDAllLower(taxid = 9606, dir = "./", with_description = T)
 ##' @author Vitalii Kleshchevnikov
 loadTaxIDAllLower = function(taxid, dir, with_description = F){
-  uniprot_release = httr::headers(httr::GET("https://www.uniprot.org/"))$`x-uniprot-release`
+
+  uniprot_release = tryCatch({
+     httr::headers(httr::GET("https://www.uniprot.org/"))$`x-uniprot-release`
+  }, error = function(err) {
+    stop("https://www.uniprot.org/ not availlable - try again")
+  })
+
   filename = paste0(dir,"AllLowerTaxID_taxid",taxid,"_release",uniprot_release)
   if(!file.exists(filename)) download(paste0("https://www.uniprot.org/taxonomy/?query=ancestor:",taxid,"&format=tab"), filename)
   if(file.size(filename) == 0) taxids = NULL else {
